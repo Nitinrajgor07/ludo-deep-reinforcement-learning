@@ -1,0 +1,66 @@
+{
+  "algorithm": "ppo",
+  "seed": 42,
+  "total_steps": 500,
+  "runtime_seconds": 1.36,
+  "peak_memory_mb": 321.23,
+  "checklist": {
+    "training_started": true,
+    "actions_legal": true,
+    "rewards_valid": true,
+    "losses_finite": true,
+    "no_nan_or_inf": true,
+    "checkpoint_saved": true,
+    "checkpoint_loaded": true,
+    "evaluation_works": true,
+    "training_not_crashed": true
+  },
+  "all_passed": true,
+  "error_message": "",
+  "training_metrics": {
+    "total_steps": 500,
+    "episodes": 6,
+    "ppo_wins": 3,
+    "opponent_wins": 3,
+    "draws": 0,
+    "win_rate": 0.5,
+    "avg_reward": 11.98333333333332,
+    "final_loss": 0.5040106624364853,
+    "final_policy_loss": -0.0006749747481080703,
+    "final_value_loss": 1.02236008644104,
+    "final_entropy": 0.6494403928518295,
+    "updates": 8
+  },
+  "evaluation_metrics": {
+    "total_games": 20,
+    "p0_wins": 13,
+    "p1_wins": 7,
+    "draws": 0,
+    "p0_win_rate": 0.65,
+    "p1_win_rate": 0.35,
+    "draw_rate": 0.0,
+    "avg_turns": 182.35,
+    "avg_p0_reward": 5.112499999999995,
+    "avg_p1_reward": 5.569999999999995
+  },
+  "loss_history": [
+    0.8762190639972687,
+    1.0682494938373566,
+    0.9756139665842056,
+    0.6568405777215958,
+    0.60329470038414,
+    0.8817684352397919,
+    0.9089862704277039,
+    0.5040106624364853
+  ],
+  "step_history": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ]
+}
