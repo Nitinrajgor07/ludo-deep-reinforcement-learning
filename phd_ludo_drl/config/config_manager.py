@@ -89,6 +89,24 @@ class DiscreteSACConfig:
 
 
 @dataclass(frozen=True)
+class CategoricalDQNConfig:
+    name: str = "c51_dqn"
+    hidden_units: int = 128
+    learning_rate: float = 1e-4
+    gamma: float = 0.99
+    tau: float = 0.005
+    num_atoms: int = 51
+    v_min: float = -20.0
+    v_max: float = 30.0
+    buffer_capacity: int = 50000
+    batch_size: int = 64
+    epsilon_start: float = 1.0
+    epsilon_end: float = 0.05
+    epsilon_decay_steps: int = 100000
+    warmup_steps: int = 200
+
+
+@dataclass(frozen=True)
 class TrainingConfig:
     total_steps: int = 500000
     checkpoint_interval: int = 25000
@@ -113,6 +131,7 @@ class ProjectConfig:
     dqn: DQNConfig = field(default_factory=DQNConfig)
     ppo: PPOConfig = field(default_factory=PPOConfig)
     model3: DiscreteSACConfig = field(default_factory=DiscreteSACConfig)
+    model4: CategoricalDQNConfig = field(default_factory=CategoricalDQNConfig)
     training: TrainingConfig = field(default_factory=TrainingConfig)
     evaluation: EvaluationConfig = field(default_factory=EvaluationConfig)
 
@@ -143,6 +162,7 @@ class ConfigManager:
         dqn_cfg = DQNConfig(**raw_dict.get("dqn", {}))
         ppo_cfg = PPOConfig(**raw_dict.get("ppo", {}))
         m3_cfg = DiscreteSACConfig(**raw_dict.get("model3", {}))
+        m4_cfg = CategoricalDQNConfig(**raw_dict.get("model4", {}))
         trn_cfg = TrainingConfig(**raw_dict.get("training", {}))
         evl_cfg = EvaluationConfig(**raw_dict.get("evaluation", {}))
 
@@ -156,9 +176,11 @@ class ConfigManager:
             dqn=dqn_cfg,
             ppo=ppo_cfg,
             model3=m3_cfg,
+            model4=m4_cfg,
             training=trn_cfg,
             evaluation=evl_cfg,
         )
+
 
 
     @staticmethod

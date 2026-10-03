@@ -75,6 +75,22 @@ model3:
   target_entropy_ratio: 0.98
   warmup_steps: 200
 
+model4:
+  name: "c51_dqn"
+  hidden_units: 128
+  learning_rate: 0.0001
+  gamma: 0.99
+  tau: 0.005
+  num_atoms: 51
+  v_min: -20.0
+  v_max: 30.0
+  buffer_capacity: 50000
+  batch_size: 64
+  epsilon_start: 1.0
+  epsilon_end: 0.05
+  epsilon_decay_steps: 100000
+  warmup_steps: 200
+
 training:
   total_steps: 500000
   checkpoint_interval: 25000

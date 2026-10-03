@@ -1,0 +1,40 @@
+{
+  "pilot_config": {
+    "algorithm": "Categorical DQN (C51)",
+    "total_steps": 300,
+    "warmup_steps": 50,
+    "batch_size": 32,
+    "learning_rate": 0.0001,
+    "gamma": 0.99,
+    "tau": 0.005,
+    "num_atoms": 51,
+    "v_min": -20.0,
+    "v_max": 30.0,
+    "buffer_capacity": 50000,
+    "seed": 42
+  },
+  "training_metrics": {
+    "total_steps": 300,
+    "episodes": 3,
+    "c51_wins": 2,
+    "opponent_wins": 1,
+    "draws": 0,
+    "win_rate": 0.6666666666666666,
+    "avg_reward": 12.249999999999986,
+    "final_loss": 3.9298996925354004,
+    "final_epsilon": 0.997625,
+    "updates": 250
+  },
+  "evaluation_metrics": {
+    "total_games": 20,
+    "p0_wins": 10,
+    "p1_wins": 10,
+    "draws": 0,
+    "p0_win_rate": 0.5,
+    "p1_win_rate": 0.5,
+    "draw_rate": 0.0,
+    "avg_turns": 185.3,
+    "avg_p0_reward": 4.789999999999996,
+    "avg_p1_reward": 5.647499999999993
+  }
+}
