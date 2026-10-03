@@ -1,0 +1,41 @@
+{
+  "pilot_config": {
+    "total_steps": 300,
+    "rollout_steps": 64,
+    "num_epochs": 4,
+    "mini_batch_size": 256,
+    "learning_rate": 0.0003,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_epsilon": 0.2,
+    "entropy_coeff": 0.01,
+    "value_coeff": 0.5,
+    "seed": 42
+  },
+  "training_metrics": {
+    "total_steps": 300,
+    "episodes": 3,
+    "ppo_wins": 0,
+    "opponent_wins": 3,
+    "draws": 0,
+    "win_rate": 0.0,
+    "avg_reward": 12.199999999999987,
+    "final_loss": 0.547940269112587,
+    "final_policy_loss": -0.0012831396888941526,
+    "final_value_loss": 1.1183672845363617,
+    "final_entropy": 0.9960260093212128,
+    "updates": 5
+  },
+  "evaluation_metrics": {
+    "total_games": 20,
+    "p0_wins": 7,
+    "p1_wins": 13,
+    "draws": 0,
+    "p0_win_rate": 0.35,
+    "p1_win_rate": 0.65,
+    "draw_rate": 0.0,
+    "avg_turns": 179.45,
+    "avg_p0_reward": 4.577499999999995,
+    "avg_p1_reward": 6.064999999999993
+  }
+}
