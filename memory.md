@@ -1,9 +1,9 @@
 # Research Project Memory & State Log
 
 ## Project State
-- **Current Phase:** Phase 11 — Pilot Experiments
+- **Current Phase:** Phase 12 — Final Experimental Protocol
 - **Date:** October 3, 2026
-- **Status:** Phase 11 completed (Controlled 500-step pilots across all 4 models, full technical stability verification, checkpoint round-trip tests, 20-game tournament evaluations, diagnostic curves generated, 101/101 tests passing).
+- **Status:** Phase 12 completed (`FINAL_EXPERIMENT_PROTOCOL.md` v1.0.0 created and frozen across all 21 parameters).
 - **Environment Context:**
   - Python: 3.11.9
   - PyTorch: 2.13.0+cpu (No CUDA GPU available; CPU vectorized efficiency required)
@@ -28,6 +28,8 @@
 - **Phase 9:** Implemented Model 4 (Categorical DQN / C51 with 51-atom distribution modeling, categorical projection onto support grid, cross-entropy loss, action masking, checkpointing, trainer, and pilot verification run; 96/96 tests passed).
 - **Phase 10:** Implemented Unified Training Framework (`train.py`, `UnifiedTrainingRunner`, `factory.py`, uniform logging, checkpointing, configuration snapshots, 101/101 tests passed, validation runs verified for all 4 models).
 - **Phase 11:** Executed controlled small-scale pilot experiments across all 4 models (500 steps, master seed 42, 20-game evaluations, diagnostic curves in `phase11_pilot_curves.png`, 100% checklist passing).
+- **Phase 12:** Authored and locked `FINAL_EXPERIMENT_PROTOCOL.md` v1.0.0 documenting all 21 research dimensions, empirical invariants, seed sequences, training budgets, and statistical evaluation plans before large-scale execution.
+
 
 
 
