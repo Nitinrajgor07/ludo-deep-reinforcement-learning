@@ -17,7 +17,17 @@ from phd_ludo_drl.environment.token import Token
 from phd_ludo_drl.environment.dice import Dice
 from phd_ludo_drl.environment.board import LudoBoard
 from phd_ludo_drl.environment.rules import LudoRules, MoveResult
+from phd_ludo_drl.environment.reward_engine import RewardEngine, RewardBreakdown
 from phd_ludo_drl.environment.reward_calculator import LudoRewardCalculator
+from phd_ludo_drl.environment.action_mask import (
+    ActionMaskInfo,
+    ActionMaskValidationError,
+    validate_action_mask,
+    generate_action_mask,
+    mask_q_values,
+    mask_action_logits,
+    sample_masked_action,
+)
 from phd_ludo_drl.environment.ludo_env import LudoEnvironment
 
 __all__ = [
@@ -37,6 +47,15 @@ __all__ = [
     "LudoBoard",
     "LudoRules",
     "MoveResult",
+    "RewardEngine",
+    "RewardBreakdown",
     "LudoRewardCalculator",
+    "ActionMaskInfo",
+    "ActionMaskValidationError",
+    "validate_action_mask",
+    "generate_action_mask",
+    "mask_q_values",
+    "mask_action_logits",
+    "sample_masked_action",
     "LudoEnvironment",
 ]

@@ -20,3 +20,4 @@
 - **Phase 1:** Set up modular directory skeleton, configuration management, logging, random-seed registry, experiment identification, and basic validation tests (12/12 tests passed).
 - **Phase 2:** Implemented authoritative Two-Player Ludo environment (board geometry, token lifecycle, dice, rules, legal action generation, reward engine, auto-advance, winning condition) and comprehensive unit tests (26/26 tests passed).
 - **Phase 3:** Implemented raw observation validation, flat representation (60-D), structured 4-channel spatial representation (4, 52), Structured CNN encoder (Conv1d 32/64 circular filters -> 128-D), Flat baseline encoder, and end-to-end pipeline (38/38 tests passed).
+- **Phase 4:** Implemented common action masking layer (generation, validation, Q-masking, logit-masking, guaranteed legal sampling) and comprehensive Reward Engine (all 8 baseline events + symmetrical two-player tracking + sparse/dense ablation modes; 60/60 tests passed).
