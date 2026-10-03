@@ -1,0 +1,36 @@
+{
+  "pilot_config": {
+    "total_steps": 300,
+    "warmup_steps": 50,
+    "batch_size": 32,
+    "learning_rate": 0.0001,
+    "gamma": 0.99,
+    "tau": 0.005,
+    "per_alpha": 0.6,
+    "buffer_capacity": 50000,
+    "seed": 42
+  },
+  "training_metrics": {
+    "total_steps": 300,
+    "episodes": 2,
+    "dqn_wins": 0,
+    "opponent_wins": 2,
+    "draws": 0,
+    "win_rate": 0.0,
+    "avg_reward": 17.90000000000002,
+    "final_loss": 0.003970269113779068,
+    "final_epsilon": 0.997625
+  },
+  "evaluation_metrics": {
+    "total_games": 20,
+    "p0_wins": 6,
+    "p1_wins": 14,
+    "draws": 0,
+    "p0_win_rate": 0.3,
+    "p1_win_rate": 0.7,
+    "draw_rate": 0.0,
+    "avg_turns": 185.65,
+    "avg_p0_reward": 4.934999999999994,
+    "avg_p1_reward": 6.467499999999992
+  }
+}
