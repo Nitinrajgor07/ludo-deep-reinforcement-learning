@@ -1,0 +1,42 @@
+{
+  "pilot_config": {
+    "algorithm": "Discrete SAC",
+    "total_steps": 300,
+    "warmup_steps": 50,
+    "batch_size": 32,
+    "actor_lr": 0.0003,
+    "critic_lr": 0.0003,
+    "alpha_lr": 0.0003,
+    "gamma": 0.99,
+    "tau": 0.005,
+    "initial_alpha": 0.2,
+    "target_entropy_ratio": 0.98,
+    "buffer_capacity": 50000,
+    "seed": 42
+  },
+  "training_metrics": {
+    "total_steps": 300,
+    "episodes": 3,
+    "sac_wins": 1,
+    "opponent_wins": 2,
+    "draws": 0,
+    "win_rate": 0.3333333333333333,
+    "avg_reward": 12.449999999999987,
+    "final_critic_loss": 0.017516765743494034,
+    "final_actor_loss": -0.4879034459590912,
+    "final_alpha": 0.21627552807331085,
+    "updates": 250
+  },
+  "evaluation_metrics": {
+    "total_games": 20,
+    "p0_wins": 11,
+    "p1_wins": 9,
+    "draws": 0,
+    "p0_win_rate": 0.55,
+    "p1_win_rate": 0.45,
+    "draw_rate": 0.0,
+    "avg_turns": 180.15,
+    "avg_p0_reward": 5.129999999999995,
+    "avg_p1_reward": 5.702499999999995
+  }
+}

@@ -72,6 +72,23 @@ class PPOConfig:
 
 
 @dataclass(frozen=True)
+class DiscreteSACConfig:
+    name: str = "discrete_sac"
+    hidden_units: int = 128
+    actor_lr: float = 3e-4
+    critic_lr: float = 3e-4
+    alpha_lr: float = 3e-4
+    gamma: float = 0.99
+    tau: float = 0.005
+    buffer_capacity: int = 50000
+    batch_size: int = 64
+    initial_alpha: float = 0.2
+    tune_alpha: bool = True
+    target_entropy_ratio: float = 0.98
+    warmup_steps: int = 200
+
+
+@dataclass(frozen=True)
 class TrainingConfig:
     total_steps: int = 500000
     checkpoint_interval: int = 25000
@@ -95,6 +112,7 @@ class ProjectConfig:
     reward: RewardConfig = field(default_factory=RewardConfig)
     dqn: DQNConfig = field(default_factory=DQNConfig)
     ppo: PPOConfig = field(default_factory=PPOConfig)
+    model3: DiscreteSACConfig = field(default_factory=DiscreteSACConfig)
     training: TrainingConfig = field(default_factory=TrainingConfig)
     evaluation: EvaluationConfig = field(default_factory=EvaluationConfig)
 
@@ -124,6 +142,7 @@ class ConfigManager:
         rew_cfg = RewardConfig(**raw_dict.get("reward", {}))
         dqn_cfg = DQNConfig(**raw_dict.get("dqn", {}))
         ppo_cfg = PPOConfig(**raw_dict.get("ppo", {}))
+        m3_cfg = DiscreteSACConfig(**raw_dict.get("model3", {}))
         trn_cfg = TrainingConfig(**raw_dict.get("training", {}))
         evl_cfg = EvaluationConfig(**raw_dict.get("evaluation", {}))
 
@@ -136,9 +155,11 @@ class ConfigManager:
             reward=rew_cfg,
             dqn=dqn_cfg,
             ppo=ppo_cfg,
+            model3=m3_cfg,
             training=trn_cfg,
             evaluation=evl_cfg,
         )
+
 
     @staticmethod
     def save_config(config: ProjectConfig, target_path: Path) -> None:

@@ -1,9 +1,9 @@
 # Research Project Memory & State Log
 
 ## Project State
-- **Current Phase:** Phase 7 — PPO Baseline
+- **Current Phase:** Phase 8 — Model 3 (Discrete Soft Actor-Critic)
 - **Date:** October 3, 2026
-- **Status:** Phase 7 completed (Shared ActorCriticNetwork, PPORolloutBuffer with GAE, PPOAgent with clipped objective and action masking, PPOTrainer, 84/84 tests passed, small pilot verification experiment executed).
+- **Status:** Phase 8 completed (DiscreteActor, DiscreteCritic twin Q-networks, DiscreteSACReplayBuffer, DiscreteSACAgent, DiscreteSACTrainer, 90/90 tests passed, pilot verification experiment executed).
 - **Environment Context:**
   - Python: 3.11.9
   - PyTorch: 2.13.0+cpu (No CUDA GPU available; CPU vectorized efficiency required)
@@ -12,7 +12,7 @@
 ## Algorithmic Status
 - **DQN (Model 1):** Completed and verified (Double Dueling + PER, soft target tau=0.005, masked Q-selection).
 - **PPO (Model 2):** Completed and verified (ActorCriticNetwork with shared 128-D encoder, masked policy head, value head, GAE lambda=0.95, clipped surrogate objective epsilon=0.2, entropy bonus, gradient norm clipping 0.5).
-- **Model 3:** Pending researcher/supervisor selection. Must NOT be implemented or chosen unilaterally.
+- **Model 3:** Finalized & Completed: **Discrete SAC (Soft Actor-Critic for Discrete Action Spaces)** (Twin critics, exact expectation state values, automatic entropy temperature alpha tuning, soft target Polyak updates tau=0.005, action masking).
 - **Model 4:** Pending researcher/supervisor selection. Must NOT be implemented or chosen unilaterally.
 
 ## Milestone History
@@ -24,4 +24,6 @@
 - **Phase 5:** Implemented standardized opponent framework: RandomOpponent, ExpertOpponent (Alhajry 2012 priority strategy: Prefer Release > Defend > Capture > Fast Progress), and SelfPlayArena (single matches, seat-alternating tournaments, robust terminal handling; 68/68 tests passed).
 - **Phase 6:** Implemented Model 1 (Double Dueling DQN with Prioritized Experience Replay, soft target updates tau=0.005, action masking, checkpointing, and pilot verification run; 77/77 tests passed).
 - **Phase 7:** Implemented Model 2 (PPO Baseline with shared CNN encoder, masked policy logits, GAE calculation, clipped surrogate loss, value loss, entropy bonus, checkpointing, trainer, and pilot verification run; 84/84 tests passed).
+- **Phase 8:** Implemented Model 3 (Discrete Soft Actor-Critic with twin Q-networks, exact discrete expectation target computation, temperature tuning, action masking, checkpointing, trainer, and pilot verification run; 90/90 tests passed).
+
 
