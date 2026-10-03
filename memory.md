@@ -1,9 +1,9 @@
 # Research Project Memory & State Log
 
 ## Project State
-- **Current Phase:** Phase 9 — Model 4 (Categorical DQN / C51)
+- **Current Phase:** Phase 10 — Unified Training Framework
 - **Date:** October 3, 2026
-- **Status:** Phase 9 completed (CategoricalQNetwork, C51ReplayBuffer, CategoricalDQNAgent, C51Trainer, 96/96 tests passed, pilot verification experiment executed).
+- **Status:** Phase 10 completed (UnifiedTrainingRunner, factory for 4 models, train.py CLI, 101/101 tests passed, validation experiments executed across DQN, PPO, Model 3, and Model 4).
 - **Environment Context:**
   - Python: 3.11.9
   - PyTorch: 2.13.0+cpu (No CUDA GPU available; CPU vectorized efficiency required)
@@ -26,6 +26,8 @@
 - **Phase 7:** Implemented Model 2 (PPO Baseline with shared CNN encoder, masked policy logits, GAE calculation, clipped surrogate loss, value loss, entropy bonus, checkpointing, trainer, and pilot verification run; 84/84 tests passed).
 - **Phase 8:** Implemented Model 3 (Discrete Soft Actor-Critic with twin Q-networks, exact discrete expectation target computation, temperature tuning, action masking, checkpointing, trainer, and pilot verification run; 90/90 tests passed).
 - **Phase 9:** Implemented Model 4 (Categorical DQN / C51 with 51-atom distribution modeling, categorical projection onto support grid, cross-entropy loss, action masking, checkpointing, trainer, and pilot verification run; 96/96 tests passed).
+- **Phase 10:** Implemented Unified Training Framework (`train.py`, `UnifiedTrainingRunner`, `factory.py`, uniform logging, checkpointing, configuration snapshots, 101/101 tests passed, validation runs verified for all 4 models).
+
 
 
 

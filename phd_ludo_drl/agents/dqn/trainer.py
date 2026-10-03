@@ -57,6 +57,7 @@ class DQNTrainer:
         eval_interval: Optional[int] = None,
         eval_games: int = 10,
         checkpoint_dir: Optional[Path] = None,
+        callback: Optional[Callable[[Dict[str, Any]], None]] = None,
     ) -> DQNTrainingMetrics:
         """Execute DQN training loop for total_steps interactions.
 
@@ -118,6 +119,8 @@ class DQNTrainer:
                     train_info = self.agent.train_step(self.batch_size)
                     if train_info:
                         last_loss = train_info["loss"]
+                        if callback:
+                            callback(train_info)
 
                 episode_reward += reward
                 step += 1

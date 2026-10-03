@@ -1,4 +1,19 @@
-"""Training package for PhD Ludo DRL.
+"""Unified Training Framework for PhD Ludo DRL."""
 
-Standardized training loops, parallel environment runners, and checkpoints scheduled for Phase 9.
-"""
+from phd_ludo_drl.training.factory import (
+    SUPPORTED_ALGORITHMS,
+    normalize_algorithm_name,
+    create_agent,
+    create_opponent,
+    create_trainer,
+)
+from phd_ludo_drl.training.unified_trainer import UnifiedTrainingRunner
+
+__all__ = [
+    "SUPPORTED_ALGORITHMS",
+    "normalize_algorithm_name",
+    "create_agent",
+    "create_opponent",
+    "create_trainer",
+    "UnifiedTrainingRunner",
+]

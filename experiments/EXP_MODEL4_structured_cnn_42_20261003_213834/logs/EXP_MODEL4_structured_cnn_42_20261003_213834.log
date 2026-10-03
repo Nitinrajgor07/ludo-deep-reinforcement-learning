@@ -1,0 +1,8 @@
+[2026-10-03 21:38:34] [INFO] [EXP_MODEL4_structured_cnn_42_20261003_213834] Initialized Experiment: EXP_MODEL4_structured_cnn_42_20261003_213834
+[2026-10-03 21:38:34] [INFO] [EXP_MODEL4_structured_cnn_42_20261003_213834] Algorithm: MODEL4 | Seed: 42 | Steps: 50 | Opponent: random
+[2026-10-03 21:38:34] [INFO] [EXP_MODEL4_structured_cnn_42_20261003_213834] Starting training loop (50 steps)...
+[2026-10-03 21:38:34] [INFO] [EXP_MODEL4_structured_cnn_42_20261003_213834] Training completed: 50 steps, 0 episodes.
+[2026-10-03 21:38:34] [INFO] [EXP_MODEL4_structured_cnn_42_20261003_213834] Saved final checkpoint to C:\Users\asus\Desktop\TDPCL\PROJECT\experiments\EXP_MODEL4_structured_cnn_42_20261003_213834\checkpoints\final_model.pt
+[2026-10-03 21:38:34] [INFO] [EXP_MODEL4_structured_cnn_42_20261003_213834] Executing post-training evaluation (2 games vs random)...
+[2026-10-03 21:38:34] [INFO] [EXP_MODEL4_structured_cnn_42_20261003_213834] Eval Outcome: Win Rate = 100.00% | Avg Turns = 200.0 | Avg Reward = 4.27
+[2026-10-03 21:38:34] [INFO] [EXP_MODEL4_structured_cnn_42_20261003_213834] Saved complete experiment summary to C:\Users\asus\Desktop\TDPCL\PROJECT\experiments\EXP_MODEL4_structured_cnn_42_20261003_213834\results\summary.json

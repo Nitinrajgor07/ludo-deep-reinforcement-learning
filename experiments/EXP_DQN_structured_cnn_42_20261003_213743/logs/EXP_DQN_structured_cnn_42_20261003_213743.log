@@ -1,0 +1,8 @@
+[2026-10-03 21:37:43] [INFO] [EXP_DQN_structured_cnn_42_20261003_213743] Initialized Experiment: EXP_DQN_structured_cnn_42_20261003_213743
+[2026-10-03 21:37:43] [INFO] [EXP_DQN_structured_cnn_42_20261003_213743] Algorithm: DQN | Seed: 42 | Steps: 50 | Opponent: random
+[2026-10-03 21:37:43] [INFO] [EXP_DQN_structured_cnn_42_20261003_213743] Starting training loop (50 steps)...
+[2026-10-03 21:37:43] [INFO] [EXP_DQN_structured_cnn_42_20261003_213743] Training completed: 50 steps, 0 episodes.
+[2026-10-03 21:37:43] [INFO] [EXP_DQN_structured_cnn_42_20261003_213743] Saved final checkpoint to C:\Users\asus\Desktop\TDPCL\PROJECT\experiments\EXP_DQN_structured_cnn_42_20261003_213743\checkpoints\final_model.pt
+[2026-10-03 21:37:43] [INFO] [EXP_DQN_structured_cnn_42_20261003_213743] Executing post-training evaluation (2 games vs random)...
+[2026-10-03 21:37:43] [INFO] [EXP_DQN_structured_cnn_42_20261003_213743] Eval Outcome: Win Rate = 100.00% | Avg Turns = 200.0 | Avg Reward = 4.27
+[2026-10-03 21:37:43] [INFO] [EXP_DQN_structured_cnn_42_20261003_213743] Saved complete experiment summary to C:\Users\asus\Desktop\TDPCL\PROJECT\experiments\EXP_DQN_structured_cnn_42_20261003_213743\results\summary.json
