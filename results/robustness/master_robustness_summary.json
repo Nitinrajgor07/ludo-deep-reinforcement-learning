@@ -1,0 +1,758 @@
+{
+  "phase": "Phase 15 Stochasticity and Robustness Analysis",
+  "protocol_version": "1.0.0 (FROZEN)",
+  "execution_timestamp_utc": "2026-10-04T04:38:17.301809+00:00",
+  "total_runtime_seconds": 0.29,
+  "protocol_metadata": {
+    "phase": "Phase 15 Stochasticity and Robustness Analysis",
+    "protocol_version": "1.0.0 (FROZEN)",
+    "frozen_timestamp_utc": "2026-10-04T04:38:17.009812+00:00",
+    "algorithms": [
+      "dqn",
+      "ppo",
+      "model3",
+      "model4"
+    ],
+    "opponent": "expert",
+    "variance_multipliers": [
+      1.0,
+      1.1,
+      1.2,
+      1.3,
+      1.4
+    ],
+    "predefined_stochasticity_levels": {
+      "1.0": {
+        "multiplier": 1.0,
+        "name": "1.0x Variance",
+        "description": "Baseline Fair Die",
+        "target_variance": 2.9167,
+        "probabilities": [
+          0.166667,
+          0.166667,
+          0.166667,
+          0.166667,
+          0.166667,
+          0.166667
+        ],
+        "p_roll_1_or_6": 0.3333,
+        "p_roll_2_or_5": 0.3333,
+        "p_roll_3_or_4": 0.3333
+      },
+      "1.1": {
+        "multiplier": 1.1,
+        "name": "1.1x Variance",
+        "description": "Skewed Loaded Die (P(1)=P(6)=0.193)",
+        "target_variance": 3.2083,
+        "probabilities": [
+          0.192708,
+          0.161458,
+          0.145833,
+          0.145833,
+          0.161458,
+          0.192708
+        ],
+        "p_roll_1_or_6": 0.3854,
+        "p_roll_2_or_5": 0.3229,
+        "p_roll_3_or_4": 0.2917
+      },
+      "1.2": {
+        "multiplier": 1.2,
+        "name": "1.2x Variance",
+        "description": "Skewed Loaded Die (P(1)=P(6)=0.219)",
+        "target_variance": 3.5,
+        "probabilities": [
+          0.21875,
+          0.15625,
+          0.125,
+          0.125,
+          0.15625,
+          0.21875
+        ],
+        "p_roll_1_or_6": 0.4375,
+        "p_roll_2_or_5": 0.3125,
+        "p_roll_3_or_4": 0.25
+      },
+      "1.3": {
+        "multiplier": 1.3,
+        "name": "1.3x Variance",
+        "description": "Skewed Loaded Die (P(1)=P(6)=0.245)",
+        "target_variance": 3.7917,
+        "probabilities": [
+          0.244792,
+          0.151042,
+          0.104167,
+          0.104167,
+          0.151042,
+          0.244792
+        ],
+        "p_roll_1_or_6": 0.4896,
+        "p_roll_2_or_5": 0.3021,
+        "p_roll_3_or_4": 0.2083
+      },
+      "1.4": {
+        "multiplier": 1.4,
+        "name": "1.4x Variance",
+        "description": "Skewed Loaded Die (P(1)=P(6)=0.271)",
+        "target_variance": 4.0833,
+        "probabilities": [
+          0.270833,
+          0.145833,
+          0.083333,
+          0.083333,
+          0.145833,
+          0.270833
+        ],
+        "p_roll_1_or_6": 0.5417,
+        "p_roll_2_or_5": 0.2917,
+        "p_roll_3_or_4": 0.1667
+      }
+    },
+    "games_per_condition": 50,
+    "total_conditions": 20,
+    "total_games": 1000,
+    "master_seed": 42,
+    "robustness_base_seed": 2042,
+    "max_turns": 1000,
+    "metrics_collected": [
+      "win_rate",
+      "average_reward",
+      "convergence",
+      "performance_variation",
+      "robustness_degradation",
+      "confidence_intervals_95"
+    ],
+    "checkpoints": {
+      "dqn": "experiments\\phase11_pilots\\dqn\\checkpoints\\pilot_checkpoint.pt",
+      "ppo": "experiments\\phase11_pilots\\ppo\\checkpoints\\pilot_checkpoint.pt",
+      "model3": "experiments\\phase11_pilots\\model3\\checkpoints\\pilot_checkpoint.pt",
+      "model4": "experiments\\phase11_pilots\\model4\\checkpoints\\pilot_checkpoint.pt"
+    }
+  },
+  "algorithms": {
+    "dqn": {
+      "baseline_1_0x": {
+        "win_rate": 0.18,
+        "average_reward": 4.973,
+        "bernoulli_variance": 0.1476,
+        "reward_variance": 30.2137
+      },
+      "extreme_1_4x": {
+        "win_rate": 0.18,
+        "average_reward": 5.607,
+        "bernoulli_variance": 0.1476,
+        "reward_variance": 38.1101
+      },
+      "robustness_summary": {
+        "max_win_rate_drop": 0.06,
+        "total_pct_win_rate_degradation": 0.0,
+        "retention_index_at_1_4x": 1.0,
+        "win_rate_sensitivity_slope": -0.02,
+        "reward_sensitivity_slope": 1.209,
+        "win_rate_r_squared": 0.0147,
+        "win_rate_spread": 0.06,
+        "reward_spread": 0.634
+      },
+      "per_condition_metrics": {
+        "1.0x": {
+          "multiplier": 1.0,
+          "win_rate": 0.18,
+          "win_rate_ci_95": [
+            0.0977,
+            0.308
+          ],
+          "delta_win_rate": 0.0,
+          "pct_win_rate_degradation": 0.0,
+          "average_reward": 4.973,
+          "reward_ci_95": [
+            3.484,
+            6.498
+          ],
+          "delta_reward": 0.0,
+          "pct_reward_degradation": 0.0,
+          "bernoulli_win_variance": 0.1476,
+          "reward_variance": 30.2137,
+          "reward_std": 5.4967,
+          "turns_variance": 583.47,
+          "turns_std": 24.16,
+          "average_turns": 164.4,
+          "coefficient_of_variation_reward": 1.1053
+        },
+        "1.1x": {
+          "multiplier": 1.1,
+          "win_rate": 0.16,
+          "win_rate_ci_95": [
+            0.0834,
+            0.2851
+          ],
+          "delta_win_rate": -0.02,
+          "pct_win_rate_degradation": -11.11,
+          "average_reward": 5.157,
+          "reward_ci_95": [
+            3.642,
+            6.712
+          ],
+          "delta_reward": 0.184,
+          "pct_reward_degradation": 3.7,
+          "bernoulli_win_variance": 0.1344,
+          "reward_variance": 31.7667,
+          "reward_std": 5.6362,
+          "turns_variance": 314.63,
+          "turns_std": 17.74,
+          "average_turns": 164.94,
+          "coefficient_of_variation_reward": 1.0929
+        },
+        "1.2x": {
+          "multiplier": 1.2,
+          "win_rate": 0.12,
+          "win_rate_ci_95": [
+            0.0562,
+            0.238
+          ],
+          "delta_win_rate": -0.06,
+          "pct_win_rate_degradation": -33.33,
+          "average_reward": 5.26,
+          "reward_ci_95": [
+            3.672,
+            6.9
+          ],
+          "delta_reward": 0.287,
+          "pct_reward_degradation": 5.77,
+          "bernoulli_win_variance": 0.1056,
+          "reward_variance": 35.0346,
+          "reward_std": 5.919,
+          "turns_variance": 933.74,
+          "turns_std": 30.56,
+          "average_turns": 168.88,
+          "coefficient_of_variation_reward": 1.1253
+        },
+        "1.3x": {
+          "multiplier": 1.3,
+          "win_rate": 0.14,
+          "win_rate_ci_95": [
+            0.0695,
+            0.2619
+          ],
+          "delta_win_rate": -0.04,
+          "pct_win_rate_degradation": -22.22,
+          "average_reward": 5.098,
+          "reward_ci_95": [
+            3.5519,
+            6.636
+          ],
+          "delta_reward": 0.125,
+          "pct_reward_degradation": 2.51,
+          "bernoulli_win_variance": 0.1204,
+          "reward_variance": 32.1348,
+          "reward_std": 5.6688,
+          "turns_variance": 370.95,
+          "turns_std": 19.26,
+          "average_turns": 163.56,
+          "coefficient_of_variation_reward": 1.112
+        },
+        "1.4x": {
+          "multiplier": 1.4,
+          "win_rate": 0.18,
+          "win_rate_ci_95": [
+            0.0977,
+            0.308
+          ],
+          "delta_win_rate": 0.0,
+          "pct_win_rate_degradation": 0.0,
+          "average_reward": 5.607,
+          "reward_ci_95": [
+            3.948,
+            7.296
+          ],
+          "delta_reward": 0.634,
+          "pct_reward_degradation": 12.75,
+          "bernoulli_win_variance": 0.1476,
+          "reward_variance": 38.1101,
+          "reward_std": 6.1733,
+          "turns_variance": 339.42,
+          "turns_std": 18.42,
+          "average_turns": 164.38,
+          "coefficient_of_variation_reward": 1.101
+        }
+      },
+      "convergence": {
+        "algorithm": "dqn",
+        "total_training_steps": 500,
+        "total_training_episodes": 6,
+        "initial_loss": 0.027018729597330093,
+        "final_loss": 0.008802253752946854,
+        "loss_reduction_pct": 67.42,
+        "training_win_rate": 0.5,
+        "training_avg_reward": 11.824999999999989
+      }
+    },
+    "ppo": {
+      "baseline_1_0x": {
+        "win_rate": 0.2,
+        "average_reward": 4.547,
+        "bernoulli_variance": 0.16,
+        "reward_variance": 25.5589
+      },
+      "extreme_1_4x": {
+        "win_rate": 0.22,
+        "average_reward": 4.974,
+        "bernoulli_variance": 0.1716,
+        "reward_variance": 31.0309
+      },
+      "robustness_summary": {
+        "max_win_rate_drop": 0.06,
+        "total_pct_win_rate_degradation": 10.0,
+        "retention_index_at_1_4x": 1.1,
+        "win_rate_sensitivity_slope": -0.12,
+        "reward_sensitivity_slope": 0.824,
+        "win_rate_r_squared": 0.0732,
+        "win_rate_spread": 0.18,
+        "reward_spread": 0.481
+      },
+      "per_condition_metrics": {
+        "1.0x": {
+          "multiplier": 1.0,
+          "win_rate": 0.2,
+          "win_rate_ci_95": [
+            0.1124,
+            0.3304
+          ],
+          "delta_win_rate": 0.0,
+          "pct_win_rate_degradation": 0.0,
+          "average_reward": 4.547,
+          "reward_ci_95": [
+            3.1939,
+            5.936
+          ],
+          "delta_reward": 0.0,
+          "pct_reward_degradation": 0.0,
+          "bernoulli_win_variance": 0.16,
+          "reward_variance": 25.5589,
+          "reward_std": 5.0556,
+          "turns_variance": 634.84,
+          "turns_std": 25.2,
+          "average_turns": 166.02,
+          "coefficient_of_variation_reward": 1.1119
+        },
+        "1.1x": {
+          "multiplier": 1.1,
+          "win_rate": 0.32,
+          "win_rate_ci_95": [
+            0.2076,
+            0.4581
+          ],
+          "delta_win_rate": 0.12,
+          "pct_win_rate_degradation": 60.0,
+          "average_reward": 4.701,
+          "reward_ci_95": [
+            3.2269,
+            6.202
+          ],
+          "delta_reward": 0.154,
+          "pct_reward_degradation": 3.39,
+          "bernoulli_win_variance": 0.2176,
+          "reward_variance": 30.0172,
+          "reward_std": 5.4788,
+          "turns_variance": 441.43,
+          "turns_std": 21.01,
+          "average_turns": 163.14,
+          "coefficient_of_variation_reward": 1.1655
+        },
+        "1.2x": {
+          "multiplier": 1.2,
+          "win_rate": 0.14,
+          "win_rate_ci_95": [
+            0.0695,
+            0.2619
+          ],
+          "delta_win_rate": -0.06,
+          "pct_win_rate_degradation": -30.0,
+          "average_reward": 5.028,
+          "reward_ci_95": [
+            3.524,
+            6.547
+          ],
+          "delta_reward": 0.481,
+          "pct_reward_degradation": 10.58,
+          "bernoulli_win_variance": 0.1204,
+          "reward_variance": 31.0953,
+          "reward_std": 5.5763,
+          "turns_variance": 412.45,
+          "turns_std": 20.31,
+          "average_turns": 165.58,
+          "coefficient_of_variation_reward": 1.109
+        },
+        "1.3x": {
+          "multiplier": 1.3,
+          "win_rate": 0.16,
+          "win_rate_ci_95": [
+            0.0834,
+            0.2851
+          ],
+          "delta_win_rate": -0.04,
+          "pct_win_rate_degradation": -20.0,
+          "average_reward": 4.671,
+          "reward_ci_95": [
+            3.2159,
+            6.141
+          ],
+          "delta_reward": 0.124,
+          "pct_reward_degradation": 2.73,
+          "bernoulli_win_variance": 0.1344,
+          "reward_variance": 28.941,
+          "reward_std": 5.3797,
+          "turns_variance": 488.61,
+          "turns_std": 22.1,
+          "average_turns": 161.6,
+          "coefficient_of_variation_reward": 1.1517
+        },
+        "1.4x": {
+          "multiplier": 1.4,
+          "win_rate": 0.22,
+          "win_rate_ci_95": [
+            0.1275,
+            0.3524
+          ],
+          "delta_win_rate": 0.02,
+          "pct_win_rate_degradation": 10.0,
+          "average_reward": 4.974,
+          "reward_ci_95": [
+            3.4569,
+            6.506
+          ],
+          "delta_reward": 0.427,
+          "pct_reward_degradation": 9.39,
+          "bernoulli_win_variance": 0.1716,
+          "reward_variance": 31.0309,
+          "reward_std": 5.5705,
+          "turns_variance": 400.33,
+          "turns_std": 20.01,
+          "average_turns": 162.4,
+          "coefficient_of_variation_reward": 1.1199
+        }
+      },
+      "convergence": {
+        "algorithm": "ppo",
+        "total_training_steps": 500,
+        "total_training_episodes": 6,
+        "initial_loss": 0.8762190639972687,
+        "final_loss": 0.5040106624364853,
+        "loss_reduction_pct": 42.48,
+        "training_win_rate": 0.5,
+        "training_avg_reward": 11.98333333333332
+      }
+    },
+    "model3": {
+      "baseline_1_0x": {
+        "win_rate": 0.18,
+        "average_reward": 4.723,
+        "bernoulli_variance": 0.1476,
+        "reward_variance": 28.5868
+      },
+      "extreme_1_4x": {
+        "win_rate": 0.22,
+        "average_reward": 5.357,
+        "bernoulli_variance": 0.1716,
+        "reward_variance": 35.4094
+      },
+      "robustness_summary": {
+        "max_win_rate_drop": 0.1,
+        "total_pct_win_rate_degradation": 22.22,
+        "retention_index_at_1_4x": 1.2222,
+        "win_rate_sensitivity_slope": 0.04,
+        "reward_sensitivity_slope": 1.368,
+        "win_rate_r_squared": 0.013,
+        "win_rate_spread": 0.14,
+        "reward_spread": 0.634
+      },
+      "per_condition_metrics": {
+        "1.0x": {
+          "multiplier": 1.0,
+          "win_rate": 0.18,
+          "win_rate_ci_95": [
+            0.0977,
+            0.308
+          ],
+          "delta_win_rate": 0.0,
+          "pct_win_rate_degradation": 0.0,
+          "average_reward": 4.723,
+          "reward_ci_95": [
+            3.281,
+            6.186
+          ],
+          "delta_reward": 0.0,
+          "pct_reward_degradation": 0.0,
+          "bernoulli_win_variance": 0.1476,
+          "reward_variance": 28.5868,
+          "reward_std": 5.3467,
+          "turns_variance": 764.97,
+          "turns_std": 27.66,
+          "average_turns": 170.08,
+          "coefficient_of_variation_reward": 1.1321
+        },
+        "1.1x": {
+          "multiplier": 1.1,
+          "win_rate": 0.12,
+          "win_rate_ci_95": [
+            0.0562,
+            0.238
+          ],
+          "delta_win_rate": -0.06,
+          "pct_win_rate_degradation": -33.33,
+          "average_reward": 4.894,
+          "reward_ci_95": [
+            3.414,
+            6.395
+          ],
+          "delta_reward": 0.171,
+          "pct_reward_degradation": 3.62,
+          "bernoulli_win_variance": 0.1056,
+          "reward_variance": 30.3769,
+          "reward_std": 5.5115,
+          "turns_variance": 444.44,
+          "turns_std": 21.08,
+          "average_turns": 166.38,
+          "coefficient_of_variation_reward": 1.1262
+        },
+        "1.2x": {
+          "multiplier": 1.2,
+          "win_rate": 0.12,
+          "win_rate_ci_95": [
+            0.0562,
+            0.238
+          ],
+          "delta_win_rate": -0.06,
+          "pct_win_rate_degradation": -33.33,
+          "average_reward": 4.875,
+          "reward_ci_95": [
+            3.424,
+            6.345
+          ],
+          "delta_reward": 0.152,
+          "pct_reward_degradation": 3.22,
+          "bernoulli_win_variance": 0.1056,
+          "reward_variance": 28.8308,
+          "reward_std": 5.3694,
+          "turns_variance": 344.2,
+          "turns_std": 18.55,
+          "average_turns": 161.04,
+          "coefficient_of_variation_reward": 1.1014
+        },
+        "1.3x": {
+          "multiplier": 1.3,
+          "win_rate": 0.08,
+          "win_rate_ci_95": [
+            0.0315,
+            0.1884
+          ],
+          "delta_win_rate": -0.1,
+          "pct_win_rate_degradation": -55.56,
+          "average_reward": 4.994,
+          "reward_ci_95": [
+            3.4779,
+            6.547
+          ],
+          "delta_reward": 0.271,
+          "pct_reward_degradation": 5.74,
+          "bernoulli_win_variance": 0.0736,
+          "reward_variance": 31.9873,
+          "reward_std": 5.6557,
+          "turns_variance": 488.79,
+          "turns_std": 22.11,
+          "average_turns": 162.7,
+          "coefficient_of_variation_reward": 1.1325
+        },
+        "1.4x": {
+          "multiplier": 1.4,
+          "win_rate": 0.22,
+          "win_rate_ci_95": [
+            0.1275,
+            0.3524
+          ],
+          "delta_win_rate": 0.04,
+          "pct_win_rate_degradation": 22.22,
+          "average_reward": 5.357,
+          "reward_ci_95": [
+            3.7569,
+            6.999
+          ],
+          "delta_reward": 0.634,
+          "pct_reward_degradation": 13.42,
+          "bernoulli_win_variance": 0.1716,
+          "reward_variance": 35.4094,
+          "reward_std": 5.9506,
+          "turns_variance": 432.26,
+          "turns_std": 20.79,
+          "average_turns": 165.16,
+          "coefficient_of_variation_reward": 1.1108
+        }
+      },
+      "convergence": {
+        "algorithm": "model3",
+        "total_training_steps": 500,
+        "total_training_episodes": 6,
+        "initial_loss": 0.06656046211719513,
+        "final_loss": 0.02131003327667713,
+        "loss_reduction_pct": 67.98,
+        "training_win_rate": 0.5,
+        "training_avg_reward": 11.183333333333321
+      }
+    },
+    "model4": {
+      "baseline_1_0x": {
+        "win_rate": 0.18,
+        "average_reward": 4.424,
+        "bernoulli_variance": 0.1476,
+        "reward_variance": 23.5029
+      },
+      "extreme_1_4x": {
+        "win_rate": 0.2,
+        "average_reward": 4.782,
+        "bernoulli_variance": 0.16,
+        "reward_variance": 30.1601
+      },
+      "robustness_summary": {
+        "max_win_rate_drop": 0.12,
+        "total_pct_win_rate_degradation": 11.11,
+        "retention_index_at_1_4x": 1.1111,
+        "win_rate_sensitivity_slope": 0.0,
+        "reward_sensitivity_slope": 0.404,
+        "win_rate_r_squared": 0.0,
+        "win_rate_spread": 0.16,
+        "reward_spread": 0.77
+      },
+      "per_condition_metrics": {
+        "1.0x": {
+          "multiplier": 1.0,
+          "win_rate": 0.18,
+          "win_rate_ci_95": [
+            0.0977,
+            0.308
+          ],
+          "delta_win_rate": 0.0,
+          "pct_win_rate_degradation": 0.0,
+          "average_reward": 4.424,
+          "reward_ci_95": [
+            3.109,
+            5.749
+          ],
+          "delta_reward": 0.0,
+          "pct_reward_degradation": 0.0,
+          "bernoulli_win_variance": 0.1476,
+          "reward_variance": 23.5029,
+          "reward_std": 4.848,
+          "turns_variance": 594.7,
+          "turns_std": 24.39,
+          "average_turns": 162.3,
+          "coefficient_of_variation_reward": 1.0958
+        },
+        "1.1x": {
+          "multiplier": 1.1,
+          "win_rate": 0.22,
+          "win_rate_ci_95": [
+            0.1275,
+            0.3524
+          ],
+          "delta_win_rate": 0.04,
+          "pct_win_rate_degradation": 22.22,
+          "average_reward": 5.142,
+          "reward_ci_95": [
+            3.577,
+            6.737
+          ],
+          "delta_reward": 0.718,
+          "pct_reward_degradation": 16.23,
+          "bernoulli_win_variance": 0.1716,
+          "reward_variance": 34.0484,
+          "reward_std": 5.8351,
+          "turns_variance": 504.98,
+          "turns_std": 22.47,
+          "average_turns": 163.28,
+          "coefficient_of_variation_reward": 1.1348
+        },
+        "1.2x": {
+          "multiplier": 1.2,
+          "win_rate": 0.06,
+          "win_rate_ci_95": [
+            0.0206,
+            0.1622
+          ],
+          "delta_win_rate": -0.12,
+          "pct_win_rate_degradation": -66.67,
+          "average_reward": 5.194,
+          "reward_ci_95": [
+            3.671,
+            6.726
+          ],
+          "delta_reward": 0.77,
+          "pct_reward_degradation": 17.41,
+          "bernoulli_win_variance": 0.0564,
+          "reward_variance": 31.5502,
+          "reward_std": 5.617,
+          "turns_variance": 527.08,
+          "turns_std": 22.96,
+          "average_turns": 166.06,
+          "coefficient_of_variation_reward": 1.0814
+        },
+        "1.3x": {
+          "multiplier": 1.3,
+          "win_rate": 0.18,
+          "win_rate_ci_95": [
+            0.0977,
+            0.308
+          ],
+          "delta_win_rate": 0.0,
+          "pct_win_rate_degradation": 0.0,
+          "average_reward": 4.83,
+          "reward_ci_95": [
+            3.385,
+            6.29
+          ],
+          "delta_reward": 0.406,
+          "pct_reward_degradation": 9.18,
+          "bernoulli_win_variance": 0.1476,
+          "reward_variance": 29.0152,
+          "reward_std": 5.3866,
+          "turns_variance": 470.12,
+          "turns_std": 21.68,
+          "average_turns": 161.6,
+          "coefficient_of_variation_reward": 1.1152
+        },
+        "1.4x": {
+          "multiplier": 1.4,
+          "win_rate": 0.2,
+          "win_rate_ci_95": [
+            0.1124,
+            0.3304
+          ],
+          "delta_win_rate": 0.02,
+          "pct_win_rate_degradation": 11.11,
+          "average_reward": 4.782,
+          "reward_ci_95": [
+            3.298,
+            6.2881
+          ],
+          "delta_reward": 0.358,
+          "pct_reward_degradation": 8.09,
+          "bernoulli_win_variance": 0.16,
+          "reward_variance": 30.1601,
+          "reward_std": 5.4918,
+          "turns_variance": 545.46,
+          "turns_std": 23.36,
+          "average_turns": 163.74,
+          "coefficient_of_variation_reward": 1.1484
+        }
+      },
+      "convergence": {
+        "algorithm": "model4",
+        "total_training_steps": 500,
+        "total_training_episodes": 6,
+        "initial_loss": 3.933459997177124,
+        "final_loss": 3.9268500804901123,
+        "loss_reduction_pct": 0.17,
+        "training_win_rate": 0.3333333333333333,
+        "training_avg_reward": 11.741666666666655
+      }
+    }
+  }
+}

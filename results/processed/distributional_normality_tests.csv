@@ -1,0 +1,17 @@
+experiment,algorithm,seed,opponent,metric,n,skewness,kurtosis,shapiro_wilk_stat,shapiro_wilk_pvalue,dagostino_stat,dagostino_pvalue,is_normal_alpha_05,distribution_shape,statistical_justification
+benchmark_evaluation,dqn,1042-1291 (N=250),expert,agent_reward,250,0.2117,-1.7052,0.8102,9.158475150191269e-17,1703.7883,0.0,False,symmetric,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),expert,turns,250,0.5371,0.1169,0.9789,0.0009045505542420081,11.6575,0.0029417684022327497,False,right_skewed,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),expert,agent_captures,250,1.3924,1.7093,0.7266,5.3132277886513036e-20,63.9725,1.2839347674038409e-14,False,right_skewed,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),expert,agent_tokens_home,250,0.2275,-0.9694,0.9014,9.721232907642153e-12,40.9456,1.2846170612958481e-09,False,symmetric,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),random,agent_reward,250,0.1398,-1.7824,0.8043,5.020320551454796e-17,1519.6672,0.0,False,symmetric,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),random,turns,250,0.612,1.3187,0.9785,0.0007791337362877001,23.5293,7.774480600731394e-06,False,right_skewed,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),random,agent_captures,250,1.1609,2.0807,0.8596,2.5093233917070163e-14,55.5399,8.702726285769191e-13,False,right_skewed,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),random,agent_tokens_home,250,-0.8204,-0.4492,0.7949,1.9811869319035022e-17,26.2458,1.998909836002817e-06,False,left_skewed,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),self_play,agent_reward,250,0.1211,-1.8116,0.7943,1.8699835607661647e-17,1466.766,0.0,False,symmetric,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),self_play,turns,250,0.769,0.6878,0.9641,6.530073735184505e-06,24.9712,3.7807381237615554e-06,False,right_skewed,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),self_play,agent_captures,250,1.1017,0.7503,0.7624,1.0102828020782998e-18,41.3572,1.0456579594194901e-09,False,right_skewed,Parametric & non-parametric tests both reported
+benchmark_evaluation,dqn,1042-1291 (N=250),self_play,agent_tokens_home,250,-0.9343,-0.0162,0.7958,2.1735092543315596e-17,28.7718,5.652920214171858e-07,False,left_skewed,Parametric & non-parametric tests both reported
+benchmark_evaluation,ppo,1042-1291 (N=250),random,agent_reward,250,0.0988,-1.8407,0.7894,1.1753461104930129e-17,1420.3076,3.838101741077134e-309,False,symmetric,Parametric & non-parametric tests both reported
+benchmark_evaluation,ppo,1042-1291 (N=250),random,turns,250,0.474,-0.1439,0.981,0.0019735674547908468,9.1042,0.010545191934076142,False,symmetric,Parametric & non-parametric tests both reported
+benchmark_evaluation,ppo,1042-1291 (N=250),random,agent_captures,250,0.6963,-0.1032,0.8764,2.336715731846313e-13,17.8207,0.00013498666836451475,False,right_skewed,Parametric & non-parametric tests both reported
+benchmark_evaluation,ppo,1042-1291 (N=250),random,agent_tokens_home,250,-0.8594,0.0708,0.7968,2.3885825308216e-17,25.3903,3.065896061704289e-06,False,left_skewed,Parametric & non-parametric tests both reported

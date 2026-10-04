@@ -1,0 +1,17 @@
+experiment,seed,comparison_category,group1_algorithm,group1_opponent,group2_algorithm,group2_opponent,metric,effect_measure,point_estimate,ci_95_lower,ci_95_upper,interpretation
+benchmark_evaluation,1042..1291,algorithm_contrast,dqn,random,ppo,random,win_rate,Risk Difference (Win Rate Diff),0.052,-0.0353,0.1393,contains 0 (not statistically distinguishable from 0)
+benchmark_evaluation,1042..1291,algorithm_contrast,dqn,random,ppo,random,win_rate,Odds Ratio,1.2326,0.867,1.7525,contains 1 (not distinguishable from 1.0)
+benchmark_evaluation,1042..1291,algorithm_contrast,dqn,random,ppo,random,agent_reward,Cohen's d,0.0354,-0.1399,0.2107,negligible
+benchmark_evaluation,1042..1291,algorithm_contrast,dqn,random,ppo,random,agent_reward,Hedges' g,0.0354,-0.1397,0.2104,negligible
+benchmark_evaluation,1042..1291,algorithm_contrast,dqn,random,ppo,random,turns,Cohen's d,-0.0466,-0.2219,0.1287,negligible
+benchmark_evaluation,1042..1291,algorithm_contrast,dqn,random,ppo,random,turns,Hedges' g,-0.0465,-0.2216,0.1285,negligible
+benchmark_evaluation,1042..1291,algorithm_contrast,dqn,random,ppo,random,agent_captures,Cohen's d,0.0405,-0.1348,0.2158,negligible
+benchmark_evaluation,1042..1291,algorithm_contrast,dqn,random,ppo,random,agent_captures,Hedges' g,0.0404,-0.1346,0.2155,negligible
+benchmark_evaluation,1042..1291,algorithm_contrast,dqn,random,ppo,random,agent_tokens_home,Cohen's d,-0.1868,-0.3625,-0.0111,negligible
+benchmark_evaluation,1042..1291,algorithm_contrast,dqn,random,ppo,random,agent_tokens_home,Hedges' g,-0.1865,-0.362,-0.0111,negligible
+benchmark_evaluation,1042..1291,opponent_contrast,dqn,random,dqn,expert,agent_reward,Cohen's d,0.0321,-0.1432,0.2074,negligible
+benchmark_evaluation,1042..1291,opponent_contrast,dqn,random,dqn,expert,turns,Cohen's d,0.1943,0.0186,0.37,negligible
+benchmark_evaluation,1042..1291,opponent_contrast,dqn,random,dqn,self_play,agent_reward,Cohen's d,-0.0021,-0.1774,0.1732,negligible
+benchmark_evaluation,1042..1291,opponent_contrast,dqn,random,dqn,self_play,turns,Cohen's d,-0.1406,-0.3162,0.0349,negligible
+benchmark_evaluation,1042..1291,opponent_contrast,dqn,expert,dqn,self_play,agent_reward,Cohen's d,-0.0347,-0.21,0.1406,negligible
+benchmark_evaluation,1042..1291,opponent_contrast,dqn,expert,dqn,self_play,turns,Cohen's d,-0.3245,-0.5009,-0.148,small

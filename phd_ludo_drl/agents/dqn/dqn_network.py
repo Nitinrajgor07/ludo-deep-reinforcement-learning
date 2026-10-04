@@ -7,6 +7,7 @@ import torch.nn as nn
 
 from phd_ludo_drl.environment.constants import ACTION_SPACE_SIZE
 from phd_ludo_drl.encoding.cnn_encoder import StructuredCNNEncoder
+from phd_ludo_drl.encoding.flat_encoder import FlatEncoder
 
 
 class DuelingQNetwork(nn.Module):
@@ -17,6 +18,7 @@ class DuelingQNetwork(nn.Module):
 
     Input:
         - Either raw spatial board tensor (B, 4, 52) [+ context (B, 12)] via internal StructuredCNNEncoder,
+        - Or flat observation vector (B, 60) via internal FlatEncoder,
         - Or pre-encoded latent features (B, 128).
     """
 
@@ -26,15 +28,20 @@ class DuelingQNetwork(nn.Module):
         hidden_units: int = 256,
         action_dim: int = ACTION_SPACE_SIZE,
         use_internal_encoder: bool = True,
+        encoder_type: str = "structured_cnn",
     ):
         super().__init__()
         self.latent_dim = latent_dim
         self.hidden_units = hidden_units
         self.action_dim = action_dim
         self.use_internal_encoder = use_internal_encoder
+        self.encoder_type = encoder_type.lower()
 
         if self.use_internal_encoder:
-            self.encoder = StructuredCNNEncoder(latent_dim=latent_dim)
+            if self.encoder_type == "flat":
+                self.encoder = FlatEncoder(latent_dim=latent_dim)
+            else:
+                self.encoder = StructuredCNNEncoder(latent_dim=latent_dim)
         else:
             self.encoder = None
 
@@ -73,8 +80,9 @@ class DuelingQNetwork(nn.Module):
         x = x.to(device)
 
         if self.use_internal_encoder and self.encoder is not None:
-            # If x is spatial (B, 4, 52) or (4, 52)
-            if x.dim() in (2, 3) and x.shape[-2:] == (4, 52):
+            if self.encoder_type == "flat":
+                features = self.encoder(x)
+            elif x.dim() in (2, 3) and x.shape[-2:] == (4, 52):
                 features = self.encoder(x, context)
             else:
                 features = x

@@ -88,6 +88,9 @@ class DiscreteSACTrainer:
         updates = 0
 
         step = 0
+        last_eval_step = 0
+        last_ckpt_step = 0
+        ckpt_interval = 25000
         while step < total_steps:
             curr_p = self.env.current_player
             legal_actions = self.env.get_legal_actions()
@@ -176,11 +179,13 @@ class DiscreteSACTrainer:
                     obs, info = self.env.reset()
 
             # Periodic tournament evaluation
-            if eval_interval is not None and step > 0 and step % eval_interval == 0:
+            if eval_interval is not None and step > 0 and (step - last_eval_step) >= eval_interval:
+                last_eval_step = step
                 self.evaluate(eval_games)
 
-            # Checkpoint snapshot
-            if checkpoint_dir is not None and eval_interval is not None and step > 0 and step % eval_interval == 0:
+            # Checkpoint snapshot (Protocol: every 25,000 steps)
+            if checkpoint_dir is not None and step > 0 and (step - last_ckpt_step) >= ckpt_interval:
+                last_ckpt_step = step
                 ckpt_path = checkpoint_dir / f"sac_step_{step}.pt"
                 self.agent.save_checkpoint(ckpt_path)
 

@@ -1,0 +1,8 @@
+[2026-10-03 21:48:29] [INFO] [EXP_DQN_structured_cnn_42_20261003_214829] Initialized Experiment: EXP_DQN_structured_cnn_42_20261003_214829
+[2026-10-03 21:48:29] [INFO] [EXP_DQN_structured_cnn_42_20261003_214829] Algorithm: DQN | Seed: 42 | Steps: 1000 | Opponent: random
+[2026-10-03 21:48:29] [INFO] [EXP_DQN_structured_cnn_42_20261003_214829] Starting training loop (1000 steps)...
+[2026-10-03 21:48:42] [INFO] [EXP_DQN_structured_cnn_42_20261003_214829] Training completed: 1000 steps, 12 episodes.
+[2026-10-03 21:48:42] [INFO] [EXP_DQN_structured_cnn_42_20261003_214829] Saved final checkpoint to experiments\EXP_DQN_structured_cnn_42_20261003_214829\checkpoints\final_model.pt
+[2026-10-03 21:48:42] [INFO] [EXP_DQN_structured_cnn_42_20261003_214829] Executing post-training evaluation (20 games vs random)...
+[2026-10-03 21:48:44] [INFO] [EXP_DQN_structured_cnn_42_20261003_214829] Eval Outcome: Win Rate = 55.00% | Avg Turns = 178.3 | Avg Reward = 5.20
+[2026-10-03 21:48:44] [INFO] [EXP_DQN_structured_cnn_42_20261003_214829] Saved complete experiment summary to experiments\EXP_DQN_structured_cnn_42_20261003_214829\results\summary.json

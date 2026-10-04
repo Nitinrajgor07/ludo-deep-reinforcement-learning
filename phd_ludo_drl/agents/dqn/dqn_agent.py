@@ -14,6 +14,7 @@ from phd_ludo_drl.agents.dqn.dqn_network import DuelingQNetwork
 from phd_ludo_drl.agents.dqn.replay_buffer import PrioritizedReplayBuffer
 from phd_ludo_drl.environment.action_mask import mask_q_values
 from phd_ludo_drl.encoding.structured_representation import build_structured_representation
+from phd_ludo_drl.encoding.raw_observation import extract_raw_observation
 
 
 class DQNAgent(BaseAgent):
@@ -25,19 +26,25 @@ class DQNAgent(BaseAgent):
         latent_dim: int = 128,
         device: Optional[torch.device] = None,
         name: str = "DoubleDuelingDQN",
+        encoder_type: str = "structured_cnn",
+        use_action_masking: bool = True,
     ):
         super().__init__(name=name, latent_dim=latent_dim, device=device)
         self.config = config or DQNConfig()
+        self.encoder_type = encoder_type.lower()
+        self.use_action_masking = use_action_masking
 
         # Online network and Target network
         self.online_net = DuelingQNetwork(
             latent_dim=latent_dim,
             hidden_units=self.config.hidden_units,
+            encoder_type=self.encoder_type,
         ).to(self.device)
 
         self.target_net = DuelingQNetwork(
             latent_dim=latent_dim,
             hidden_units=self.config.hidden_units,
+            encoder_type=self.encoder_type,
         ).to(self.device)
 
         # Initialize target network with identical weights
@@ -51,11 +58,13 @@ class DQNAgent(BaseAgent):
         )
 
         # Prioritized Replay Buffer
+        state_shape = (60,) if self.encoder_type == "flat" else (4, 52)
         self.buffer = PrioritizedReplayBuffer(
             capacity=self.config.buffer_capacity,
             alpha=self.config.per_alpha,
             beta_start=self.config.per_beta_start,
             beta_end=self.config.per_beta_end,
+            state_shape=state_shape,
         )
 
         # Hyperparameters
@@ -91,31 +100,45 @@ class DQNAgent(BaseAgent):
             mask_t = torch.from_numpy(mask_arr).to(self.device).float()
 
         legal_actions = [i for i, m in enumerate(mask_arr) if m == 1.0]
-        if not legal_actions:
-            raise ValueError("DQNAgent cannot select action when legal_actions is empty.")
 
-        # Epsilon-greedy exploration (only from legal actions)
-        if not deterministic and np.random.rand() < self.epsilon:
-            return int(np.random.choice(legal_actions))
+        # Action Masking Ablation:
+        if not self.use_action_masking:
+            if not deterministic and np.random.rand() < self.epsilon:
+                return int(np.random.randint(0, 4))
+        else:
+            if not legal_actions:
+                raise ValueError("DQNAgent cannot select action when legal_actions is empty.")
+            if not deterministic and np.random.rand() < self.epsilon:
+                return int(np.random.choice(legal_actions))
 
-        # Extract spatial tensor and context if state is a state_dict
+        # Representation Ablation: extract state representation
         if isinstance(state, dict):
-            struct_state = build_structured_representation(state)
-            spatial_t = torch.from_numpy(struct_state.spatial_tensor).unsqueeze(0).to(self.device)
-            context_t = torch.from_numpy(struct_state.context_vector).unsqueeze(0).to(self.device)
+            if self.encoder_type == "flat":
+                raw_obs = extract_raw_observation(state)
+                spatial_t = torch.from_numpy(raw_obs.to_flat_vector()).unsqueeze(0).to(self.device)
+                context_t = None
+            else:
+                struct_state = build_structured_representation(state)
+                spatial_t = torch.from_numpy(struct_state.spatial_tensor).unsqueeze(0).to(self.device)
+                context_t = torch.from_numpy(struct_state.context_vector).unsqueeze(0).to(self.device)
         else:
             if isinstance(state, np.ndarray):
                 spatial_t = torch.from_numpy(state).float().to(self.device)
             else:
                 spatial_t = state.to(self.device)
-            if spatial_t.dim() == 2:
+            if spatial_t.dim() == 1:
+                spatial_t = spatial_t.unsqueeze(0)
+            elif spatial_t.dim() == 2 and self.encoder_type != "flat":
                 spatial_t = spatial_t.unsqueeze(0)
             context_t = None
 
         with torch.no_grad():
             q_values = self.online_net(spatial_t, context_t).squeeze(0)  # (4,)
-            masked_q = mask_q_values(q_values, mask_t)
-            best_action = int(torch.argmax(masked_q).item())
+            if self.use_action_masking:
+                masked_q = mask_q_values(q_values, mask_t)
+                best_action = int(torch.argmax(masked_q).item())
+            else:
+                best_action = int(torch.argmax(q_values).item())
 
         return best_action
 
@@ -141,11 +164,14 @@ class DQNAgent(BaseAgent):
         q_eval = self.online_net(states, contexts).gather(1, actions)  # (B, 1)
 
         # 2. Double DQN Target Calculation:
-        # a* = argmax_a' Q_online(s', a'; theta) with next action mask
+        # a* = argmax_a' Q_online(s', a'; theta) with next action mask (if masking enabled)
         with torch.no_grad():
             next_q_online = self.online_net(next_states, next_contexts)
-            masked_next_q_online = mask_q_values(next_q_online, next_action_masks)
-            best_next_actions = torch.argmax(masked_next_q_online, dim=1, keepdim=True)  # (B, 1)
+            if self.use_action_masking:
+                masked_next_q_online = mask_q_values(next_q_online, next_action_masks)
+                best_next_actions = torch.argmax(masked_next_q_online, dim=1, keepdim=True)  # (B, 1)
+            else:
+                best_next_actions = torch.argmax(next_q_online, dim=1, keepdim=True)  # (B, 1)
 
             # Evaluate Q_target(s', a*; theta^-)
             next_q_target = self.target_net(next_states, next_contexts)

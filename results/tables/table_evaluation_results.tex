@@ -1,0 +1,14 @@
+\begin{table}
+\caption{Table 3: Standardized Tournament Evaluation Results across Matchups}
+\label{tab:table_evaluation_results}
+\begin{tabular}{llllllllllll}
+\toprule
+Algorithm & Opponent & Games (N) & Win Rate (\%) & 95\% Wilson CI & Mean Reward & Mean Turns & Mean Captures & Tokens Home & Seat 0 Win \% & Seat 1 Win \% & Seat Bias \\
+\midrule
+DQN & EXPERT & 250 & 15.60\% & [11.6\%, 20.6\%] & 4.92 +/- 5.51 & 170.0 & 0.64 & 1.97 & 16.0\% & 15.2\% & +0.8\% \\
+DQN & RANDOM & 250 & 49.20\% & [43.1\%, 55.4\%] & 5.11 +/- 6.06 & 174.7 & 1.35 & 3.04 & 53.6\% & 44.8\% & +8.8\% \\
+DQN & SELF\_PLAY & 250 & 48.40\% & [42.3\%, 54.6\%] & 5.12 +/- 5.92 & 177.9 & 0.67 & 3.06 & 52.8\% & 44.0\% & +8.8\% \\
+PPO & RANDOM & 250 & 44.00\% & [38.0\%, 50.2\%] & 4.90 +/- 5.75 & 175.8 & 1.30 & 3.22 & 48.8\% & 39.2\% & +9.6\% \\
+\bottomrule
+\end{tabular}
+\end{table}

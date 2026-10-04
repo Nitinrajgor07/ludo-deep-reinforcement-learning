@@ -1,0 +1,156 @@
+{
+  "baseline_1_0x": {
+    "win_rate": 0.18,
+    "average_reward": 4.424,
+    "bernoulli_variance": 0.1476,
+    "reward_variance": 23.5029
+  },
+  "extreme_1_4x": {
+    "win_rate": 0.2,
+    "average_reward": 4.782,
+    "bernoulli_variance": 0.16,
+    "reward_variance": 30.1601
+  },
+  "robustness_summary": {
+    "max_win_rate_drop": 0.12,
+    "total_pct_win_rate_degradation": 11.11,
+    "retention_index_at_1_4x": 1.1111,
+    "win_rate_sensitivity_slope": 0.0,
+    "reward_sensitivity_slope": 0.404,
+    "win_rate_r_squared": 0.0,
+    "win_rate_spread": 0.16,
+    "reward_spread": 0.77
+  },
+  "per_condition_metrics": {
+    "1.0x": {
+      "multiplier": 1.0,
+      "win_rate": 0.18,
+      "win_rate_ci_95": [
+        0.0977,
+        0.308
+      ],
+      "delta_win_rate": 0.0,
+      "pct_win_rate_degradation": 0.0,
+      "average_reward": 4.424,
+      "reward_ci_95": [
+        3.109,
+        5.749
+      ],
+      "delta_reward": 0.0,
+      "pct_reward_degradation": 0.0,
+      "bernoulli_win_variance": 0.1476,
+      "reward_variance": 23.5029,
+      "reward_std": 4.848,
+      "turns_variance": 594.7,
+      "turns_std": 24.39,
+      "average_turns": 162.3,
+      "coefficient_of_variation_reward": 1.0958
+    },
+    "1.1x": {
+      "multiplier": 1.1,
+      "win_rate": 0.22,
+      "win_rate_ci_95": [
+        0.1275,
+        0.3524
+      ],
+      "delta_win_rate": 0.04,
+      "pct_win_rate_degradation": 22.22,
+      "average_reward": 5.142,
+      "reward_ci_95": [
+        3.577,
+        6.737
+      ],
+      "delta_reward": 0.718,
+      "pct_reward_degradation": 16.23,
+      "bernoulli_win_variance": 0.1716,
+      "reward_variance": 34.0484,
+      "reward_std": 5.8351,
+      "turns_variance": 504.98,
+      "turns_std": 22.47,
+      "average_turns": 163.28,
+      "coefficient_of_variation_reward": 1.1348
+    },
+    "1.2x": {
+      "multiplier": 1.2,
+      "win_rate": 0.06,
+      "win_rate_ci_95": [
+        0.0206,
+        0.1622
+      ],
+      "delta_win_rate": -0.12,
+      "pct_win_rate_degradation": -66.67,
+      "average_reward": 5.194,
+      "reward_ci_95": [
+        3.671,
+        6.726
+      ],
+      "delta_reward": 0.77,
+      "pct_reward_degradation": 17.41,
+      "bernoulli_win_variance": 0.0564,
+      "reward_variance": 31.5502,
+      "reward_std": 5.617,
+      "turns_variance": 527.08,
+      "turns_std": 22.96,
+      "average_turns": 166.06,
+      "coefficient_of_variation_reward": 1.0814
+    },
+    "1.3x": {
+      "multiplier": 1.3,
+      "win_rate": 0.18,
+      "win_rate_ci_95": [
+        0.0977,
+        0.308
+      ],
+      "delta_win_rate": 0.0,
+      "pct_win_rate_degradation": 0.0,
+      "average_reward": 4.83,
+      "reward_ci_95": [
+        3.385,
+        6.29
+      ],
+      "delta_reward": 0.406,
+      "pct_reward_degradation": 9.18,
+      "bernoulli_win_variance": 0.1476,
+      "reward_variance": 29.0152,
+      "reward_std": 5.3866,
+      "turns_variance": 470.12,
+      "turns_std": 21.68,
+      "average_turns": 161.6,
+      "coefficient_of_variation_reward": 1.1152
+    },
+    "1.4x": {
+      "multiplier": 1.4,
+      "win_rate": 0.2,
+      "win_rate_ci_95": [
+        0.1124,
+        0.3304
+      ],
+      "delta_win_rate": 0.02,
+      "pct_win_rate_degradation": 11.11,
+      "average_reward": 4.782,
+      "reward_ci_95": [
+        3.298,
+        6.2881
+      ],
+      "delta_reward": 0.358,
+      "pct_reward_degradation": 8.09,
+      "bernoulli_win_variance": 0.16,
+      "reward_variance": 30.1601,
+      "reward_std": 5.4918,
+      "turns_variance": 545.46,
+      "turns_std": 23.36,
+      "average_turns": 163.74,
+      "coefficient_of_variation_reward": 1.1484
+    }
+  },
+  "convergence": {
+    "algorithm": "model4",
+    "total_training_steps": 500,
+    "total_training_episodes": 6,
+    "initial_loss": 3.933459997177124,
+    "final_loss": 3.9268500804901123,
+    "loss_reduction_pct": 0.17,
+    "training_win_rate": 0.3333333333333333,
+    "training_avg_reward": 11.741666666666655
+  }
+}

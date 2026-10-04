@@ -38,10 +38,11 @@ class LudoEnvironment:
         max_turns: int = 1000,
         reward_calculator: Optional[LudoRewardCalculator] = None,
         auto_advance_no_moves: bool = True,
+        dice_probabilities: Optional[Any] = None,
     ):
         self.max_turns = max_turns
         self.auto_advance_no_moves = auto_advance_no_moves
-        self.dice = Dice(seed=seed)
+        self.dice = Dice(seed=seed, probabilities=dice_probabilities)
         self.board = LudoBoard()
         self.rules = LudoRules(self.board)
         self.reward_calculator = reward_calculator or LudoRewardCalculator()
@@ -62,6 +63,10 @@ class LudoEnvironment:
     def seed(self, seed: Optional[int] = None) -> None:
         """Reseed the environment's dice RNG."""
         self.dice.seed(seed)
+
+    def set_dice_distribution(self, probabilities: Optional[Any]) -> None:
+        """Set or clear custom dice probability distribution for stochasticity experiments."""
+        self.dice.set_distribution(probabilities)
 
     def reset(
         self,

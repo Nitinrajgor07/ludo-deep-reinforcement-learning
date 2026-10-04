@@ -19,6 +19,7 @@ class PrioritizedReplayBuffer:
         beta_start: float = 0.4,
         beta_end: float = 1.0,
         epsilon: float = 1e-5,
+        state_shape: Tuple[int, ...] = (4, 52),
     ):
         self.capacity = capacity
         self.alpha = alpha
@@ -26,16 +27,17 @@ class PrioritizedReplayBuffer:
         self.beta_start = beta_start
         self.beta_end = beta_end
         self.epsilon = epsilon
+        self.state_shape = state_shape
 
         self.pos = 0
         self.size = 0
 
-        # Preallocated buffers for spatial states (4, 52), contexts (12), and scalars
-        self.states = np.zeros((capacity, 4, 52), dtype=np.float32)
+        # Preallocated buffers for states, contexts (12), and scalars
+        self.states = np.zeros((capacity, *state_shape), dtype=np.float32)
         self.contexts = np.zeros((capacity, 12), dtype=np.float32)
         self.actions = np.zeros(capacity, dtype=np.int64)
         self.rewards = np.zeros(capacity, dtype=np.float32)
-        self.next_states = np.zeros((capacity, 4, 52), dtype=np.float32)
+        self.next_states = np.zeros((capacity, *state_shape), dtype=np.float32)
         self.next_contexts = np.zeros((capacity, 12), dtype=np.float32)
         self.dones = np.zeros(capacity, dtype=np.float32)
         self.action_masks = np.zeros((capacity, 4), dtype=np.float32)

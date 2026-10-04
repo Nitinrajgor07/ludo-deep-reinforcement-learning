@@ -1,0 +1,5 @@
+algorithm,baseline_win_rate,extreme_1_4x_win_rate,delta_win_rate,pct_win_rate_degradation,retention_index_1_4x,max_win_rate_drop,win_rate_sensitivity_slope,reward_sensitivity_slope,baseline_reward,extreme_1_4x_reward,delta_reward,training_initial_loss,training_final_loss,training_loss_reduction_pct
+DQN,0.18,0.18,0.0,0.0,1.0,0.06,-0.02,1.209,4.973,5.607,0.634,0.027018729597330093,0.008802253752946854,67.42
+PPO,0.2,0.22,0.02,10.0,1.1,0.06,-0.12,0.824,4.547,4.974,0.427,0.8762190639972687,0.5040106624364853,42.48
+MODEL3,0.18,0.22,0.04,22.22,1.2222,0.1,0.04,1.368,4.723,5.357,0.634,0.06656046211719513,0.02131003327667713,67.98
+MODEL4,0.18,0.2,0.02,11.11,1.1111,0.12,0.0,0.404,4.424,4.782,0.358,3.933459997177124,3.9268500804901123,0.17

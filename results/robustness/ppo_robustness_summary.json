@@ -1,0 +1,156 @@
+{
+  "baseline_1_0x": {
+    "win_rate": 0.2,
+    "average_reward": 4.547,
+    "bernoulli_variance": 0.16,
+    "reward_variance": 25.5589
+  },
+  "extreme_1_4x": {
+    "win_rate": 0.22,
+    "average_reward": 4.974,
+    "bernoulli_variance": 0.1716,
+    "reward_variance": 31.0309
+  },
+  "robustness_summary": {
+    "max_win_rate_drop": 0.06,
+    "total_pct_win_rate_degradation": 10.0,
+    "retention_index_at_1_4x": 1.1,
+    "win_rate_sensitivity_slope": -0.12,
+    "reward_sensitivity_slope": 0.824,
+    "win_rate_r_squared": 0.0732,
+    "win_rate_spread": 0.18,
+    "reward_spread": 0.481
+  },
+  "per_condition_metrics": {
+    "1.0x": {
+      "multiplier": 1.0,
+      "win_rate": 0.2,
+      "win_rate_ci_95": [
+        0.1124,
+        0.3304
+      ],
+      "delta_win_rate": 0.0,
+      "pct_win_rate_degradation": 0.0,
+      "average_reward": 4.547,
+      "reward_ci_95": [
+        3.1939,
+        5.936
+      ],
+      "delta_reward": 0.0,
+      "pct_reward_degradation": 0.0,
+      "bernoulli_win_variance": 0.16,
+      "reward_variance": 25.5589,
+      "reward_std": 5.0556,
+      "turns_variance": 634.84,
+      "turns_std": 25.2,
+      "average_turns": 166.02,
+      "coefficient_of_variation_reward": 1.1119
+    },
+    "1.1x": {
+      "multiplier": 1.1,
+      "win_rate": 0.32,
+      "win_rate_ci_95": [
+        0.2076,
+        0.4581
+      ],
+      "delta_win_rate": 0.12,
+      "pct_win_rate_degradation": 60.0,
+      "average_reward": 4.701,
+      "reward_ci_95": [
+        3.2269,
+        6.202
+      ],
+      "delta_reward": 0.154,
+      "pct_reward_degradation": 3.39,
+      "bernoulli_win_variance": 0.2176,
+      "reward_variance": 30.0172,
+      "reward_std": 5.4788,
+      "turns_variance": 441.43,
+      "turns_std": 21.01,
+      "average_turns": 163.14,
+      "coefficient_of_variation_reward": 1.1655
+    },
+    "1.2x": {
+      "multiplier": 1.2,
+      "win_rate": 0.14,
+      "win_rate_ci_95": [
+        0.0695,
+        0.2619
+      ],
+      "delta_win_rate": -0.06,
+      "pct_win_rate_degradation": -30.0,
+      "average_reward": 5.028,
+      "reward_ci_95": [
+        3.524,
+        6.547
+      ],
+      "delta_reward": 0.481,
+      "pct_reward_degradation": 10.58,
+      "bernoulli_win_variance": 0.1204,
+      "reward_variance": 31.0953,
+      "reward_std": 5.5763,
+      "turns_variance": 412.45,
+      "turns_std": 20.31,
+      "average_turns": 165.58,
+      "coefficient_of_variation_reward": 1.109
+    },
+    "1.3x": {
+      "multiplier": 1.3,
+      "win_rate": 0.16,
+      "win_rate_ci_95": [
+        0.0834,
+        0.2851
+      ],
+      "delta_win_rate": -0.04,
+      "pct_win_rate_degradation": -20.0,
+      "average_reward": 4.671,
+      "reward_ci_95": [
+        3.2159,
+        6.141
+      ],
+      "delta_reward": 0.124,
+      "pct_reward_degradation": 2.73,
+      "bernoulli_win_variance": 0.1344,
+      "reward_variance": 28.941,
+      "reward_std": 5.3797,
+      "turns_variance": 488.61,
+      "turns_std": 22.1,
+      "average_turns": 161.6,
+      "coefficient_of_variation_reward": 1.1517
+    },
+    "1.4x": {
+      "multiplier": 1.4,
+      "win_rate": 0.22,
+      "win_rate_ci_95": [
+        0.1275,
+        0.3524
+      ],
+      "delta_win_rate": 0.02,
+      "pct_win_rate_degradation": 10.0,
+      "average_reward": 4.974,
+      "reward_ci_95": [
+        3.4569,
+        6.506
+      ],
+      "delta_reward": 0.427,
+      "pct_reward_degradation": 9.39,
+      "bernoulli_win_variance": 0.1716,
+      "reward_variance": 31.0309,
+      "reward_std": 5.5705,
+      "turns_variance": 400.33,
+      "turns_std": 20.01,
+      "average_turns": 162.4,
+      "coefficient_of_variation_reward": 1.1199
+    }
+  },
+  "convergence": {
+    "algorithm": "ppo",
+    "total_training_steps": 500,
+    "total_training_episodes": 6,
+    "initial_loss": 0.8762190639972687,
+    "final_loss": 0.5040106624364853,
+    "loss_reduction_pct": 42.48,
+    "training_win_rate": 0.5,
+    "training_avg_reward": 11.98333333333332
+  }
+}

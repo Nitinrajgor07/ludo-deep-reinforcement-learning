@@ -80,6 +80,9 @@ class DQNTrainer:
         last_loss = 0.0
 
         step = 0
+        last_eval_step = 0
+        last_ckpt_step = 0
+        ckpt_interval = 25000
         while step < total_steps:
             curr_p = self.env.current_player
             legal_actions = self.env.get_legal_actions()
@@ -160,11 +163,15 @@ class DQNTrainer:
                     obs, info = self.env.reset()
 
             # Periodic evaluation
-            if eval_interval is not None and step > 0 and step % eval_interval == 0:
+            if eval_interval is not None and step > 0 and (step - last_eval_step) >= eval_interval:
+                last_eval_step = step
                 self.evaluate(eval_games)
-                if checkpoint_dir is not None:
-                    ckpt_path = checkpoint_dir / f"dqn_step_{step}.pt"
-                    self.agent.save_checkpoint(ckpt_path)
+
+            # Checkpoint snapshot (Protocol: every 25,000 steps)
+            if checkpoint_dir is not None and step > 0 and (step - last_ckpt_step) >= ckpt_interval:
+                last_ckpt_step = step
+                ckpt_path = checkpoint_dir / f"dqn_step_{step}.pt"
+                self.agent.save_checkpoint(ckpt_path)
 
         win_rate = (dqn_wins / episode_count) if episode_count > 0 else 0.0
         avg_reward = float(np.mean(all_episode_rewards)) if all_episode_rewards else 0.0

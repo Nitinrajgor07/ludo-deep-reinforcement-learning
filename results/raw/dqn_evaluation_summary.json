@@ -1,0 +1,167 @@
+{
+  "algorithm": "dqn",
+  "checkpoint": "experiments\\phase11_pilots\\dqn\\checkpoints\\pilot_checkpoint.pt",
+  "protocol_version": "1.0.0 (FROZEN)",
+  "matchups": {
+    "random": {
+      "algorithm": "dqn",
+      "opponent_type": "random",
+      "total_games": 250,
+      "agent_wins": 123,
+      "opponent_wins": 127,
+      "draws": 0,
+      "win_rate": 0.492,
+      "loss_rate": 0.508,
+      "draw_rate": 0.0,
+      "p0_games": 125,
+      "p0_wins": 67,
+      "p0_win_rate": 0.536,
+      "p1_games": 125,
+      "p1_wins": 56,
+      "p1_win_rate": 0.448,
+      "seat_bias": 0.088,
+      "average_reward": 5.106,
+      "reward_std": 6.057,
+      "reward_variance": 36.6876,
+      "reward_ci_95": [
+        4.3658,
+        5.8396
+      ],
+      "average_opp_reward": 5.5936,
+      "average_turns": 174.65,
+      "turns_std": 22.81,
+      "turns_variance": 520.33,
+      "turns_median": 173.0,
+      "turns_min": 124,
+      "turns_max": 282,
+      "average_captures": 1.35,
+      "average_tokens_home": 3.04,
+      "bernoulli_win_variance": 0.249936,
+      "win_rate_ci_95_wilson": [
+        0.4306,
+        0.5536
+      ],
+      "win_rate_ci_95_bootstrap": [
+        0.428,
+        0.556
+      ],
+      "illegal_action_rate": 0.0
+    },
+    "expert": {
+      "algorithm": "dqn",
+      "opponent_type": "expert",
+      "total_games": 250,
+      "agent_wins": 39,
+      "opponent_wins": 211,
+      "draws": 0,
+      "win_rate": 0.156,
+      "loss_rate": 0.844,
+      "draw_rate": 0.0,
+      "p0_games": 125,
+      "p0_wins": 20,
+      "p0_win_rate": 0.16,
+      "p1_games": 125,
+      "p1_wins": 19,
+      "p1_win_rate": 0.152,
+      "seat_bias": 0.008,
+      "average_reward": 4.92,
+      "reward_std": 5.5143,
+      "reward_variance": 30.4078,
+      "reward_ci_95": [
+        4.2378,
+        5.5844
+      ],
+      "average_opp_reward": 5.486,
+      "average_turns": 169.96,
+      "turns_std": 25.46,
+      "turns_variance": 648.31,
+      "turns_median": 167.0,
+      "turns_min": 115,
+      "turns_max": 250,
+      "average_captures": 0.64,
+      "average_tokens_home": 1.97,
+      "bernoulli_win_variance": 0.131664,
+      "win_rate_ci_95_wilson": [
+        0.1163,
+        0.2061
+      ],
+      "win_rate_ci_95_bootstrap": [
+        0.112,
+        0.204
+      ],
+      "illegal_action_rate": 0.0
+    },
+    "self_play": {
+      "algorithm": "dqn",
+      "opponent_type": "self_play",
+      "total_games": 250,
+      "agent_wins": 121,
+      "opponent_wins": 129,
+      "draws": 0,
+      "win_rate": 0.484,
+      "loss_rate": 0.516,
+      "draw_rate": 0.0,
+      "p0_games": 125,
+      "p0_wins": 66,
+      "p0_win_rate": 0.528,
+      "p1_games": 125,
+      "p1_wins": 55,
+      "p1_win_rate": 0.44,
+      "seat_bias": 0.088,
+      "average_reward": 5.1186,
+      "reward_std": 5.9222,
+      "reward_variance": 35.0725,
+      "reward_ci_95": [
+        4.3849,
+        5.8336
+      ],
+      "average_opp_reward": 5.2332,
+      "average_turns": 177.91,
+      "turns_std": 23.54,
+      "turns_variance": 554.2,
+      "turns_median": 174.0,
+      "turns_min": 131,
+      "turns_max": 271,
+      "average_captures": 0.67,
+      "average_tokens_home": 3.06,
+      "bernoulli_win_variance": 0.249744,
+      "win_rate_ci_95_wilson": [
+        0.4228,
+        0.5457
+      ],
+      "win_rate_ci_95_bootstrap": [
+        0.424,
+        0.548
+      ],
+      "illegal_action_rate": 0.0
+    }
+  },
+  "convergence": {
+    "algorithm": "dqn",
+    "total_training_steps": 500,
+    "total_training_episodes": 6,
+    "training_win_rate": 0.5,
+    "training_avg_reward": 11.824999999999989,
+    "initial_loss": 0.027018729597330093,
+    "final_loss": 0.008802253752946854,
+    "loss_reduction_pct": 67.42,
+    "loss_history_length": 460,
+    "training_runtime_seconds": 8.73,
+    "peak_memory_mb": 316.35,
+    "updates": 460,
+    "final_epsilon": 0.99563
+  },
+  "sample_efficiency": {
+    "algorithm": "dqn",
+    "training_steps": 500,
+    "training_episodes": 6,
+    "training_runtime_seconds": 8.73,
+    "eval_win_rate_vs_random": 0.492,
+    "eval_win_rate_vs_expert": 0.156,
+    "eval_avg_reward_vs_random": 5.106,
+    "win_rate_per_1k_steps": 0.984,
+    "reward_per_1k_steps": 10.212,
+    "step_sample_efficiency": 0.000984,
+    "wallclock_sample_efficiency": 0.0564
+  }
+}

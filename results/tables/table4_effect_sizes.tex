@@ -1,0 +1,26 @@
+\begin{table}
+\caption{Table 4: Measured Effect Sizes and Standardized Magnitudes}
+\label{tab:table4_effect_sizes}
+\begin{tabular}{lllllllll}
+\toprule
+Comparison Category & Group 1 & Group 2 & Metric & Effect Measure & Point Estimate & 95\% CI Lower & 95\% CI Upper & Interpretation \\
+\midrule
+algorithm\_contrast & DQN (random) & PPO (random) & win\_rate & Risk Difference (Win Rate Diff) & +0.0520 & -0.0353 & +0.1393 & contains 0 (not statistically distinguishable from 0) \\
+algorithm\_contrast & DQN (random) & PPO (random) & win\_rate & Odds Ratio & +1.2326 & +0.8670 & +1.7525 & contains 1 (not distinguishable from 1.0) \\
+algorithm\_contrast & DQN (random) & PPO (random) & agent\_reward & Cohen's d & +0.0354 & -0.1399 & +0.2107 & negligible \\
+algorithm\_contrast & DQN (random) & PPO (random) & agent\_reward & Hedges' g & +0.0354 & -0.1397 & +0.2104 & negligible \\
+algorithm\_contrast & DQN (random) & PPO (random) & turns & Cohen's d & -0.0466 & -0.2219 & +0.1287 & negligible \\
+algorithm\_contrast & DQN (random) & PPO (random) & turns & Hedges' g & -0.0465 & -0.2216 & +0.1285 & negligible \\
+algorithm\_contrast & DQN (random) & PPO (random) & agent\_captures & Cohen's d & +0.0405 & -0.1348 & +0.2158 & negligible \\
+algorithm\_contrast & DQN (random) & PPO (random) & agent\_captures & Hedges' g & +0.0404 & -0.1346 & +0.2155 & negligible \\
+algorithm\_contrast & DQN (random) & PPO (random) & agent\_tokens\_home & Cohen's d & -0.1868 & -0.3625 & -0.0111 & negligible \\
+algorithm\_contrast & DQN (random) & PPO (random) & agent\_tokens\_home & Hedges' g & -0.1865 & -0.3620 & -0.0111 & negligible \\
+opponent\_contrast & DQN (random) & DQN (expert) & agent\_reward & Cohen's d & +0.0321 & -0.1432 & +0.2074 & negligible \\
+opponent\_contrast & DQN (random) & DQN (expert) & turns & Cohen's d & +0.1943 & +0.0186 & +0.3700 & negligible \\
+opponent\_contrast & DQN (random) & DQN (self\_play) & agent\_reward & Cohen's d & -0.0021 & -0.1774 & +0.1732 & negligible \\
+opponent\_contrast & DQN (random) & DQN (self\_play) & turns & Cohen's d & -0.1406 & -0.3162 & +0.0349 & negligible \\
+opponent\_contrast & DQN (expert) & DQN (self\_play) & agent\_reward & Cohen's d & -0.0347 & -0.2100 & +0.1406 & negligible \\
+opponent\_contrast & DQN (expert) & DQN (self\_play) & turns & Cohen's d & -0.3245 & -0.5009 & -0.1480 & small \\
+\bottomrule
+\end{tabular}
+\end{table}

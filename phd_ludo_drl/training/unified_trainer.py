@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 import sys
+import time
 from typing import Any, Dict, Optional
 import torch
 
@@ -115,6 +116,7 @@ class UnifiedTrainingRunner:
         )
 
         logger.info(f"Starting training loop ({total_steps} steps)...")
+        start_time = time.time()
 
         # 7. Execute Training Loop
         training_metrics = trainer.train(
@@ -140,6 +142,9 @@ class UnifiedTrainingRunner:
             f"Avg Turns = {eval_summary.avg_turns:.1f} | Avg Reward = {eval_summary.avg_p0_reward:.2f}"
         )
 
+        runtime_seconds = round(time.time() - start_time, 2)
+        logger.info(f"Training and evaluation completed in {runtime_seconds:.2f}s")
+
         # 10. Compile and Save Results Artifact
         result_payload = {
             "metadata": metadata.to_dict(),
@@ -150,6 +155,7 @@ class UnifiedTrainingRunner:
                 "opponent_type": opponent_type,
                 "eval_games": eval_games,
             },
+            "runtime_seconds": runtime_seconds,
             "training_metrics": training_metrics.to_dict(),
             "evaluation_metrics": eval_summary.to_dict(),
             "artifacts": {

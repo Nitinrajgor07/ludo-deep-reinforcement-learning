@@ -1,0 +1,18 @@
+\begin{table}
+\caption{Table 5: First-Mover / Seat Permutation Fairness Evaluation}
+\label{tab:table5_seat_fairness_analysis}
+\begin{tabular}{lllllllll}
+\toprule
+Algorithm & Opponent & Metric & Seat 0 Value & Seat 1 Value & Seat Bias (P0 - P1) & Test Statistic & p-Value & Fair at alpha=0.05 \\
+\midrule
+DQN & EXPERT & win\_rate & 0.1600 & 0.1520 & +0.0080 & 1.0627 & 1.0000 & Yes (Neutral) \\
+DQN & EXPERT & agent\_reward & 10.1840 & -0.3440 & +10.5280 & 51.6456 & 2.1348e-90 & No (Biased) \\
+DQN & RANDOM & win\_rate & 0.5360 & 0.4480 & +0.0880 & 1.4233 & 0.2058 & Yes (Neutral) \\
+DQN & RANDOM & agent\_reward & 10.9580 & -0.7460 & +11.7040 & 60.8335 & 9.3117e-107 & No (Biased) \\
+DQN & SELF\_PLAY & win\_rate & 0.5280 & 0.4400 & +0.0880 & 1.4237 & 0.2056 & Yes (Neutral) \\
+DQN & SELF\_PLAY & agent\_reward & 10.8652 & -0.6280 & +11.4932 & 65.5028 & 5.3065e-112 & No (Biased) \\
+PPO & RANDOM & win\_rate & 0.4880 & 0.3920 & +0.0960 & 1.4783 & 0.1609 & Yes (Neutral) \\
+PPO & RANDOM & agent\_reward & 10.4916 & -0.6980 & +11.1896 & 68.0509 & 3.6629e-119 & No (Biased) \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,38 @@
+{
+  "phase": "Phase 14 Final Evaluation",
+  "protocol_version": "1.0.0 (FROZEN)",
+  "frozen_timestamp_utc": "2026-10-04T04:21:45.666981+00:00",
+  "algorithms": [
+    "dqn",
+    "ppo",
+    "model3",
+    "model4"
+  ],
+  "opponents": [
+    "random",
+    "expert",
+    "self_play"
+  ],
+  "games_per_matchup": 250,
+  "master_seed": 42,
+  "eval_base_seed": 1042,
+  "max_turns": 1000,
+  "seat_balance": "50% Player 0, 50% Player 1 (strict alternating)",
+  "deterministic_action_selection": true,
+  "illegal_action_handling": "Masked to -inf (0.00% illegal actions)",
+  "metrics_collected": [
+    "win_rate",
+    "average_reward",
+    "episode_length",
+    "performance_variance",
+    "confidence_intervals_95",
+    "convergence_metrics",
+    "sample_efficiency_metrics"
+  ],
+  "checkpoints_evaluated": {
+    "dqn": "experiments\\phase11_pilots\\dqn\\checkpoints\\pilot_checkpoint.pt",
+    "ppo": "experiments\\phase11_pilots\\ppo\\checkpoints\\pilot_checkpoint.pt",
+    "model3": "experiments\\phase11_pilots\\model3\\checkpoints\\pilot_checkpoint.pt",
+    "model4": "experiments\\phase11_pilots\\model4\\checkpoints\\pilot_checkpoint.pt"
+  }
+}

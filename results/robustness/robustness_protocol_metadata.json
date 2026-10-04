@@ -1,0 +1,126 @@
+{
+  "phase": "Phase 15 Stochasticity and Robustness Analysis",
+  "protocol_version": "1.0.0 (FROZEN)",
+  "frozen_timestamp_utc": "2026-10-04T04:38:17.009812+00:00",
+  "algorithms": [
+    "dqn",
+    "ppo",
+    "model3",
+    "model4"
+  ],
+  "opponent": "expert",
+  "variance_multipliers": [
+    1.0,
+    1.1,
+    1.2,
+    1.3,
+    1.4
+  ],
+  "predefined_stochasticity_levels": {
+    "1.0": {
+      "multiplier": 1.0,
+      "name": "1.0x Variance",
+      "description": "Baseline Fair Die",
+      "target_variance": 2.9167,
+      "probabilities": [
+        0.166667,
+        0.166667,
+        0.166667,
+        0.166667,
+        0.166667,
+        0.166667
+      ],
+      "p_roll_1_or_6": 0.3333,
+      "p_roll_2_or_5": 0.3333,
+      "p_roll_3_or_4": 0.3333
+    },
+    "1.1": {
+      "multiplier": 1.1,
+      "name": "1.1x Variance",
+      "description": "Skewed Loaded Die (P(1)=P(6)=0.193)",
+      "target_variance": 3.2083,
+      "probabilities": [
+        0.192708,
+        0.161458,
+        0.145833,
+        0.145833,
+        0.161458,
+        0.192708
+      ],
+      "p_roll_1_or_6": 0.3854,
+      "p_roll_2_or_5": 0.3229,
+      "p_roll_3_or_4": 0.2917
+    },
+    "1.2": {
+      "multiplier": 1.2,
+      "name": "1.2x Variance",
+      "description": "Skewed Loaded Die (P(1)=P(6)=0.219)",
+      "target_variance": 3.5,
+      "probabilities": [
+        0.21875,
+        0.15625,
+        0.125,
+        0.125,
+        0.15625,
+        0.21875
+      ],
+      "p_roll_1_or_6": 0.4375,
+      "p_roll_2_or_5": 0.3125,
+      "p_roll_3_or_4": 0.25
+    },
+    "1.3": {
+      "multiplier": 1.3,
+      "name": "1.3x Variance",
+      "description": "Skewed Loaded Die (P(1)=P(6)=0.245)",
+      "target_variance": 3.7917,
+      "probabilities": [
+        0.244792,
+        0.151042,
+        0.104167,
+        0.104167,
+        0.151042,
+        0.244792
+      ],
+      "p_roll_1_or_6": 0.4896,
+      "p_roll_2_or_5": 0.3021,
+      "p_roll_3_or_4": 0.2083
+    },
+    "1.4": {
+      "multiplier": 1.4,
+      "name": "1.4x Variance",
+      "description": "Skewed Loaded Die (P(1)=P(6)=0.271)",
+      "target_variance": 4.0833,
+      "probabilities": [
+        0.270833,
+        0.145833,
+        0.083333,
+        0.083333,
+        0.145833,
+        0.270833
+      ],
+      "p_roll_1_or_6": 0.5417,
+      "p_roll_2_or_5": 0.2917,
+      "p_roll_3_or_4": 0.1667
+    }
+  },
+  "games_per_condition": 50,
+  "total_conditions": 20,
+  "total_games": 1000,
+  "master_seed": 42,
+  "robustness_base_seed": 2042,
+  "max_turns": 1000,
+  "metrics_collected": [
+    "win_rate",
+    "average_reward",
+    "convergence",
+    "performance_variation",
+    "robustness_degradation",
+    "confidence_intervals_95"
+  ],
+  "checkpoints": {
+    "dqn": "experiments\\phase11_pilots\\dqn\\checkpoints\\pilot_checkpoint.pt",
+    "ppo": "experiments\\phase11_pilots\\ppo\\checkpoints\\pilot_checkpoint.pt",
+    "model3": "experiments\\phase11_pilots\\model3\\checkpoints\\pilot_checkpoint.pt",
+    "model4": "experiments\\phase11_pilots\\model4\\checkpoints\\pilot_checkpoint.pt"
+  }
+}
