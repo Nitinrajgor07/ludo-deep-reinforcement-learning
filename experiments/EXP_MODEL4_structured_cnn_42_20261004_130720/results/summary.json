@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "experiment_id": "EXP_MODEL4_structured_cnn_42_20261004_130720",
+    "algorithm": "model4",
+    "encoding": "structured_cnn",
+    "seed": 42,
+    "timestamp": "20261004_130720",
+    "description": "Unified benchmark run for MODEL4",
+    "config_hash": "baec379f"
+  },
+  "config": {
+    "algorithm": "model4",
+    "seed": 42,
+    "total_steps": 1000,
+    "opponent_type": "random",
+    "eval_games": 20
+  },
+  "runtime_seconds": 17.87,
+  "training_metrics": {
+    "total_steps": 1000,
+    "episodes": 12,
+    "c51_wins": 3,
+    "opponent_wins": 9,
+    "draws": 0,
+    "win_rate": 0.25,
+    "avg_reward": 12.19166666666665,
+    "final_loss": 3.9193613529205322,
+    "final_epsilon": 0.9924,
+    "updates": 800
+  },
+  "evaluation_metrics": {
+    "total_games": 20,
+    "p0_wins": 12,
+    "p1_wins": 8,
+    "draws": 0,
+    "p0_win_rate": 0.6,
+    "p1_win_rate": 0.4,
+    "draw_rate": 0.0,
+    "avg_turns": 173.15,
+    "avg_p0_reward": 5.0899999999999945,
+    "avg_p1_reward": 5.524999999999993
+  },
+  "artifacts": {
+    "checkpoint": "experiments\\EXP_MODEL4_structured_cnn_42_20261004_130720\\checkpoints\\final_model.pt",
+    "log_dir": "experiments\\EXP_MODEL4_structured_cnn_42_20261004_130720\\logs",
+    "results_dir": "experiments\\EXP_MODEL4_structured_cnn_42_20261004_130720\\results"
+  }
+}

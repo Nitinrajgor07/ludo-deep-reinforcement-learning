@@ -1,0 +1,106 @@
+name: phd_ludo_drl
+version: 0.1.0
+environment:
+  num_players: 2
+  tokens_per_player: 4
+  track_length: 52
+  home_column_length: 5
+  safe_squares:
+  - 0
+  - 8
+  - 13
+  - 21
+  - 26
+  - 34
+  - 39
+  - 47
+  max_turns_per_game: 1000
+encoding:
+  type: structured_cnn
+  latent_dim: 128
+  cnn_channels: 4
+  cnn_filters:
+  - 32
+  - 64
+reward:
+  release: 0.25
+  defend: 0.2
+  capture: 0.15
+  advance: 0.1
+  blockade: 0.05
+  win: 1.0
+  knocked: -0.25
+  loss: -1.0
+  illegal_penalty: -0.5
+dqn:
+  architecture: double_dueling
+  hidden_units: 256
+  learning_rate: 0.0001
+  gamma: 0.99
+  tau: 0.005
+  buffer_capacity: 50000
+  batch_size: 64
+  per_alpha: 0.6
+  per_beta_start: 0.4
+  per_beta_end: 1.0
+  epsilon_start: 1.0
+  epsilon_end: 0.05
+  epsilon_decay_steps: 100000
+ppo:
+  hidden_units: 128
+  learning_rate: 0.0003
+  gamma: 0.99
+  gae_lambda: 0.95
+  clip_epsilon: 0.2
+  entropy_coeff: 0.01
+  value_coeff: 0.5
+  num_parallel_envs: 8
+  rollout_steps_per_env: 128
+  num_epochs: 4
+  mini_batch_size: 256
+  max_grad_norm: 0.5
+model3:
+  name: discrete_sac
+  hidden_units: 128
+  actor_lr: 0.0003
+  critic_lr: 0.0003
+  alpha_lr: 0.0003
+  gamma: 0.99
+  tau: 0.005
+  buffer_capacity: 50000
+  batch_size: 64
+  initial_alpha: 0.2
+  tune_alpha: true
+  target_entropy_ratio: 0.98
+  warmup_steps: 200
+model4:
+  name: c51_dqn
+  hidden_units: 128
+  learning_rate: 0.0001
+  gamma: 0.99
+  tau: 0.005
+  num_atoms: 51
+  v_min: -20.0
+  v_max: 30.0
+  buffer_capacity: 50000
+  batch_size: 64
+  epsilon_start: 1.0
+  epsilon_end: 0.05
+  epsilon_decay_steps: 100000
+  warmup_steps: 200
+training:
+  total_steps: 500000
+  checkpoint_interval: 25000
+  eval_interval: 10000
+  eval_games_during_train: 100
+  seeds:
+  - 42
+  - 101
+  - 202
+  - 303
+  - 404
+evaluation:
+  benchmark_games: 5000
+  opponents:
+  - random
+  - expert

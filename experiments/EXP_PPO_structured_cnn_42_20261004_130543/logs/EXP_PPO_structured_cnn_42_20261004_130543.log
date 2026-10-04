@@ -1,0 +1,9 @@
+[2026-10-04 13:05:43] [INFO] [EXP_PPO_structured_cnn_42_20261004_130543] Initialized Experiment: EXP_PPO_structured_cnn_42_20261004_130543
+[2026-10-04 13:05:43] [INFO] [EXP_PPO_structured_cnn_42_20261004_130543] Algorithm: PPO | Seed: 42 | Steps: 1000 | Opponent: random
+[2026-10-04 13:05:43] [INFO] [EXP_PPO_structured_cnn_42_20261004_130543] Starting training loop (1000 steps)...
+[2026-10-04 13:05:50] [INFO] [EXP_PPO_structured_cnn_42_20261004_130543] Training completed: 1000 steps, 13 episodes.
+[2026-10-04 13:05:50] [INFO] [EXP_PPO_structured_cnn_42_20261004_130543] Saved final checkpoint to C:\Users\asus\Desktop\TDPCL\PROJECT\experiments\EXP_PPO_structured_cnn_42_20261004_130543\checkpoints\final_model.pt
+[2026-10-04 13:05:50] [INFO] [EXP_PPO_structured_cnn_42_20261004_130543] Executing post-training evaluation (20 games vs random)...
+[2026-10-04 13:05:53] [INFO] [EXP_PPO_structured_cnn_42_20261004_130543] Eval Outcome: Win Rate = 50.00% | Avg Turns = 177.7 | Avg Reward = 5.07
+[2026-10-04 13:05:53] [INFO] [EXP_PPO_structured_cnn_42_20261004_130543] Training and evaluation completed in 9.96s
+[2026-10-04 13:05:53] [INFO] [EXP_PPO_structured_cnn_42_20261004_130543] Saved complete experiment summary to C:\Users\asus\Desktop\TDPCL\PROJECT\experiments\EXP_PPO_structured_cnn_42_20261004_130543\results\summary.json

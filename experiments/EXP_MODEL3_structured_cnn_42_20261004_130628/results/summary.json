@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "experiment_id": "EXP_MODEL3_structured_cnn_42_20261004_130628",
+    "algorithm": "model3",
+    "encoding": "structured_cnn",
+    "seed": 42,
+    "timestamp": "20261004_130628",
+    "description": "Unified benchmark run for MODEL3",
+    "config_hash": "baec379f"
+  },
+  "config": {
+    "algorithm": "model3",
+    "seed": 42,
+    "total_steps": 1000,
+    "opponent_type": "random",
+    "eval_games": 20
+  },
+  "runtime_seconds": 35.63,
+  "training_metrics": {
+    "total_steps": 1000,
+    "episodes": 12,
+    "sac_wins": 4,
+    "opponent_wins": 8,
+    "draws": 0,
+    "win_rate": 0.3333333333333333,
+    "avg_reward": 12.287499999999989,
+    "final_critic_loss": 0.02280702069401741,
+    "final_actor_loss": -1.2216986417770386,
+    "final_alpha": 0.2523888349533081,
+    "updates": 800
+  },
+  "evaluation_metrics": {
+    "total_games": 20,
+    "p0_wins": 8,
+    "p1_wins": 12,
+    "draws": 0,
+    "p0_win_rate": 0.4,
+    "p1_win_rate": 0.6,
+    "draw_rate": 0.0,
+    "avg_turns": 174.8,
+    "avg_p0_reward": 5.287499999999995,
+    "avg_p1_reward": 5.769999999999993
+  },
+  "artifacts": {
+    "checkpoint": "experiments\\EXP_MODEL3_structured_cnn_42_20261004_130628\\checkpoints\\final_model.pt",
+    "log_dir": "experiments\\EXP_MODEL3_structured_cnn_42_20261004_130628\\logs",
+    "results_dir": "experiments\\EXP_MODEL3_structured_cnn_42_20261004_130628\\results"
+  }
+}
