@@ -24,7 +24,7 @@
 
 The primary objective of this doctoral research is to formulate, implement, and empirically evaluate a controlled comparative benchmark across four distinct Deep Reinforcement Learning (DRL) algorithmic paradigms operating within a turn-based, multi-token, stochastic board game environment:
 
-1. **Paradigm Comparison:** Compare Value-based (Double Dueling DQN + PER), On-policy Policy Gradient (PPO), Off-policy Maximum Entropy Actor-Critic (Discrete SAC), and Distributional RL (Categorical C51) under identical environmental conditions and state interfaces.
+1. **Paradigm Comparison:** Compare Value-based (Double Dueling DQN + PER), On-policy Policy Gradient (Actor-Critic PPO), Off-policy Maximum Entropy Actor-Critic (Discrete SAC), and Distributional RL (Categorical DQN (C51)) under identical environmental conditions and state interfaces.
 2. **Inductive Bias & State Representation:** Quantify the performance and sample-efficiency benefits of a 4-channel spatial circular CNN representation versus unstructured flat vector representations.
 3. **Action Space Safety & Masking:** Implement and validate strict deterministic action masking ($M(s) \in \{0, 1\}^4$) ensuring 0.00% illegal actions throughout all training and evaluation episodes.
 4. **Environmental Stochasticity & Robustness:** Measure policy degradation and retention under controlled perturbation of transition dynamics across five discrete dice variance levels ($1.0\times$ to $1.4\times$).
@@ -50,10 +50,10 @@ All four models share a standardized architecture: a common spatial CNN encoder 
 
 | Model | Paradigm | Architectural Specifications | Exploration & Objective |
 | :--- | :--- | :--- | :--- |
-| **Model 1: DQN** | Value-Based Deep Q-Learning | Double Q-learning target decoupling; Dueling architecture (Value stream: Linear 128 $\to$ 256 $\to$ 1, Advantage stream: Linear 128 $\to$ 256 $\to$ 4); Prioritized Experience Replay (PER: $\alpha=0.6, \beta=0.4 \to 1.0$); Soft target updates ($\tau=0.005$). | Linear $\epsilon$-greedy annealing ($1.0 \to 0.05$ over 100k steps). Loss: Huber / Smooth L1 loss with IS weights. |
-| **Model 2: PPO** | On-Policy Actor-Critic | Shared CNN encoder (128-D latent); Masked Policy head (Linear 128 $\to$ 4); Value head (Linear 128 $\to$ 1); Generalized Advantage Estimation (GAE: $\lambda=0.95, \gamma=0.99$). | Clipped surrogate objective ($\epsilon=0.2$); Entropy bonus coefficient ($c_2=0.01$); Value loss clipping; Gradient norm clipping (0.5). |
-| **Model 3: Discrete SAC** | Maximum Entropy Off-Policy Actor-Critic | Twin Soft Q-critics ($Q_1(s), Q_2(s) \in \mathbb{R}^4$); Policy head producing discrete distribution $\pi(a \mid s)$; Exact discrete expectation target calculation without action reparameterization; Polyak soft updates ($\tau=0.005$). | Maximum entropy objective: $\mathcal{H}(\pi) = -\sum_a \pi(a|s) \ln \pi(a|s)$; Automatic temperature tuning ($\alpha$) targeting $\bar{\mathcal{H}} = 0.98 \times \ln(4)$. |
-| **Model 4: Categorical C51** | Distributional Reinforcement Learning | Models probability distribution over 51 return atoms ($V_{min}=-20.0, V_{max}=30.0, \Delta z=1.0$); Linear 128 $\to$ 256 $\to$ $4 \times 51$; Categorical Bellman projection with target networks ($\tau=0.005$). | Cross-entropy / KL divergence loss against projected return distribution; Action selection via expected value $\mathbb{E}[Z(s, a)] = \sum_i z_i p_i(s, a)$. |
+| **Double Dueling DQN + PER** | Value-Based Deep Q-Learning | Double Q-learning target decoupling; Dueling architecture (Value stream: Linear 128 $\to$ 256 $\to$ 1, Advantage stream: Linear 128 $\to$ 256 $\to$ 4); Prioritized Experience Replay (PER: $\alpha=0.6, \beta=0.4 \to 1.0$); Soft target updates ($\tau=0.005$). | Linear $\epsilon$-greedy annealing ($1.0 \to 0.05$ over 100k steps). Loss: Huber / Smooth L1 loss with IS weights. |
+| **Actor-Critic PPO** | On-Policy Actor-Critic | Shared CNN encoder (128-D latent); Masked Policy head (Linear 128 $\to$ 4); Value head (Linear 128 $\to$ 1); Generalized Advantage Estimation (GAE: $\lambda=0.95, \gamma=0.99$). | Clipped surrogate objective ($\epsilon=0.2$); Entropy bonus coefficient ($c_2=0.01$); Value loss clipping; Gradient norm clipping (0.5). |
+| **Discrete SAC** | Maximum Entropy Off-Policy Actor-Critic | Twin Soft Q-critics ($Q_1(s), Q_2(s) \in \mathbb{R}^4$); Policy head producing discrete distribution $\pi(a \mid s)$; Exact discrete expectation target calculation without action reparameterization; Polyak soft updates ($\tau=0.005$). | Maximum entropy objective: $\mathcal{H}(\pi) = -\sum_a \pi(a|s) \ln \pi(a|s)$; Automatic temperature tuning ($\alpha$) targeting $\bar{\mathcal{H}} = 0.98 \times \ln(4)$. |
+| **Categorical DQN (C51)** | Distributional Reinforcement Learning | Models probability distribution over 51 return atoms ($V_{min}=-20.0, V_{max}=30.0, \Delta z=1.0$); Linear 128 $\to$ 256 $\to$ $4 \times 51$; Categorical Bellman projection with target networks ($\tau=0.005$). | Cross-entropy / KL divergence loss against projected return distribution; Action selection via expected value $\mathbb{E}[Z(s, a)] = \sum_i z_i p_i(s, a)$. |
 
 ---
 
@@ -167,10 +167,11 @@ The analysis pipeline (`phd_ludo_drl.analysis.statistical_pipeline`) processes r
 The project features a high-performance web demonstration platform built on **FastAPI**, **Uvicorn**, and modern **HTML/CSS/JavaScript** (`web/app.py`).
 
 ### Design System: 100% Light Theme Glassmorphism
-- **Background:** Crisp pure white (`#ffffff`) and soft light gray/blue (`#f8fafc`, `#eff6ff`).
-- **Cards & Surfaces:** Translucent white glass cards (`rgba(255, 255, 255, 0.88)`) with subtle $1\text{px}$ borders (`rgba(226, 232, 240, 0.85)`), backdrop blur ($16\text{px}$), and soft multi-layer box shadows.
-- **Typography:** Dark navy/charcoal (`#0f172a`, `#334155`) for high-contrast readability.
-- **Accents:** Professional blue (`#2563eb`), indigo (`#4f46e5`), and teal (`#0d9488`).
+- **Background:** Crisp pure white (`#ffffff`) and soft light gray/blue (`#f5f5f7`, `#fafafc`).
+- **Top Navigation Bar:** Sticky horizontal header with brand mark, page navigation pills (`Dashboard`, `Results Hub`, `Ludo Arena`, `DRL Models`), and pilot verification badge.
+- **Cards & Surfaces:** Translucent white glass cards (`#ffffff`) with subtle $1\text{px}$ borders (`#e8e8ed`), smooth 24px rounded corners, and soft multi-layer box shadows.
+- **Typography:** High-contrast charcoal and navy (`#19191F`, `#73737F`) with Roboto and Roboto Condensed font stacks.
+- **Accents:** Professional indigo (`#4f46e5`), emerald (`#059669`), and blue (`#0284c7`).
 - **Strict Invariant:** Zero dark mode elements, zero dark cards, zero dark navbar or footer.
 
 ### Integrated Pages
@@ -223,16 +224,16 @@ pip install -e ".[all]"
 
 ### Train Models
 ```bash
-# Train DQN on Seed 42 for 1,000 steps
+# Train Double Dueling DQN + PER on Seed 42 for 1,000 steps
 python train.py --algorithm dqn --seed 42 --steps 1000
 
-# Train PPO on Seed 101
+# Train Actor-Critic PPO on Seed 101
 python train.py --algorithm ppo --seed 101 --steps 1000
 
 # Train Discrete SAC on Seed 202
 python train.py --algorithm model3 --seed 202 --steps 1000
 
-# Train Categorical C51 on Seed 303
+# Train Categorical DQN (C51) on Seed 303
 python train.py --algorithm model4 --seed 303 --steps 1000
 
 # Run multi-seed production pipeline (smoke mode)
