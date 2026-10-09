@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "experiment_id": "EXP_PPO_structured_cnn_42_20261004_135438",
+    "algorithm": "ppo",
+    "encoding": "structured_cnn",
+    "seed": 42,
+    "timestamp": "20261004_135438",
+    "description": "SMOKE TEST ONLY",
+    "config_hash": "baec379f"
+  },
+  "config": {
+    "algorithm": "ppo",
+    "seed": 42,
+    "total_steps": 50,
+    "opponent_type": "random",
+    "eval_games": 2
+  },
+  "runtime_seconds": 0.34,
+  "training_metrics": {
+    "total_steps": 50,
+    "episodes": 0,
+    "ppo_wins": 0,
+    "opponent_wins": 0,
+    "draws": 0,
+    "win_rate": 0.0,
+    "avg_reward": 0.0,
+    "final_loss": 0.6959348320960999,
+    "final_policy_loss": 0.0006845551688456908,
+    "final_value_loss": 1.40736323595047,
+    "final_entropy": 0.8431345224380493,
+    "updates": 1
+  },
+  "evaluation_metrics": {
+    "total_games": 2,
+    "p0_wins": 1,
+    "p1_wins": 1,
+    "draws": 0,
+    "p0_win_rate": 0.5,
+    "p1_win_rate": 0.5,
+    "draw_rate": 0.0,
+    "avg_turns": 168.0,
+    "avg_p0_reward": 3.1499999999999964,
+    "avg_p1_reward": 5.624999999999992
+  },
+  "artifacts": {
+    "checkpoint": "experiments\\EXP_PPO_structured_cnn_42_20261004_135438\\checkpoints\\final_model.pt",
+    "log_dir": "experiments\\EXP_PPO_structured_cnn_42_20261004_135438\\logs",
+    "results_dir": "experiments\\EXP_PPO_structured_cnn_42_20261004_135438\\results"
+  }
+}

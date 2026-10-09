@@ -14,6 +14,7 @@ from phd_ludo_drl.encoding.raw_observation import (
 from phd_ludo_drl.encoding.validation import (
     validate_raw_observation,
     validate_structured_tensor,
+    validate_frozen_state,
     StateDimensionError,
 )
 from phd_ludo_drl.encoding.structured_representation import (
@@ -75,7 +76,7 @@ class StateRepresentationPipeline:
         # Step 3 & 4: Construct representation & encode
         if self.encoder_type == "structured_cnn":
             struct_state = build_structured_representation(state_dict)
-            validate_structured_tensor(struct_state.spatial_tensor)
+            validate_frozen_state(struct_state)
 
             with torch.no_grad():
                 features = self.encoder(
@@ -116,7 +117,7 @@ class StateRepresentationPipeline:
 
             if self.encoder_type == "structured_cnn":
                 st = build_structured_representation(sd)
-                validate_structured_tensor(st.spatial_tensor)
+                validate_frozen_state(st)
                 spatials.append(st.spatial_tensor)
                 contexts.append(st.context_vector)
                 masks.append(st.action_mask)

@@ -23,8 +23,13 @@ NUM_PLAYERS: Final[int] = 2
 TOKENS_PER_PLAYER: Final[int] = 4
 
 # Player Starting Track Squares
-# Player 0 enters track at 0; Player 1 enters track at 26 (opposite side of 52-square track)
+# Benchmark 2-player: Player 0 enters at 0; Player 1 enters at 26
 PLAYER_START_SQUARES: Final[Tuple[int, int]] = (0, 26)
+
+# Standard 4-player Ludo starting track squares:
+# P0 (Red) = 0, P1 (Green) = 13, P2 (Yellow) = 26, P3 (Blue) = 39
+PLAYER_START_SQUARES_4P: Final[Tuple[int, int, int, int]] = (0, 13, 26, 39)
+PLAYER_COLORS: Final[Tuple[str, str, str, str]] = ("Red", "Green", "Yellow", "Blue")
 
 # Standard Safe Squares on 52-square track (cannot capture or be captured)
 # Indices: 0, 8, 13, 21, 26, 34, 39, 47

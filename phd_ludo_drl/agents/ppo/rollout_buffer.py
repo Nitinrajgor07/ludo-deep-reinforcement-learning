@@ -110,7 +110,7 @@ class PPORolloutBuffer:
 
         for t in reversed(range(n_steps)):
             if t == n_steps - 1:
-                next_non_terminal = 1.0 - float(last_done)
+                next_non_terminal = 1.0 - float(self.dones[t] if self.dones[t] else last_done)
                 next_value = float(last_value)
             else:
                 next_non_terminal = 1.0 - self.dones[t]

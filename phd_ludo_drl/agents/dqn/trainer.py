@@ -58,6 +58,9 @@ class DQNTrainer:
         eval_games: int = 10,
         checkpoint_dir: Optional[Path] = None,
         callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+        initial_step: int = 0,
+        checkpoint_interval: int = 25000,
+        checkpoint_callback: Optional[Callable[[int, Path], None]] = None,
     ) -> DQNTrainingMetrics:
         """Execute DQN training loop for total_steps interactions.
 
@@ -66,6 +69,10 @@ class DQNTrainer:
             eval_interval: Frequency of periodic evaluation (optional).
             eval_games: Number of evaluation games per interval.
             checkpoint_dir: Directory to save model snapshots.
+            callback: Optional callback receiving step metrics.
+            initial_step: Initial step count (for resuming from checkpoint).
+            checkpoint_interval: Step frequency for periodic checkpoints.
+            checkpoint_callback: Optional callback invoked when checkpoint saved.
 
         Returns:
             DQNTrainingMetrics summarizing training execution.
@@ -79,10 +86,10 @@ class DQNTrainer:
         all_episode_rewards: List[float] = []
         last_loss = 0.0
 
-        step = 0
-        last_eval_step = 0
-        last_ckpt_step = 0
-        ckpt_interval = 25000
+        step = initial_step
+        last_eval_step = initial_step
+        last_ckpt_step = initial_step
+        ckpt_interval = checkpoint_interval
         while step < total_steps:
             curr_p = self.env.current_player
             legal_actions = self.env.get_legal_actions()
@@ -97,7 +104,12 @@ class DQNTrainer:
                 struct_state = build_structured_representation(obs)
                 mask = info["action_mask"]
 
-                action = self.agent.select_action(struct_state.spatial_tensor, mask, deterministic=False)
+                action = self.agent.select_action(
+                    struct_state.spatial_tensor,
+                    mask,
+                    context=struct_state.context_vector,
+                    deterministic=False,
+                )
                 next_obs, reward, term, trunc, step_info = self.env.step(action)
 
                 next_struct = build_structured_representation(next_obs)
@@ -140,6 +152,14 @@ class DQNTrainer:
                         draws += 1
 
                     episode_count += 1
+                    if callback:
+                        callback({
+                            "step": step,
+                            "episode": episode_count,
+                            "episode_reward": episode_reward,
+                            "loss": last_loss,
+                            "epsilon": float(self.agent.epsilon),
+                        })
                     episode_reward = 0.0
                     obs, info = self.env.reset()
             else:
@@ -159,6 +179,14 @@ class DQNTrainer:
                         draws += 1
 
                     episode_count += 1
+                    if callback:
+                        callback({
+                            "step": step,
+                            "episode": episode_count,
+                            "episode_reward": episode_reward,
+                            "loss": last_loss,
+                            "epsilon": float(self.agent.epsilon),
+                        })
                     episode_reward = 0.0
                     obs, info = self.env.reset()
 
@@ -172,9 +200,20 @@ class DQNTrainer:
                 last_ckpt_step = step
                 ckpt_path = checkpoint_dir / f"dqn_step_{step}.pt"
                 self.agent.save_checkpoint(ckpt_path)
+                if checkpoint_callback:
+                    checkpoint_callback(step, ckpt_path)
 
         win_rate = (dqn_wins / episode_count) if episode_count > 0 else 0.0
         avg_reward = float(np.mean(all_episode_rewards)) if all_episode_rewards else 0.0
+
+        if callback:
+            callback({
+                "step": step,
+                "episode": episode_count,
+                "episode_reward": episode_reward,
+                "loss": last_loss,
+                "epsilon": float(self.agent.epsilon),
+            })
 
         return DQNTrainingMetrics(
             total_steps=step,

@@ -23,13 +23,16 @@ class DiscreteCritic(nn.Module):
         latent_dim: int = 128,
         hidden_units: int = 128,
         action_dim: int = ACTION_SPACE_SIZE,
+        encoder1: Optional[nn.Module] = None,
+        encoder2: Optional[nn.Module] = None,
+        freeze_encoder: bool = False,
     ):
         super().__init__()
         self.latent_dim = latent_dim
         self.action_dim = action_dim
 
         # Encoder for Q1
-        self.encoder1 = StructuredCNNEncoder(latent_dim=latent_dim)
+        self.encoder1 = encoder1 if encoder1 is not None else StructuredCNNEncoder(latent_dim=latent_dim)
         self.q1_head = nn.Sequential(
             nn.Linear(latent_dim, hidden_units),
             nn.ReLU(),
@@ -37,12 +40,29 @@ class DiscreteCritic(nn.Module):
         )
 
         # Encoder for Q2
-        self.encoder2 = StructuredCNNEncoder(latent_dim=latent_dim)
+        self.encoder2 = encoder2 if encoder2 is not None else StructuredCNNEncoder(latent_dim=latent_dim)
         self.q2_head = nn.Sequential(
             nn.Linear(latent_dim, hidden_units),
             nn.ReLU(),
             nn.Linear(hidden_units, action_dim),
         )
+
+        if freeze_encoder:
+            self.freeze_encoder()
+
+    def freeze_encoder(self) -> None:
+        """Freeze both encoder networks to prevent gradient updates."""
+        for p in self.encoder1.parameters():
+            p.requires_grad = False
+        for p in self.encoder2.parameters():
+            p.requires_grad = False
+
+    def unfreeze_encoder(self) -> None:
+        """Unfreeze both encoder networks to allow gradient updates."""
+        for p in self.encoder1.parameters():
+            p.requires_grad = True
+        for p in self.encoder2.parameters():
+            p.requires_grad = True
 
     def forward(
         self,
@@ -54,6 +74,11 @@ class DiscreteCritic(nn.Module):
         Returns:
             Tuple of (q1_values, q2_values) each of shape (B, 4).
         """
+        if spatial.dim() == 2:
+            spatial = spatial.unsqueeze(0)
+        if context is not None and context.dim() == 1:
+            context = context.unsqueeze(0)
+
         f1 = self.encoder1(spatial, context)
         q1 = self.q1_head(f1)
 
@@ -68,6 +93,11 @@ class DiscreteCritic(nn.Module):
         context: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
         """Compute only Q1 values."""
+        if spatial.dim() == 2:
+            spatial = spatial.unsqueeze(0)
+        if context is not None and context.dim() == 1:
+            context = context.unsqueeze(0)
+
         f1 = self.encoder1(spatial, context)
         return self.q1_head(f1)
 
@@ -84,17 +114,32 @@ class DiscreteActor(nn.Module):
         latent_dim: int = 128,
         hidden_units: int = 128,
         action_dim: int = ACTION_SPACE_SIZE,
+        encoder: Optional[nn.Module] = None,
+        freeze_encoder: bool = False,
     ):
         super().__init__()
         self.latent_dim = latent_dim
         self.action_dim = action_dim
 
-        self.encoder = StructuredCNNEncoder(latent_dim=latent_dim)
+        self.encoder = encoder if encoder is not None else StructuredCNNEncoder(latent_dim=latent_dim)
         self.policy_head = nn.Sequential(
             nn.Linear(latent_dim, hidden_units),
             nn.ReLU(),
             nn.Linear(hidden_units, action_dim),
         )
+
+        if freeze_encoder:
+            self.freeze_encoder()
+
+    def freeze_encoder(self) -> None:
+        """Freeze actor encoder to prevent gradient updates."""
+        for p in self.encoder.parameters():
+            p.requires_grad = False
+
+    def unfreeze_encoder(self) -> None:
+        """Unfreeze actor encoder to allow gradient updates."""
+        for p in self.encoder.parameters():
+            p.requires_grad = True
 
     def forward(
         self,
@@ -105,13 +150,30 @@ class DiscreteActor(nn.Module):
         """Compute action probabilities and log-probabilities with action masking.
 
         Args:
-            spatial: Spatial board tensor (B, 4, 52).
-            context: Context tensor (B, 12) or None.
-            action_mask: Action mask tensor (B, 4).
+            spatial: Spatial board tensor (B, 4, 52) or (4, 52).
+            context: Context tensor (B, 12), (12,) or None.
+            action_mask: Action mask tensor (B, 4) or (4,).
 
         Returns:
             Tuple of (action_probs, log_action_probs) each of shape (B, 4).
         """
+        if spatial.dim() == 2:
+            spatial = spatial.unsqueeze(0)
+        if context is not None and context.dim() == 1:
+            context = context.unsqueeze(0)
+        if action_mask.dim() == 1:
+            action_mask = action_mask.unsqueeze(0)
+
+        device = next(self.parameters()).device
+        if spatial.device != device:
+            spatial = spatial.to(device)
+        if context is not None and context.device != device:
+            context = context.to(device)
+        if action_mask.device != device:
+            action_mask = action_mask.to(device)
+        if action_mask.dtype != torch.float32:
+            action_mask = action_mask.float()
+
         features = self.encoder(spatial, context)
         logits = self.policy_head(features)
         masked_logits = mask_action_logits(logits, action_mask)

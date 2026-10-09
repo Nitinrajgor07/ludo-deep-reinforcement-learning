@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="72" height="72">
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.15" />
+    </filter>
+  </defs>
+  <!-- Background Card -->
+  <rect x="2" y="2" width="96" height="96" rx="20" fill="#ffffff" stroke="#e2e8f0" stroke-width="2" filter="url(#shadow)" />
+  
+  <!-- Four Ludo Quadrants -->
+  <!-- Red: Top-Left -->
+  <path d="M 12 12 H 45 V 45 H 12 Z" rx="6" fill="#e53e3e" />
+  <circle cx="28.5" cy="28.5" r="7" fill="#ffffff" opacity="0.9" />
+  <circle cx="28.5" cy="28.5" r="4" fill="#e53e3e" />
+
+  <!-- Green: Top-Right -->
+  <path d="M 55 12 H 88 V 45 H 55 Z" rx="6" fill="#38a169" />
+  <circle cx="71.5" cy="28.5" r="7" fill="#ffffff" opacity="0.9" />
+  <circle cx="71.5" cy="28.5" r="4" fill="#38a169" />
+
+  <!-- Yellow: Bottom-Right -->
+  <path d="M 55 55 H 88 V 88 H 55 Z" rx="6" fill="#d69e2e" />
+  <circle cx="71.5" cy="71.5" r="7" fill="#ffffff" opacity="0.9" />
+  <circle cx="71.5" cy="71.5" r="4" fill="#d69e2e" />
+
+  <!-- Blue: Bottom-Left -->
+  <path d="M 12 55 H 45 V 88 H 12 Z" rx="6" fill="#3182ce" />
+  <circle cx="28.5" cy="71.5" r="7" fill="#ffffff" opacity="0.9" />
+  <circle cx="28.5" cy="71.5" r="4" fill="#3182ce" />
+
+  <!-- Center Dice Diamond -->
+  <polygon points="50,34 66,50 50,66 34,50" fill="#1e293b" />
+  <polygon points="50,37 63,50 50,63 37,50" fill="#ffffff" />
+  <circle cx="50" cy="50" r="3.5" fill="#e53e3e" />
+</svg>

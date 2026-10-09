@@ -23,15 +23,21 @@ wheels/
 venv/
 env/
 ENV/
+.venv/
 
 # Testing & linting
 .pytest_cache/
 .coverage
 htmlcov/
+*.log
 
-# IDE
+# IDE & AI Assistant Workspace Metadata
 .vscode/
 .idea/
+.agent/
+.agents/
+.gemini/
+.gsd/
 
 # Large checkpoints / results (optional tracking via experiments/ manifest)
 *.pt

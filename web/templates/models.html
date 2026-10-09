@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header" style="margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h2>Deep Reinforcement Learning Architectures</h2>
+            <p style="color: var(--text-muted); font-size: 13px;">Neural network specifications, action masking invariants, and PyTorch model checkpoints.</p>
+        </div>
+        <span class="badge badge-indigo" style="font-size: 11.5px; padding: 4px 12px;">State Dimension: 176-D (Frozen)</span>
+    </div>
+</div>
+
+<!-- Architecture Cards -->
+<div style="display: flex; flex-direction: column; gap: 18px; margin-bottom: 24px;">
+    {% for spec in specs %}
+    <div class="glass-card highlight" id="{{ spec.id }}" style="padding: 20px 24px;">
+        <div class="card-header" style="margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span class="model-index">MODEL 0{{ loop.index }}</span>
+                <span style="font-size: 17px; font-weight: 800; color: #ffffff;">{{ spec.display_name }}</span>
+                <span class="badge badge-gray" style="font-size: 10.5px;">{{ spec.algorithm_type }}</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <span class="badge badge-blue">Input: 176-D</span>
+                <span class="badge badge-indigo">Actions: 4</span>
+                <span class="badge {% if spec.checkpoint_count > 0 %}badge-emerald{% else %}badge-amber{% endif %}">
+                    {{ spec.checkpoint_count }} Checkpoint(s)
+                </span>
+            </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5;">
+            {{ spec.description }}
+        </p>
+
+        <div class="grid-3" style="margin-bottom: 12px;">
+            <div style="background: rgba(11, 15, 25, 0.8); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
+                <div style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Algorithm Family</div>
+                <div style="font-size: 12.5px; font-weight: 700; color: #ffffff; margin-top: 3px;">{{ spec.algorithm_type }}</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Status: <strong style="color: #34d399;">{{ spec.status }}</strong></div>
+            </div>
+
+            <div style="background: rgba(11, 15, 25, 0.8); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
+                <div style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Network Architecture</div>
+                <div style="font-size: 11.5px; font-weight: 600; color: #818cf8; margin-top: 3px; font-family: var(--font-mono);">
+                    {{ spec.network_architecture }}
+                </div>
+            </div>
+
+            <div style="background: rgba(11, 15, 25, 0.8); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: 8px;">
+                <div style="font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Action Masking & Safety</div>
+                <div style="font-size: 12px; font-weight: 600; color: #2dd4bf; margin-top: 3px;">{{ spec.action_masking }}</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">Illegal Action Rate: <strong>0.00%</strong></div>
+            </div>
+        </div>
+
+        <div style="background: rgba(7, 10, 18, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 11.5px;">
+            <div>
+                <strong style="color: var(--text-secondary);">Master Random Seeds:</strong>
+                <span class="mono" style="color: #818cf8; margin-left: 4px;">{{ spec.seeds|join(', ') }}</span>
+            </div>
+            <div style="color: var(--text-muted);">
+                Shared CNN Latent Vector: <strong class="mono" style="color: #ffffff;">128-D Embedding</strong>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Checkpoints Scanned -->
+<div class="glass-card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Verified Model Weights & Checkpoints</div>
+            <div class="card-subtitle">Saved neural network parameter snapshots scanned from repository storage</div>
+        </div>
+        <span class="badge badge-teal">{{ checkpoints|length }} Files Detected</span>
+    </div>
+
+    {% if checkpoints %}
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Checkpoint Name</th>
+                    <th>Algorithm</th>
+                    <th>Experiment ID</th>
+                    <th>Step</th>
+                    <th>File Size</th>
+                    <th>Storage Path</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ckpt in checkpoints %}
+                <tr>
+                    <td><strong>{{ ckpt.name }}</strong></td>
+                    <td><span class="badge badge-blue">{{ ckpt.algorithm|upper }}</span></td>
+                    <td class="mono" style="font-size: 11.5px;">{{ ckpt.experiment_id }}</td>
+                    <td class="numeric">{{ ckpt.step or 'Final' }}</td>
+                    <td class="numeric">{{ ckpt.file_size_mb }} MB</td>
+                    <td class="mono" style="font-size: 11px; color: var(--text-muted);">{{ ckpt.path }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">
+        No checkpoints found in repository yet.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

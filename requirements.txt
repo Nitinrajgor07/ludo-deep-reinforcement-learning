@@ -1,9 +1,25 @@
+# ==============================================================================
+# PhD Ludo DRL Research Platform — Complete Dependency Specification
+# Four-Model Comparative Benchmark: DQN, PPO, Discrete SAC, C51
+# ==============================================================================
+
+# Core Runtime & Neural Network Architectures
 torch>=2.0.0
 numpy>=1.24.0
-scipy>=1.10.0
-pandas>=2.0.0
-matplotlib>=3.7.0
 gymnasium>=0.29.0
 pyyaml>=6.0
-pytest>=8.0.0
+
+# Research, Benchmarking & Statistical Analysis
+pandas>=2.0.0
+scipy>=1.10.0
+matplotlib>=3.7.0
 tabulate>=0.9.0
+psutil>=5.9.0
+
+# Web Demonstration Interface (FastAPI + Uvicorn Light Glassmorphic Lab)
+fastapi>=0.100.0
+uvicorn>=0.22.0
+jinja2>=3.1.0
+
+# Testing & Quality Assurance
+pytest>=8.0.0

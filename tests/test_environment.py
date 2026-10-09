@@ -391,3 +391,155 @@ def test_full_random_playthrough():
 
     assert isinstance(obs, dict)
     assert "tokens" in obs
+
+
+# =====================================================================
+# 11. EDGE CASE & DETERMINISTIC INVARIANT TESTS
+# =====================================================================
+
+def test_opponent_blockade_prevents_release_at_start_square():
+    """Verify an opponent blockade at start square prevents token release even on roll 6."""
+    env = LudoEnvironment(auto_advance_no_moves=False)
+    env.reset()
+
+    # Form Player 1 blockade at square 0 (which is Player 0's start square)
+    # P1 start square is 26. Track square 0 corresponds to step (0 - 26) % 52 = 26.
+    p1_t0 = next(t for t in env.tokens if t.player_id == 1 and t.token_id == 0)
+    p1_t1 = next(t for t in env.tokens if t.player_id == 1 and t.token_id == 1)
+    for t in [p1_t0, p1_t1]:
+        t.state = TokenState.TRACK
+        t.step_count = 26
+        assert t.track_square == 0
+
+    assert env.board.has_blockade(env.tokens, 0, player_id=1) is True
+
+    # Player 0 tokens are all in yard. Roll is 6.
+    env.current_player = 0
+    env.dice.set_override(6)
+    env.dice.roll()
+
+    p0_t0 = next(t for t in env.tokens if t.player_id == 0 and t.token_id == 0)
+    # Move must be illegal because start square is blocked by P1 blockade
+    assert env.rules.is_move_legal(env.tokens, p0_t0, 6) is False
+    assert env.get_legal_actions() == []
+    assert np.array_equal(env.get_action_mask(), [0, 0, 0, 0])
+
+
+def test_friendly_blockade_does_not_block_friendly_movement():
+    """Verify a player's own blockade does not block their own tokens from landing or passing."""
+    env = LudoEnvironment(auto_advance_no_moves=False)
+    env.reset()
+
+    # Create P0 blockade at track square 10
+    p0_t0 = next(t for t in env.tokens if t.player_id == 0 and t.token_id == 0)
+    p0_t1 = next(t for t in env.tokens if t.player_id == 0 and t.token_id == 1)
+    for t in [p0_t0, p0_t1]:
+        t.state = TokenState.TRACK
+        t.step_count = 10
+        assert t.track_square == 10
+
+    assert env.board.has_blockade(env.tokens, 10, player_id=0) is True
+
+    # P0 token 2 is at track square 8
+    p0_t2 = next(t for t in env.tokens if t.player_id == 0 and t.token_id == 2)
+    p0_t2.state = TokenState.TRACK
+    p0_t2.step_count = 8
+
+    # Friendly token moving 2 steps onto square 10: LEGAL
+    assert env.rules.is_move_legal(env.tokens, p0_t2, 2) is True
+
+    # Friendly token moving 4 steps past square 10 to square 12: LEGAL
+    assert env.rules.is_move_legal(env.tokens, p0_t2, 4) is True
+
+
+def test_capture_grants_bonus_roll_without_rolling_six():
+    """Verify capturing an opponent on a non-six roll (e.g., 2) grants a bonus turn."""
+    env = LudoEnvironment(auto_advance_no_moves=False)
+    env.reset()
+
+    # P1 token at track square 5 (unsafe)
+    p1_t0 = next(t for t in env.tokens if t.player_id == 1 and t.token_id == 0)
+    p1_t0.state = TokenState.TRACK
+    p1_t0.step_count = (5 - 26) % 52
+    assert p1_t0.track_square == 5
+
+    # P0 token at track square 3
+    p0_t0 = next(t for t in env.tokens if t.player_id == 0 and t.token_id == 0)
+    p0_t0.state = TokenState.TRACK
+    p0_t0.step_count = 3
+    assert p0_t0.track_square == 3
+
+    env.current_player = 0
+    env.dice.set_override(2)  # Roll 2 (NOT 6)
+    env.dice.roll()
+
+    obs, reward, term, trunc, info = env.step(0)
+
+    # Capture occurred
+    assert len(info["move_result"].captured_tokens) == 1
+    assert p1_t0.is_in_yard
+    # Bonus roll must be awarded solely from capture
+    assert info["move_result"].bonus_roll is True
+    assert env.current_player == 0  # Player 0 retains turn
+
+
+def test_exact_finish_boundary_conditions():
+    """Verify boundary conditions for exact finish across all home column steps."""
+    env = LudoEnvironment(auto_advance_no_moves=False)
+    env.reset()
+
+    p0_t0 = next(t for t in env.tokens if t.player_id == 0 and t.token_id == 0)
+
+    # 1. At step 51 (first home square): roll 5 lands on goal (56), roll 6 overshoots (57)
+    p0_t0.state = TokenState.HOME
+    p0_t0.step_count = 51
+    assert env.rules.is_move_legal(env.tokens, p0_t0, 5) is True
+    assert env.rules.is_move_legal(env.tokens, p0_t0, 6) is False
+
+    # 2. At step 55 (last home square): roll 1 lands on goal (56), rolls 2..6 overshoot
+    p0_t0.step_count = 55
+    assert env.rules.is_move_legal(env.tokens, p0_t0, 1) is True
+    for roll in range(2, 7):
+        assert env.rules.is_move_legal(env.tokens, p0_t0, roll) is False
+
+    # 3. Already finished token cannot move on any roll
+    p0_t0.state = TokenState.FINISHED
+    p0_t0.step_count = GOAL_STEP
+    for roll in range(1, 7):
+        assert env.rules.is_move_legal(env.tokens, p0_t0, roll) is False
+
+
+def test_environment_deterministic_reproducibility():
+    """Verify two separately seeded environments produce bit-for-bit identical trajectories."""
+    env1 = LudoEnvironment(seed=2024, auto_advance_no_moves=True)
+    env2 = LudoEnvironment(seed=2024, auto_advance_no_moves=True)
+
+    obs1, info1 = env1.reset(seed=2024)
+    obs2, info2 = env2.reset(seed=2024)
+
+    assert info1["current_player"] == info2["current_player"]
+    assert info1["dice_value"] == info2["dice_value"]
+    assert info1["legal_actions"] == info2["legal_actions"]
+    assert np.array_equal(info1["action_mask"], info2["action_mask"])
+
+    for _ in range(50):
+        if env1.is_terminal or env2.is_terminal:
+            break
+        legal1 = env1.get_legal_actions()
+        legal2 = env2.get_legal_actions()
+        assert legal1 == legal2
+
+        if not legal1:
+            break
+
+        # Pick first legal action deterministically
+        act = legal1[0]
+        obs1, r1, term1, trunc1, info1 = env1.step(act)
+        obs2, r2, term2, trunc2, info2 = env2.step(act)
+
+        assert r1 == r2
+        assert term1 == term2
+        assert trunc1 == trunc2
+        assert info1["dice_value"] == info2["dice_value"]
+        assert info1["current_player"] == info2["current_player"]
+        assert np.array_equal(info1["action_mask"], info2["action_mask"])

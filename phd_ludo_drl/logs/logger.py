@@ -12,6 +12,7 @@ def setup_logger(
     log_dir: Optional[Path] = None,
     level: int = logging.INFO,
     log_to_console: bool = True,
+    filename: Optional[str] = None,
 ) -> logging.Logger:
     """Configure and return a structured logger with console and file handlers.
 
@@ -20,6 +21,7 @@ def setup_logger(
         log_dir: Directory where log file will be saved.
         level: Logging level.
         log_to_console: Whether to attach a console stream handler.
+        filename: Optional explicit filename (e.g., 'training.log'). Defaults to '{name}.log'.
 
     Returns:
         Configured logging.Logger instance.
@@ -46,7 +48,8 @@ def setup_logger(
     if log_dir is not None:
         log_path = Path(log_dir)
         log_path.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_path / f"{name}.log", encoding="utf-8")
+        fname = filename or f"{name}.log"
+        file_handler = logging.FileHandler(log_path / fname, encoding="utf-8")
         file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)

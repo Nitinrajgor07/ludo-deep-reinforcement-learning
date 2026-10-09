@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h2>Statistical Analysis & Inferential Tests</h2>
+            <p>Descriptive statistics, Wilson confidence intervals, effect sizes (Cohen's d), and formal hypothesis testing.</p>
+        </div>
+        <span class="badge badge-indigo" style="font-size: 12px; padding: 6px 12px;">Protocol: FWER Controlled</span>
+    </div>
+</div>
+
+<!-- Direct Navigation to Consolidated Results -->
+<div style="margin-bottom: 16px; background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.2); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <span style="font-size: 13px; color: #0369a1; font-weight: 600;">
+        💡 Want all statistical results and figures in one single compact tab?
+    </span>
+    <a href="/results" class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px; border-color: #0284c7; color: #0369a1; font-weight: 700;">
+        View Consolidated Results Hub &rarr;
+    </a>
+</div>
+
+<!-- Statistical Methodology Card -->
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title">Rigorous Statistical Framework (Phase 11 Protocol)</div>
+        <span class="badge badge-indigo">Inferential Standards</span>
+    </div>
+    <div class="grid-4" style="margin-top: 10px;">
+        <div class="metric-card">
+            <span class="metric-label">Parametric Test</span>
+            <span class="metric-value" style="font-size: 18px;">Welch's t-test</span>
+            <span class="metric-subtitle">Unequal variances</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">Non-Parametric</span>
+            <span class="metric-value" style="font-size: 18px;">Mann-Whitney U</span>
+            <span class="metric-subtitle">Distribution-free</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">Effect Size</span>
+            <span class="metric-value" style="font-size: 18px;">Cohen's d</span>
+            <span class="metric-subtitle">Standardized difference</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">FWER Correction</span>
+            <span class="metric-value" style="font-size: 18px;">Holm-Bonferroni</span>
+            <span class="metric-subtitle">Family-wise error control</span>
+        </div>
+    </div>
+</div>
+
+<!-- Robustness & Ablation Summary -->
+<div class="glass-card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Robustness & Ablation Empirical Summary</div>
+            <div class="card-subtitle">Performance retention under stochastic dice perturbation ($1.0\times$ to $1.4\times$) and action masking ablation</div>
+        </div>
+        <span class="badge badge-teal">Ablation Experiments</span>
+    </div>
+    {% if robustness_df is not none and not robustness_df.empty %}
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    {% for col in robustness_df.columns %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in robustness_df.itertuples() %}
+                <tr>
+                    {% for val in row[1:] %}
+                    <td>{{ val }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">
+        Robustness analysis data not available yet.
+    </div>
+    {% endif %}
+</div>
+
+<!-- Pilot Summary Table -->
+<div class="glass-card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Baseline Descriptive Statistics (Pilot)</div>
+            <div class="card-subtitle">Summary metrics computed from initial experimental evaluations</div>
+        </div>
+        <span class="badge badge-blue">Preliminary</span>
+    </div>
+    {% if pilot_df is not none and not pilot_df.empty %}
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    {% for col in pilot_df.columns %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in pilot_df.itertuples() %}
+                <tr>
+                    {% for val in row[1:] %}
+                    <td>{{ val }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">
+        Data not available yet.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

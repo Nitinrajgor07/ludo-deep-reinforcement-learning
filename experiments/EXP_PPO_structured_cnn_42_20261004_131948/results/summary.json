@@ -1,0 +1,50 @@
+{
+  "metadata": {
+    "experiment_id": "EXP_PPO_structured_cnn_42_20261004_131948",
+    "algorithm": "ppo",
+    "encoding": "structured_cnn",
+    "seed": 42,
+    "timestamp": "20261004_131948",
+    "description": "Unified benchmark run for PPO",
+    "config_hash": "baec379f"
+  },
+  "config": {
+    "algorithm": "ppo",
+    "seed": 42,
+    "total_steps": 1000,
+    "opponent_type": "random",
+    "eval_games": 20
+  },
+  "runtime_seconds": 9.47,
+  "training_metrics": {
+    "total_steps": 1000,
+    "episodes": 13,
+    "ppo_wins": 5,
+    "opponent_wins": 8,
+    "draws": 0,
+    "win_rate": 0.38461538461538464,
+    "avg_reward": 11.757692307692293,
+    "final_loss": 0.971426859498024,
+    "final_policy_loss": -0.0001984641348826699,
+    "final_value_loss": 1.958957850933075,
+    "final_entropy": 0.7853621244430542,
+    "updates": 8
+  },
+  "evaluation_metrics": {
+    "total_games": 20,
+    "p0_wins": 10,
+    "p1_wins": 10,
+    "draws": 0,
+    "p0_win_rate": 0.5,
+    "p1_win_rate": 0.5,
+    "draw_rate": 0.0,
+    "avg_turns": 177.65,
+    "avg_p0_reward": 5.069999999999995,
+    "avg_p1_reward": 5.517499999999994
+  },
+  "artifacts": {
+    "checkpoint": "experiments\\EXP_PPO_structured_cnn_42_20261004_131948\\checkpoints\\final_model.pt",
+    "log_dir": "experiments\\EXP_PPO_structured_cnn_42_20261004_131948\\logs",
+    "results_dir": "experiments\\EXP_PPO_structured_cnn_42_20261004_131948\\results"
+  }
+}

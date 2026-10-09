@@ -1,0 +1,82 @@
+{
+  "fig01_training_curves.png": {
+    "filename": "fig01_training_curves.png",
+    "category": "Training Curves",
+    "caption": "Figure 1: Training convergence dynamics across four deep reinforcement learning architectures over 500 interaction steps under Master Seed 42, showing episodic return (A) and loss reduction trajectories (B).",
+    "path": "C:\\Users\\asus\\Desktop\\TDPCL\\PROJECT\\results\\figures\\fig01_training_curves.png",
+    "size_kb": 193.5,
+    "dpi": 300
+  },
+  "fig02_model_win_rate_comparison.png": {
+    "filename": "fig02_model_win_rate_comparison.png",
+    "category": "Model Win-Rate Comparison",
+    "caption": "Figure 2: Empirical win-rate comparison across DRL architectures evaluated against Random, Expert, and Self-Play opponents (N=250 games per condition) with 95% Wilson score confidence intervals.",
+    "path": "C:\\Users\\asus\\Desktop\\TDPCL\\PROJECT\\results\\figures\\fig02_model_win_rate_comparison.png",
+    "size_kb": 120.5,
+    "dpi": 300
+  },
+  "fig03_random_opponent_comparison.png": {
+    "filename": "fig03_random_opponent_comparison.png",
+    "category": "Random-Opponent Comparison",
+    "caption": "Figure 3: Tactical performance comparison against Uniform Random opponent across DQN and PPO, demonstrating win rates with 95% Wilson CIs (A), captures per game (B), and tokens successfully brought home (C).",
+    "path": "C:\\Users\\asus\\Desktop\\TDPCL\\PROJECT\\results\\figures\\fig03_random_opponent_comparison.png",
+    "size_kb": 167.4,
+    "dpi": 300
+  },
+  "fig04_expert_opponent_comparison.png": {
+    "filename": "fig04_expert_opponent_comparison.png",
+    "category": "Expert-Opponent Comparison",
+    "caption": "Figure 4: Strategic evaluation against Heuristic Expert opponent (Alhajry 2012 priority), showing win rates across architectures (A) and final token completion differential between DQN and Expert (B).",
+    "path": "C:\\Users\\asus\\Desktop\\TDPCL\\PROJECT\\results\\figures\\fig04_expert_opponent_comparison.png",
+    "size_kb": 155.0,
+    "dpi": 300
+  },
+  "fig05_reward_comparison.png": {
+    "filename": "fig05_reward_comparison.png",
+    "category": "Reward Comparison",
+    "caption": "Figure 5: Episodic reward distributions across evaluation matchups (N=250 games per matchup), displaying medians, means, interquartile ranges, and outlier densities.",
+    "path": "C:\\Users\\asus\\Desktop\\TDPCL\\PROJECT\\results\\figures\\fig05_reward_comparison.png",
+    "size_kb": 126.0,
+    "dpi": 300
+  },
+  "fig06_game_length_comparison.png": {
+    "filename": "fig06_game_length_comparison.png",
+    "category": "Game-Length Comparison",
+    "caption": "Figure 6: Game duration (turns) distributions across tournament conditions, comparing empirical density curves (A) and boxplot quartiles with outlier caps (B).",
+    "path": "C:\\Users\\asus\\Desktop\\TDPCL\\PROJECT\\results\\figures\\fig06_game_length_comparison.png",
+    "size_kb": 188.6,
+    "dpi": 300
+  },
+  "fig07_confidence_intervals.png": {
+    "filename": "fig07_confidence_intervals.png",
+    "category": "Confidence Intervals",
+    "caption": "Figure 7: Forest plot comparing 95% Wilson Score Confidence Intervals with 10,000-resample non-parametric Bootstrap intervals across tournament matchups, confirming strict asymptotic agreement.",
+    "path": "C:\\Users\\asus\\Desktop\\TDPCL\\PROJECT\\results\\figures\\fig07_confidence_intervals.png",
+    "size_kb": 181.7,
+    "dpi": 300
+  },
+  "fig08_seed_variability.png": {
+    "filename": "fig08_seed_variability.png",
+    "category": "Seed Variability",
+    "caption": "Figure 8: Evaluation performance stability across independent PRNG seed blocks (N=50 games per block) and variance bounds, illustrating cross-seed invariance under stationary policies.",
+    "path": "C:\\Users\\asus\\Desktop\\TDPCL\\PROJECT\\results\\figures\\fig08_seed_variability.png",
+    "size_kb": 234.4,
+    "dpi": 300
+  },
+  "fig09_ablation_results.png": {
+    "filename": "fig09_ablation_results.png",
+    "category": "Ablation Results",
+    "caption": "Figure 9: Comprehensive ablation study results across action masking (A), state representation (B), and reward shaping (C), highlighting catastrophic policy collapse without action masking and honest non-significance in pilot representation testing.",
+    "path": "C:\\Users\\asus\\Desktop\\TDPCL\\PROJECT\\results\\figures\\fig09_ablation_results.png",
+    "size_kb": 237.6,
+    "dpi": 300
+  },
+  "fig10_robustness_results.png": {
+    "filename": "fig10_robustness_results.png",
+    "category": "Robustness Results",
+    "caption": "Figure 10: Robustness stress-testing across environmental transition stochasticity under loaded dice (A) and opponent generalization transfer gap from naive random to heuristic expert (B).",
+    "path": "C:\\Users\\asus\\Desktop\\TDPCL\\PROJECT\\results\\figures\\fig10_robustness_results.png",
+    "size_kb": 268.5,
+    "dpi": 300
+  }
+}

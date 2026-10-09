@@ -6,7 +6,25 @@ import pytest
 
 def test_core_dependencies():
     """Verify that core PhD research dependencies are present."""
-    for pkg in ["torch", "numpy", "matplotlib", "gymnasium", "yaml", "pytest"]:
+    for pkg in [
+        "torch",
+        "numpy",
+        "matplotlib",
+        "gymnasium",
+        "yaml",
+        "pandas",
+        "scipy",
+        "tabulate",
+        "psutil",
+        "pytest",
+    ]:
+        mod = importlib.import_module(pkg)
+        assert mod is not None, f"Dependency {pkg} failed to import"
+
+
+def test_web_dependencies():
+    """Verify that web demonstration dashboard dependencies (FastAPI, Uvicorn, Jinja2) are present."""
+    for pkg in ["fastapi", "uvicorn", "jinja2"]:
         mod = importlib.import_module(pkg)
         assert mod is not None, f"Dependency {pkg} failed to import"
 

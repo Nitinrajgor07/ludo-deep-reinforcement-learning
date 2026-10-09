@@ -1,4 +1,4 @@
-"""Board geometry, coordinate mapping, and spatial query engine for 2-player Ludo."""
+"""Board geometry, coordinate mapping, and spatial query engine for Ludo."""
 
 from typing import Dict, List, Optional, Tuple
 from phd_ludo_drl.environment.constants import (
@@ -8,6 +8,7 @@ from phd_ludo_drl.environment.constants import (
     TOKENS_PER_PLAYER,
     SAFE_SQUARES,
     PLAYER_START_SQUARES,
+    PLAYER_START_SQUARES_4P,
     TRACK_STEPS,
     GOAL_STEP,
     TokenState,
@@ -26,13 +27,22 @@ class LudoBoard:
         return track_square in self.safe_squares
 
     @staticmethod
-    def get_track_square_for_step(player_id: int, step_count: int) -> Optional[int]:
+    def get_track_square_for_step(
+        player_id: int,
+        step_count: int,
+        start_square: Optional[int] = None,
+    ) -> Optional[int]:
         """Convert a player's local step count to global track square.
 
         Returns None if the step is outside the common track (in yard, home, or finished).
         """
         if 0 <= step_count < TRACK_STEPS:
-            start = PLAYER_START_SQUARES[player_id]
+            if start_square is not None:
+                start = start_square
+            elif player_id < len(PLAYER_START_SQUARES):
+                start = PLAYER_START_SQUARES[player_id]
+            else:
+                start = PLAYER_START_SQUARES_4P[player_id % 4]
             return (start + step_count) % TRACK_LENGTH
         return None
 
@@ -63,18 +73,25 @@ class LudoBoard:
         No opponent token may land on or jump over a blockade.
         """
         current_step = moving_token.step_count
-        opponent_id = 1 - moving_token.player_id
+        start_sq = moving_token.start_square
+        if start_sq is None:
+            start_sq = (
+                PLAYER_START_SQUARES[moving_token.player_id]
+                if moving_token.player_id < len(PLAYER_START_SQUARES)
+                else PLAYER_START_SQUARES_4P[moving_token.player_id % 4]
+            )
+
+        opponents = set(t.player_id for t in tokens if t.player_id != moving_token.player_id)
 
         # If releasing from yard (dice == 6)
         if moving_token.is_in_yard:
-            start_sq = PLAYER_START_SQUARES[moving_token.player_id]
-            return cls.has_blockade(tokens, start_sq, opponent_id)
+            return any(cls.has_blockade(tokens, start_sq, opp_id) for opp_id in opponents)
 
         # Check every step the token traverses along the track
         for step in range(current_step + 1, current_step + dice_value + 1):
             if step < TRACK_STEPS:
-                sq = cls.get_track_square_for_step(moving_token.player_id, step)
-                if sq is not None and cls.has_blockade(tokens, sq, opponent_id):
+                sq = cls.get_track_square_for_step(moving_token.player_id, step, start_sq)
+                if sq is not None and any(cls.has_blockade(tokens, sq, opp_id) for opp_id in opponents):
                     return True
             else:
                 # Entered home column; opponent cannot enter or blockade friendly home column

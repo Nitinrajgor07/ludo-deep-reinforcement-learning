@@ -27,6 +27,8 @@ class ActorCriticNetwork(nn.Module):
         hidden_units: int = 128,
         action_dim: int = ACTION_SPACE_SIZE,
         use_internal_encoder: bool = True,
+        encoder: Optional[nn.Module] = None,
+        freeze_encoder: bool = False,
     ):
         super().__init__()
         self.latent_dim = latent_dim
@@ -34,10 +36,16 @@ class ActorCriticNetwork(nn.Module):
         self.action_dim = action_dim
         self.use_internal_encoder = use_internal_encoder
 
-        if self.use_internal_encoder:
+        if encoder is not None:
+            self.encoder = encoder
+            self.use_internal_encoder = True
+        elif self.use_internal_encoder:
             self.encoder = StructuredCNNEncoder(latent_dim=latent_dim)
         else:
             self.encoder = None
+
+        if freeze_encoder and self.encoder is not None:
+            self.freeze_encoder()
 
         # Policy Head (Actor)
         self.policy_head = nn.Sequential(
@@ -53,6 +61,18 @@ class ActorCriticNetwork(nn.Module):
             nn.Linear(hidden_units, 1),
         )
 
+    def freeze_encoder(self) -> None:
+        """Freeze encoder parameters to prevent gradient updates."""
+        if self.encoder is not None:
+            for param in self.encoder.parameters():
+                param.requires_grad = False
+
+    def unfreeze_encoder(self) -> None:
+        """Unfreeze encoder parameters to allow gradient updates."""
+        if self.encoder is not None:
+            for param in self.encoder.parameters():
+                param.requires_grad = True
+
     def extract_features(
         self,
         x: Union[np.ndarray, torch.Tensor],
@@ -63,6 +83,13 @@ class ActorCriticNetwork(nn.Module):
         if isinstance(x, np.ndarray):
             x = torch.from_numpy(x).float()
         x = x.to(device)
+
+        if context is not None:
+            if isinstance(context, np.ndarray):
+                context = torch.from_numpy(context).float()
+            context = context.to(device)
+            if context.dim() == 1:
+                context = context.unsqueeze(0)
 
         if self.use_internal_encoder and self.encoder is not None:
             if x.dim() in (2, 3) and x.shape[-2:] == (4, 52):

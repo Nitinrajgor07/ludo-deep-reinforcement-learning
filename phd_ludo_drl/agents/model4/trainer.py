@@ -53,6 +53,11 @@ class C51Trainer:
         self.warmup_steps = warmup_steps
         self.arena = SelfPlayArena(env=self.env)
 
+    def seed(self, seed: int) -> None:
+        """Seed environment and agent for reproducible training and evaluation."""
+        self.env.reset(seed=seed)
+        self.agent.seed(seed)
+
     def train(
         self,
         total_steps: int = 1000,
@@ -60,6 +65,9 @@ class C51Trainer:
         eval_games: int = 10,
         checkpoint_dir: Optional[Path] = None,
         callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+        initial_step: int = 0,
+        checkpoint_interval: int = 25000,
+        checkpoint_callback: Optional[Callable[[int, Path], None]] = None,
     ) -> C51TrainingMetrics:
         """Execute Categorical DQN training loop for total_steps interactions.
 
@@ -69,6 +77,9 @@ class C51Trainer:
             eval_games: Number of evaluation games per interval.
             checkpoint_dir: Directory to save model snapshots.
             callback: Optional callback receiving step metrics.
+            initial_step: Initial step count (for resuming from checkpoint).
+            checkpoint_interval: Step frequency for periodic checkpoints.
+            checkpoint_callback: Optional callback invoked when checkpoint saved.
 
         Returns:
             C51TrainingMetrics summarizing training execution.
@@ -84,10 +95,10 @@ class C51Trainer:
         last_loss = 0.0
         updates = 0
 
-        step = 0
-        last_eval_step = 0
-        last_ckpt_step = 0
-        ckpt_interval = 25000
+        step = initial_step
+        last_eval_step = initial_step
+        last_ckpt_step = initial_step
+        ckpt_interval = checkpoint_interval
         while step < total_steps:
             curr_p = self.env.current_player
             legal_actions = self.env.get_legal_actions()
@@ -104,6 +115,7 @@ class C51Trainer:
                 action = self.agent.select_action(
                     struct_state.spatial_tensor,
                     mask,
+                    context=struct_state.context_vector,
                     deterministic=False,
                 )
 
@@ -150,6 +162,14 @@ class C51Trainer:
                         draws += 1
 
                     episode_count += 1
+                    if callback:
+                        callback({
+                            "step": step,
+                            "episode": episode_count,
+                            "episode_reward": episode_reward,
+                            "loss": last_loss,
+                            "epsilon": float(self.agent.epsilon),
+                        })
                     episode_reward = 0.0
                     obs, info = self.env.reset()
 
@@ -170,6 +190,14 @@ class C51Trainer:
                         draws += 1
 
                     episode_count += 1
+                    if callback:
+                        callback({
+                            "step": step,
+                            "episode": episode_count,
+                            "episode_reward": episode_reward,
+                            "loss": last_loss,
+                            "epsilon": float(self.agent.epsilon),
+                        })
                     episode_reward = 0.0
                     obs, info = self.env.reset()
 
@@ -183,10 +211,21 @@ class C51Trainer:
                 last_ckpt_step = step
                 ckpt_path = checkpoint_dir / f"c51_step_{step}.pt"
                 self.agent.save_checkpoint(ckpt_path)
+                if checkpoint_callback:
+                    checkpoint_callback(step, ckpt_path)
 
         total_games = c51_wins + opp_wins + draws
         win_rate = (c51_wins / total_games) if total_games > 0 else 0.0
         avg_reward = float(np.mean(all_episode_rewards)) if all_episode_rewards else 0.0
+
+        if callback:
+            callback({
+                "step": step,
+                "episode": episode_count,
+                "episode_reward": episode_reward,
+                "loss": last_loss,
+                "epsilon": float(self.agent.epsilon),
+            })
 
         return C51TrainingMetrics(
             total_steps=step,

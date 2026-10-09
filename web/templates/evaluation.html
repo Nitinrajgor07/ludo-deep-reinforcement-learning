@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h2>Empirical Evaluation Benchmark</h2>
+            <p>Controlled tournament matches against Random and Heuristic Expert baselines with balanced seating.</p>
+        </div>
+        <span class="badge badge-blue" style="font-size: 12px; padding: 6px 12px;">Protocol: 200,000 Games Tournament</span>
+    </div>
+</div>
+
+<!-- Direct Navigation to Consolidated Results -->
+<div style="margin-bottom: 16px; background: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.2); border-radius: 8px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <span style="font-size: 13px; color: #0369a1; font-weight: 600;">
+        💡 Looking for all model comparison results in one place?
+    </span>
+    <a href="/results" class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px; border-color: #0284c7; color: #0369a1; font-weight: 700;">
+        View Consolidated Results Hub &rarr;
+    </a>
+</div>
+
+<!-- Tournament Protocol Overview -->
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title">Tournament Evaluation Protocol</div>
+        <div style="display: flex; gap: 8px;">
+            <span class="badge badge-amber">Pilot: Complete</span>
+            <span class="badge badge-blue">Full Tournament: Queued</span>
+        </div>
+    </div>
+    <div class="grid-4" style="margin-top: 10px;">
+        <div class="metric-card">
+            <span class="metric-label">Benchmark Cell</span>
+            <span class="metric-value">5,000</span>
+            <span class="metric-subtitle">Games per seed-opponent</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">Seating Balance</span>
+            <span class="metric-value">50 / 50</span>
+            <span class="metric-subtitle">Alternating P0/P1 start</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">Baselines</span>
+            <span class="metric-value">2</span>
+            <span class="metric-subtitle">Random & Heuristic Expert</span>
+        </div>
+        <div class="metric-card">
+            <span class="metric-label">Total Scale</span>
+            <span class="metric-value">200,000</span>
+            <span class="metric-subtitle">Scheduled tournament matches</span>
+        </div>
+    </div>
+</div>
+
+<!-- Preliminary Evaluation Metrics -->
+<div class="glass-card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Preliminary Evaluation Metrics</div>
+            <div class="card-subtitle">Empirical win rates and performance recorded during baseline runs</div>
+        </div>
+        <span class="badge badge-indigo">Pilot Experiment Data</span>
+    </div>
+
+    {% if pilot_df is not none and not pilot_df.empty %}
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    {% for col in pilot_df.columns %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in pilot_df.itertuples() %}
+                <tr>
+                    {% for val in row[1:] %}
+                    <td>{{ val }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">
+        Data not available yet.
+    </div>
+    {% endif %}
+</div>
+
+<!-- Discovered Result Tables in Repository -->
+<div class="glass-card">
+    <div class="card-header">
+        <div>
+            <div class="card-title">Generated Research Tables Manifest</div>
+            <div class="card-subtitle">Empirical CSV tables cataloged in the repository</div>
+        </div>
+        <span class="badge badge-teal">{{ tables|length }} Tables</span>
+    </div>
+    {% if tables %}
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Table Identifier</th>
+                    <th>Row Count</th>
+                    <th>Source Storage Path</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for t in tables %}
+                <tr>
+                    <td><strong>{{ t.name }}</strong></td>
+                    <td>{{ t.rows }}</td>
+                    <td class="mono" style="font-size: 11px; color: var(--text-muted);">{{ t.path }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">
+        No result tables found.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -5,6 +5,7 @@ from typing import Optional
 from phd_ludo_drl.environment.constants import (
     TokenState,
     PLAYER_START_SQUARES,
+    PLAYER_START_SQUARES_4P,
     TRACK_LENGTH,
     TRACK_STEPS,
     GOAL_STEP,
@@ -18,6 +19,7 @@ class Token:
     token_id: int
     state: TokenState = TokenState.YARD
     step_count: int = -1  # -1 in yard, 0..50 on track, 51..55 in home column, 56 finished
+    start_square: Optional[int] = None
 
     def reset(self) -> None:
         """Reset token to starting yard state."""
@@ -45,7 +47,12 @@ class Token:
         """Global track square index (0..51) if currently on track, else None."""
         if self.state != TokenState.TRACK:
             return None
-        start = PLAYER_START_SQUARES[self.player_id]
+        if self.start_square is not None:
+            start = self.start_square
+        elif self.player_id < len(PLAYER_START_SQUARES):
+            start = PLAYER_START_SQUARES[self.player_id]
+        else:
+            start = PLAYER_START_SQUARES_4P[self.player_id % 4]
         return (start + self.step_count) % TRACK_LENGTH
 
     @property
@@ -62,4 +69,5 @@ class Token:
             token_id=self.token_id,
             state=self.state,
             step_count=self.step_count,
+            start_square=self.start_square,
         )

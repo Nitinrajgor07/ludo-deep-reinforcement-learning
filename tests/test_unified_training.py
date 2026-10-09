@@ -20,7 +20,10 @@ from phd_ludo_drl.training.factory import (
     SUPPORTED_ALGORITHMS,
 )
 from phd_ludo_drl.training.unified_trainer import UnifiedTrainingRunner
-from train import build_arg_parser
+try:
+    from train import build_arg_parser
+except ImportError:
+    from training.train import build_arg_parser
 
 
 def test_factory_create_all_four_agents():

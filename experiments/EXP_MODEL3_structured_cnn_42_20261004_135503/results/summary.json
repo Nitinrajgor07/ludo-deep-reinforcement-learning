@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "experiment_id": "EXP_MODEL3_structured_cnn_42_20261004_135503",
+    "algorithm": "model3",
+    "encoding": "structured_cnn",
+    "seed": 42,
+    "timestamp": "20261004_135503",
+    "description": "SMOKE TEST ONLY",
+    "config_hash": "baec379f"
+  },
+  "config": {
+    "algorithm": "model3",
+    "seed": 42,
+    "total_steps": 50,
+    "opponent_type": "random",
+    "eval_games": 2
+  },
+  "runtime_seconds": 0.23,
+  "training_metrics": {
+    "total_steps": 50,
+    "episodes": 0,
+    "sac_wins": 0,
+    "opponent_wins": 0,
+    "draws": 0,
+    "win_rate": 0.0,
+    "avg_reward": 0.0,
+    "final_critic_loss": 0.0,
+    "final_actor_loss": 0.0,
+    "final_alpha": 0.19999998807907104,
+    "updates": 0
+  },
+  "evaluation_metrics": {
+    "total_games": 2,
+    "p0_wins": 2,
+    "p1_wins": 0,
+    "draws": 0,
+    "p0_win_rate": 1.0,
+    "p1_win_rate": 0.0,
+    "draw_rate": 0.0,
+    "avg_turns": 191.5,
+    "avg_p0_reward": 4.1749999999999945,
+    "avg_p1_reward": 8.149999999999991
+  },
+  "artifacts": {
+    "checkpoint": "experiments\\EXP_MODEL3_structured_cnn_42_20261004_135503\\checkpoints\\final_model.pt",
+    "log_dir": "experiments\\EXP_MODEL3_structured_cnn_42_20261004_135503\\logs",
+    "results_dir": "experiments\\EXP_MODEL3_structured_cnn_42_20261004_135503\\results"
+  }
+}

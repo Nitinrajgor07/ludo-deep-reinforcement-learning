@@ -126,10 +126,9 @@ class LudoRules:
                     moved_to_safe = True
                 else:
                     # Capture any opponent tokens on this square (non-safe)
-                    opponent_id = 1 - token.player_id
                     for other in tokens:
                         if (
-                            other.player_id == opponent_id
+                            other.player_id != token.player_id
                             and other.is_on_track
                             and other.track_square == sq
                         ):
@@ -161,7 +160,8 @@ class LudoRules:
     @staticmethod
     def check_winner(tokens: List[Token]) -> Optional[int]:
         """Check if any player has moved all tokens to the goal."""
-        for p in range(NUM_PLAYERS):
+        player_ids = sorted(list(set(t.player_id for t in tokens)))
+        for p in player_ids:
             finished_count = sum(
                 1 for t in tokens if t.player_id == p and t.is_finished
             )

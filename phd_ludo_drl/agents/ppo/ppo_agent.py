@@ -12,7 +12,10 @@ from phd_ludo_drl.config.config_manager import PPOConfig
 from phd_ludo_drl.agents.base_agent import BaseAgent
 from phd_ludo_drl.agents.ppo.ppo_network import ActorCriticNetwork
 from phd_ludo_drl.agents.ppo.rollout_buffer import PPORolloutBuffer
-from phd_ludo_drl.encoding.structured_representation import build_structured_representation
+from phd_ludo_drl.encoding.structured_representation import (
+    StructuredLudoState,
+    build_structured_representation,
+)
 
 
 class PPOAgent(BaseAgent):
@@ -31,6 +34,8 @@ class PPOAgent(BaseAgent):
         self,
         config: Optional[PPOConfig] = None,
         latent_dim: int = 128,
+        encoder: Optional[nn.Module] = None,
+        freeze_encoder: bool = False,
         device: Optional[torch.device] = None,
         name: str = "PPO",
     ):
@@ -41,11 +46,13 @@ class PPOAgent(BaseAgent):
         self.network = ActorCriticNetwork(
             latent_dim=latent_dim,
             hidden_units=self.config.hidden_units,
+            encoder=encoder,
+            freeze_encoder=freeze_encoder,
         ).to(self.device)
 
-        # Optimizer: Adam with published lr=3e-4, eps=1e-5
+        # Optimizer: Adam with published lr=3e-4, eps=1e-5 (only trainable parameters)
         self.optimizer = optim.Adam(
-            self.network.parameters(),
+            filter(lambda p: p.requires_grad, self.network.parameters()),
             lr=self.config.learning_rate,
             eps=1e-5,
         )
@@ -53,15 +60,50 @@ class PPOAgent(BaseAgent):
         self.total_steps = 0
         self.update_count = 0
 
+    def freeze_encoder(self) -> None:
+        """Freeze shared encoder parameters and reinitialize optimizer."""
+        self.network.freeze_encoder()
+        self.optimizer = optim.Adam(
+            filter(lambda p: p.requires_grad, self.network.parameters()),
+            lr=self.config.learning_rate,
+            eps=1e-5,
+        )
+
+    def unfreeze_encoder(self) -> None:
+        """Unfreeze shared encoder parameters and reinitialize optimizer."""
+        self.network.unfreeze_encoder()
+        self.optimizer = optim.Adam(
+            self.network.parameters(),
+            lr=self.config.learning_rate,
+            eps=1e-5,
+        )
+
+    def seed(self, seed: int) -> None:
+        """Set random seeds for reproducibility."""
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+        np.random.seed(seed)
+
     def _prepare_inputs(
         self,
-        state: Union[Dict[str, Any], np.ndarray, torch.Tensor],
+        state: Union[Dict[str, Any], StructuredLudoState, np.ndarray, torch.Tensor],
+        context: Optional[Union[np.ndarray, torch.Tensor]] = None,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """Convert state input to standard spatial and context tensors."""
+        if hasattr(state, "spatial_tensor") and hasattr(state, "context_vector"):
+            spatial_t = torch.from_numpy(state.spatial_tensor).float().to(self.device)
+            context_t = torch.from_numpy(state.context_vector).float().to(self.device)
+            if spatial_t.dim() == 2:
+                spatial_t = spatial_t.unsqueeze(0)
+            if context_t.dim() == 1:
+                context_t = context_t.unsqueeze(0)
+            return spatial_t, context_t
+
         if isinstance(state, dict):
             struct_state = build_structured_representation(state)
-            spatial_t = torch.from_numpy(struct_state.spatial_tensor).unsqueeze(0).to(self.device)
-            context_t = torch.from_numpy(struct_state.context_vector).unsqueeze(0).to(self.device)
+            spatial_t = torch.from_numpy(struct_state.spatial_tensor).float().unsqueeze(0).to(self.device)
+            context_t = torch.from_numpy(struct_state.context_vector).float().unsqueeze(0).to(self.device)
             return spatial_t, context_t
 
         if isinstance(state, np.ndarray):
@@ -71,25 +113,37 @@ class PPOAgent(BaseAgent):
 
         if spatial_t.dim() == 2:
             spatial_t = spatial_t.unsqueeze(0)
-        return spatial_t, None
+
+        context_t = None
+        if context is not None:
+            if isinstance(context, np.ndarray):
+                context_t = torch.from_numpy(context).float().to(self.device)
+            else:
+                context_t = context.float().to(self.device)
+            if context_t.dim() == 1:
+                context_t = context_t.unsqueeze(0)
+
+        return spatial_t, context_t
 
     def select_action(
         self,
-        state: Union[Dict[str, Any], np.ndarray, torch.Tensor],
+        state: Union[Dict[str, Any], StructuredLudoState, np.ndarray, torch.Tensor],
         action_mask: Union[np.ndarray, torch.Tensor],
+        context: Optional[Union[np.ndarray, torch.Tensor]] = None,
         deterministic: bool = False,
     ) -> int:
         """Select a strictly legal action using the masked policy.
 
         Args:
-            state: Game state dict or spatial tensor.
+            state: Game state dict, StructuredLudoState, or spatial tensor.
             action_mask: Binary legality mask of shape (4,).
+            context: Optional context tensor (12,) if state is spatial tensor.
             deterministic: If True, selects greedy argmax action.
 
         Returns:
             Selected legal action index [0..3].
         """
-        spatial_t, context_t = self._prepare_inputs(state)
+        spatial_t, context_t = self._prepare_inputs(state, context=context)
         with torch.no_grad():
             action, _, _, _ = self.network.get_action_and_value(
                 spatial=spatial_t,
@@ -101,21 +155,23 @@ class PPOAgent(BaseAgent):
 
     def step(
         self,
-        state: Union[Dict[str, Any], np.ndarray, torch.Tensor],
+        state: Union[Dict[str, Any], StructuredLudoState, np.ndarray, torch.Tensor],
         action_mask: Union[np.ndarray, torch.Tensor],
+        context: Optional[Union[np.ndarray, torch.Tensor]] = None,
         deterministic: bool = False,
     ) -> Tuple[int, float, float]:
         """Compute action, log_prob, and value estimate for rollout collection.
 
         Args:
-            state: Game state dict or spatial tensor.
+            state: Game state dict, StructuredLudoState, or spatial tensor.
             action_mask: Binary legality mask of shape (4,).
+            context: Optional context tensor (12,) if state is spatial tensor.
             deterministic: If True, selects greedy argmax action.
 
         Returns:
             Tuple of (action_idx, log_prob, value).
         """
-        spatial_t, context_t = self._prepare_inputs(state)
+        spatial_t, context_t = self._prepare_inputs(state, context=context)
         with torch.no_grad():
             action, log_prob, _, value = self.network.get_action_and_value(
                 spatial=spatial_t,
@@ -127,10 +183,11 @@ class PPOAgent(BaseAgent):
 
     def get_value(
         self,
-        state: Union[Dict[str, Any], np.ndarray, torch.Tensor],
+        state: Union[Dict[str, Any], StructuredLudoState, np.ndarray, torch.Tensor],
+        context: Optional[Union[np.ndarray, torch.Tensor]] = None,
     ) -> float:
         """Compute value estimate V(s) for a given state."""
-        spatial_t, context_t = self._prepare_inputs(state)
+        spatial_t, context_t = self._prepare_inputs(state, context=context)
         with torch.no_grad():
             val = self.network.get_value(spatial_t, context_t)
         return float(val.item())

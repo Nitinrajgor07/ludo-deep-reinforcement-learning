@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h2>Research Visualizations Gallery</h2>
+            <p>Publication-quality experimental figures generated from empirical training, evaluation, and ablation data.</p>
+        </div>
+        <span class="badge badge-indigo" style="font-size: 12px; padding: 6px 12px;">{{ figures|length }} Figures Available &bull; 300 DPI</span>
+    </div>
+</div>
+
+<div class="sci-alert sci-alert-blue">
+    <svg class="sci-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 8h.01"/></svg>
+    <div>
+        <strong>Figure Inspection Standard:</strong>
+        All figures are plotted directly from verified experimental data logs with deterministic seeds. Click on any figure to view the full-resolution modal preview.
+    </div>
+</div>
+
+{% if figures %}
+<div class="fig-grid">
+    {% for fig in figures %}
+    <div class="figure-card">
+        <div class="figure-img-wrap" onclick="openModal('{{ fig.url }}', '{{ fig.title }} - {{ fig.caption }}')" role="button" tabindex="0" title="Click to zoom figure">
+            <img src="{{ fig.url }}" alt="{{ fig.title }}" loading="lazy">
+        </div>
+        <div class="figure-meta">
+            <div class="figure-meta-row">
+                <span class="badge badge-indigo">{{ fig.category }}</span>
+                <span class="figure-filename">{{ fig.filename }}</span>
+            </div>
+            <h4 class="figure-title">{{ fig.title }}</h4>
+            <p class="figure-caption">{{ fig.caption }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="glass-card" style="text-align: center; padding: 48px 24px;">
+    <div style="font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">No Figures Cataloged</div>
+    <div style="font-size: 13px; color: var(--text-muted);">Run <code>python scripts/run_phase13_visualization.py</code> to generate the publication figure suite.</div>
+</div>
+{% endif %}
+{% endblock %}

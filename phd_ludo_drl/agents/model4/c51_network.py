@@ -32,6 +32,8 @@ class CategoricalQNetwork(nn.Module):
         num_atoms: int = 51,
         v_min: float = -20.0,
         v_max: float = 30.0,
+        encoder: Optional[nn.Module] = None,
+        freeze_encoder: bool = False,
     ):
         super().__init__()
         self.latent_dim = latent_dim
@@ -47,7 +49,9 @@ class CategoricalQNetwork(nn.Module):
         self.register_buffer("support", support)
 
         # Shared CNN Encoder
-        self.encoder = StructuredCNNEncoder(latent_dim=latent_dim)
+        self.encoder = encoder if encoder is not None else StructuredCNNEncoder(latent_dim=latent_dim)
+        if freeze_encoder:
+            self.freeze_encoder()
 
         # Distributional value head
         self.head = nn.Sequential(
@@ -55,6 +59,16 @@ class CategoricalQNetwork(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_units, action_dim * num_atoms),
         )
+
+    def freeze_encoder(self) -> None:
+        """Freeze encoder parameters to prevent gradient updates."""
+        for p in self.encoder.parameters():
+            p.requires_grad = False
+
+    def unfreeze_encoder(self) -> None:
+        """Unfreeze encoder parameters to allow gradient updates."""
+        for p in self.encoder.parameters():
+            p.requires_grad = True
 
     def forward(
         self,
@@ -64,14 +78,25 @@ class CategoricalQNetwork(nn.Module):
         """Compute atom probabilities and expected Q-values.
 
         Args:
-            spatial: Spatial board tensor of shape (B, 4, 52).
-            context: Context tensor of shape (B, 12) or None.
+            spatial: Spatial board tensor of shape (B, 4, 52) or (4, 52).
+            context: Context tensor of shape (B, 12), (12,) or None.
 
         Returns:
             Tuple of:
             - probs: Atom probabilities of shape (B, action_dim, num_atoms)
             - q_values: Expected return values Q(s, a) of shape (B, action_dim)
         """
+        if spatial.dim() == 2:
+            spatial = spatial.unsqueeze(0)
+        if context is not None and context.dim() == 1:
+            context = context.unsqueeze(0)
+
+        device = next(self.parameters()).device
+        if spatial.device != device:
+            spatial = spatial.to(device)
+        if context is not None and context.device != device:
+            context = context.to(device)
+
         features = self.encoder(spatial, context)  # (B, 128)
         logits = self.head(features)  # (B, action_dim * num_atoms)
         logits = logits.view(-1, self.action_dim, self.num_atoms)

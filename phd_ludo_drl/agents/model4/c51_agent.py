@@ -12,7 +12,10 @@ from phd_ludo_drl.agents.base_agent import BaseAgent
 from phd_ludo_drl.agents.model4.c51_network import CategoricalQNetwork
 from phd_ludo_drl.agents.model4.replay_buffer import C51ReplayBuffer
 from phd_ludo_drl.environment.action_mask import mask_q_values
-from phd_ludo_drl.encoding.structured_representation import build_structured_representation
+from phd_ludo_drl.encoding.structured_representation import (
+    StructuredLudoState,
+    build_structured_representation,
+)
 
 
 class CategoricalDQNAgent(BaseAgent):
@@ -31,6 +34,8 @@ class CategoricalDQNAgent(BaseAgent):
         self,
         config: Optional[CategoricalDQNConfig] = None,
         latent_dim: int = 128,
+        encoder: Optional[nn.Module] = None,
+        freeze_encoder: bool = False,
         device: Optional[torch.device] = None,
         name: str = "CategoricalDQN_C51",
     ):
@@ -44,6 +49,8 @@ class CategoricalDQNAgent(BaseAgent):
             num_atoms=self.config.num_atoms,
             v_min=self.config.v_min,
             v_max=self.config.v_max,
+            encoder=encoder,
+            freeze_encoder=freeze_encoder,
         ).to(self.device)
 
         self.target_net = CategoricalQNetwork(
@@ -57,9 +64,9 @@ class CategoricalDQNAgent(BaseAgent):
         self.target_net.load_state_dict(self.online_net.state_dict())
         self.target_net.eval()
 
-        # Optimizer: Adam with lr=1e-4
+        # Optimizer: Adam with lr=1e-4 (trainable parameters only)
         self.optimizer = optim.Adam(
-            self.online_net.parameters(),
+            filter(lambda p: p.requires_grad, self.online_net.parameters()),
             lr=self.config.learning_rate,
         )
 
@@ -85,15 +92,50 @@ class CategoricalDQNAgent(BaseAgent):
         self.total_steps = 0
         self.update_count = 0
 
+    def freeze_encoder(self) -> None:
+        """Freeze shared encoder parameters."""
+        self.online_net.freeze_encoder()
+        self.target_net.freeze_encoder()
+        self.optimizer = optim.Adam(
+            filter(lambda p: p.requires_grad, self.online_net.parameters()),
+            lr=self.config.learning_rate,
+        )
+
+    def unfreeze_encoder(self) -> None:
+        """Unfreeze shared encoder parameters."""
+        self.online_net.unfreeze_encoder()
+        self.target_net.unfreeze_encoder()
+        self.optimizer = optim.Adam(
+            self.online_net.parameters(),
+            lr=self.config.learning_rate,
+        )
+
+    def seed(self, seed: int) -> None:
+        """Set random seeds for reproducibility."""
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+        np.random.seed(seed)
+
     def _prepare_inputs(
         self,
-        state: Union[Dict[str, Any], np.ndarray, torch.Tensor],
+        state: Union[Dict[str, Any], StructuredLudoState, np.ndarray, torch.Tensor],
+        context: Optional[Union[np.ndarray, torch.Tensor]] = None,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """Convert state input to standard spatial and context tensors."""
+        if hasattr(state, "spatial_tensor") and hasattr(state, "context_vector"):
+            spatial_t = torch.from_numpy(state.spatial_tensor).float().to(self.device)
+            context_t = torch.from_numpy(state.context_vector).float().to(self.device)
+            if spatial_t.dim() == 2:
+                spatial_t = spatial_t.unsqueeze(0)
+            if context_t.dim() == 1:
+                context_t = context_t.unsqueeze(0)
+            return spatial_t, context_t
+
         if isinstance(state, dict):
             struct_state = build_structured_representation(state)
-            spatial_t = torch.from_numpy(struct_state.spatial_tensor).unsqueeze(0).to(self.device)
-            context_t = torch.from_numpy(struct_state.context_vector).unsqueeze(0).to(self.device)
+            spatial_t = torch.from_numpy(struct_state.spatial_tensor).float().unsqueeze(0).to(self.device)
+            context_t = torch.from_numpy(struct_state.context_vector).float().unsqueeze(0).to(self.device)
             return spatial_t, context_t
 
         if isinstance(state, np.ndarray):
@@ -103,25 +145,37 @@ class CategoricalDQNAgent(BaseAgent):
 
         if spatial_t.dim() == 2:
             spatial_t = spatial_t.unsqueeze(0)
-        return spatial_t, None
+
+        context_t = None
+        if context is not None:
+            if isinstance(context, np.ndarray):
+                context_t = torch.from_numpy(context).float().to(self.device)
+            else:
+                context_t = context.float().to(self.device)
+            if context_t.dim() == 1:
+                context_t = context_t.unsqueeze(0)
+
+        return spatial_t, context_t
 
     def select_action(
         self,
-        state: Union[Dict[str, Any], np.ndarray, torch.Tensor],
+        state: Union[Dict[str, Any], StructuredLudoState, np.ndarray, torch.Tensor],
         action_mask: Union[np.ndarray, torch.Tensor],
+        context: Optional[Union[np.ndarray, torch.Tensor]] = None,
         deterministic: bool = False,
     ) -> int:
         """Select a strictly legal action via masked expected Q-values.
 
         Args:
-            state: Game state dict or spatial tensor.
+            state: Game state dict, StructuredLudoState, or spatial tensor.
             action_mask: Binary legality mask of shape (4,).
+            context: Optional context tensor (12,) if state is spatial tensor.
             deterministic: If True, executes pure greedy argmax without epsilon exploration.
 
         Returns:
             Selected legal action index [0..3].
         """
-        spatial_t, context_t = self._prepare_inputs(state)
+        spatial_t, context_t = self._prepare_inputs(state, context=context)
         if isinstance(action_mask, np.ndarray):
             mask_t = torch.from_numpy(action_mask).float().to(self.device)
         else:
@@ -135,6 +189,77 @@ class CategoricalDQNAgent(BaseAgent):
             deterministic=deterministic,
             epsilon=eps,
         )
+
+    def project_distribution(
+        self,
+        rewards: torch.Tensor,
+        dones: torch.Tensor,
+        p_next: torch.Tensor,
+    ) -> torch.Tensor:
+        """Categorical Bellman projection onto the discrete support [V_min, V_max].
+
+        Formula:
+            T z_j = clamp(r + (1 - d) * gamma * z_j, V_min, V_max)
+            b_j = (T z_j - V_min) / delta_z
+            m_l += p_next * (u - b_j)
+            m_u += p_next * (b_j - l)
+
+        Args:
+            rewards: Batch tensor of shape (B,).
+            dones: Batch tensor of shape (B,).
+            p_next: Target atom probabilities for best next action of shape (B, num_atoms).
+
+        Returns:
+            Projected target distribution m of shape (B, num_atoms).
+        """
+        b_size = rewards.size(0)
+        gamma_term = (1.0 - dones).unsqueeze(1) * self.gamma
+        t_z = rewards.unsqueeze(1) + gamma_term * self.support.unsqueeze(0)
+        t_z = torch.clamp(t_z, self.v_min, self.v_max)
+
+        # Coordinate projection: b_j in [0, N-1]
+        b_j = (t_z - self.v_min) / self.delta_z
+        l = b_j.floor().long().clamp(0, self.num_atoms - 1)
+        u = b_j.ceil().long().clamp(0, self.num_atoms - 1)
+
+        # Interpolation weights
+        m_l = p_next * (u.float() - b_j)
+        m_u = p_next * (b_j - l.float())
+
+        # Exact atom landing case (l == u)
+        eq_mask = (l == u)
+        m_l = torch.where(eq_mask, p_next, m_l)
+        m_u = torch.where(eq_mask, torch.zeros_like(m_u), m_u)
+
+        # Accumulate projected target distribution m
+        target_m = torch.zeros(b_size, self.num_atoms, device=self.device)
+        target_m.scatter_add_(1, l, m_l)
+        target_m.scatter_add_(1, u, m_u)
+
+        return target_m
+
+    def compute_target_distribution(
+        self,
+        rewards: torch.Tensor,
+        dones: torch.Tensor,
+        next_states: torch.Tensor,
+        next_contexts: Optional[torch.Tensor],
+        next_action_masks: torch.Tensor,
+    ) -> torch.Tensor:
+        """Compute the projected target distribution for a batch of transitions."""
+        b_size = rewards.size(0)
+        with torch.no_grad():
+            next_q = self.online_net.get_q_values(next_states, next_contexts)
+            masked_next_q = mask_q_values(next_q, next_action_masks)
+            best_next_actions = torch.argmax(masked_next_q, dim=-1)  # (B,)
+
+            # Target network atom probabilities for best next actions
+            next_probs, _ = self.target_net(next_states, next_contexts)  # (B, A, N)
+            best_actions_exp = best_next_actions.view(b_size, 1, 1).expand(b_size, 1, self.num_atoms)
+            p_next = next_probs.gather(1, best_actions_exp).squeeze(1)  # (B, N)
+
+            target_m = self.project_distribution(rewards, dones, p_next)
+        return target_m
 
     def train_step(self, batch_size: int = 64) -> Optional[Dict[str, float]]:
         """Execute a single Categorical DQN distributional Bellman projection update."""
@@ -154,44 +279,15 @@ class CategoricalDQNAgent(BaseAgent):
         b_size = states.size(0)
 
         # -------------------------------------------------------------
-        # 1. Next Action Selection (Double Q mechanism with Action Masking)
+        # 1. Target Distribution via Categorical Bellman Projection
         # -------------------------------------------------------------
-        with torch.no_grad():
-            next_q = self.online_net.get_q_values(next_states, next_contexts)
-            masked_next_q = mask_q_values(next_q, next_action_masks)
-            best_next_actions = torch.argmax(masked_next_q, dim=-1)  # (B,)
-
-            # Target network atom probabilities for best next actions
-            next_probs, _ = self.target_net(next_states, next_contexts)  # (B, A, N)
-            best_actions_exp = best_next_actions.view(b_size, 1, 1).expand(b_size, 1, self.num_atoms)
-            p_next = next_probs.gather(1, best_actions_exp).squeeze(1)  # (B, N)
-
-            # ---------------------------------------------------------
-            # 2. Categorical Bellman Projection onto Support
-            # ---------------------------------------------------------
-            # T z_j = clamp(r + (1 - d) * gamma * z_j, V_min, V_max)
-            gamma_term = (1.0 - dones).unsqueeze(1) * self.gamma
-            t_z = rewards.unsqueeze(1) + gamma_term * self.support.unsqueeze(0)
-            t_z = torch.clamp(t_z, self.v_min, self.v_max)
-
-            # Coordinate projection: b_j in [0, N-1]
-            b_j = (t_z - self.v_min) / self.delta_z
-            l = b_j.floor().long().clamp(0, self.num_atoms - 1)
-            u = b_j.ceil().long().clamp(0, self.num_atoms - 1)
-
-            # Interpolation weights
-            m_l = p_next * (u.float() - b_j)
-            m_u = p_next * (b_j - l.float())
-
-            # Exact atom landing case (l == u)
-            eq_mask = (l == u)
-            m_l = torch.where(eq_mask, p_next, m_l)
-            m_u = torch.where(eq_mask, torch.zeros_like(m_u), m_u)
-
-            # Accumulate projected target distribution m
-            target_m = torch.zeros(b_size, self.num_atoms, device=self.device)
-            target_m.scatter_add_(1, l, m_l)
-            target_m.scatter_add_(1, u, m_u)
+        target_m = self.compute_target_distribution(
+            rewards=rewards,
+            dones=dones,
+            next_states=next_states,
+            next_contexts=next_contexts,
+            next_action_masks=next_action_masks,
+        )
 
         # -------------------------------------------------------------
         # 3. Online Network Evaluation and Cross-Entropy Loss

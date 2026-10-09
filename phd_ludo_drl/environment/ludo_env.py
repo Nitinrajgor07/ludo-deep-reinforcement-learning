@@ -9,6 +9,8 @@ from phd_ludo_drl.environment.constants import (
     TOKENS_PER_PLAYER,
     ACTION_SPACE_SIZE,
     TokenState,
+    PLAYER_START_SQUARES,
+    PLAYER_START_SQUARES_4P,
 )
 from phd_ludo_drl.environment.token import Token
 from phd_ludo_drl.environment.dice import Dice
@@ -39,7 +41,9 @@ class LudoEnvironment:
         reward_calculator: Optional[LudoRewardCalculator] = None,
         auto_advance_no_moves: bool = True,
         dice_probabilities: Optional[Any] = None,
+        num_players: int = NUM_PLAYERS,
     ):
+        self.num_players = num_players
         self.max_turns = max_turns
         self.auto_advance_no_moves = auto_advance_no_moves
         self.dice = Dice(seed=seed, probabilities=dice_probabilities)
@@ -47,18 +51,27 @@ class LudoEnvironment:
         self.rules = LudoRules(self.board)
         self.reward_calculator = reward_calculator or LudoRewardCalculator()
 
-        # Initialize tokens: 4 tokens for Player 0, 4 tokens for Player 1
-        self.tokens: List[Token] = [
-            Token(player_id=p, token_id=t)
-            for p in range(NUM_PLAYERS)
-            for t in range(TOKENS_PER_PLAYER)
-        ]
+        # Initialize tokens for active players
+        if self.num_players == 4:
+            self.tokens: List[Token] = [
+                Token(player_id=p, token_id=t, start_square=PLAYER_START_SQUARES_4P[p])
+                for p in range(4)
+                for t in range(TOKENS_PER_PLAYER)
+            ]
+        else:
+            self.tokens: List[Token] = [
+                Token(player_id=p, token_id=t, start_square=PLAYER_START_SQUARES[p])
+                for p in range(NUM_PLAYERS)
+                for t in range(TOKENS_PER_PLAYER)
+            ]
 
         self.current_player: int = 0
         self.turn_count: int = 0
         self.is_terminal: bool = False
         self.winner: Optional[int] = None
         self.consecutive_sixes: int = 0
+        self.bonus_six: bool = False
+        self.bonus_capture: bool = False
 
     def seed(self, seed: Optional[int] = None) -> None:
         """Reseed the environment's dice RNG."""
@@ -90,6 +103,8 @@ class LudoEnvironment:
         self.is_terminal = False
         self.winner = None
         self.consecutive_sixes = 0
+        self.bonus_six = False
+        self.bonus_capture = False
 
         # Roll initial die
         self.dice.roll()
@@ -186,11 +201,17 @@ class LudoEnvironment:
                 # Same player rolls again
                 if dice_used == 6:
                     self.consecutive_sixes += 1
+                    self.bonus_six = True
+                else:
+                    self.bonus_six = False
+                self.bonus_capture = (len(move_result.captured_tokens) > 0)
                 self.dice.roll()
             else:
-                # Turn transitions to opponent
+                # Turn transitions to next player
                 self.consecutive_sixes = 0
-                self.current_player = 1 - self.current_player
+                self.bonus_six = False
+                self.bonus_capture = False
+                self.current_player = (self.current_player + 1) % self.num_players
                 self.dice.roll()
 
             if self.auto_advance_no_moves:
@@ -206,6 +227,8 @@ class LudoEnvironment:
             "is_terminal": self.is_terminal,
             "winner": self.winner,
             "turn_count": self.turn_count,
+            "bonus_six": self.bonus_six,
+            "bonus_capture": self.bonus_capture,
             "success": True,
         }
         return obs, reward, self.is_terminal, truncated, info
@@ -217,7 +240,9 @@ class LudoEnvironment:
 
         while not self.is_terminal and len(self.get_legal_actions()) == 0:
             self.consecutive_sixes = 0
-            self.current_player = 1 - self.current_player
+            self.bonus_six = False
+            self.bonus_capture = False
+            self.current_player = (self.current_player + 1) % self.num_players
             self.dice.roll()
             self.turn_count += 1
             pass_count += 1
@@ -237,6 +262,8 @@ class LudoEnvironment:
             "winner": self.winner,
             "turn_count": self.turn_count,
             "consecutive_sixes": self.consecutive_sixes,
+            "bonus_six": self.bonus_six,
+            "bonus_capture": self.bonus_capture,
         }
 
     def render(self, mode: str = "text") -> str:
@@ -247,7 +274,7 @@ class LudoEnvironment:
             f"Legal Actions: {self.get_legal_actions()} | Mask: {self.get_action_mask().tolist()}",
             f"Terminal: {self.is_terminal} | Winner: {self.winner}",
         ]
-        for p in range(NUM_PLAYERS):
+        for p in range(self.num_players):
             p_tokens = [t for t in self.tokens if t.player_id == p]
             token_desc = [
                 f"T{t.token_id}: {t.state.name} (step={t.step_count}, track={t.track_square}, home={t.home_index})"

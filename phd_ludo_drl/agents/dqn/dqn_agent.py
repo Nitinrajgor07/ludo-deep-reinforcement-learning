@@ -13,7 +13,10 @@ from phd_ludo_drl.agents.base_agent import BaseAgent
 from phd_ludo_drl.agents.dqn.dqn_network import DuelingQNetwork
 from phd_ludo_drl.agents.dqn.replay_buffer import PrioritizedReplayBuffer
 from phd_ludo_drl.environment.action_mask import mask_q_values
-from phd_ludo_drl.encoding.structured_representation import build_structured_representation
+from phd_ludo_drl.encoding.structured_representation import (
+    StructuredLudoState,
+    build_structured_representation,
+)
 from phd_ludo_drl.encoding.raw_observation import extract_raw_observation
 
 
@@ -76,17 +79,24 @@ class DQNAgent(BaseAgent):
         self.epsilon_decay_steps = self.config.epsilon_decay_steps
         self.total_steps = 0
 
+    def seed(self, seed: int) -> None:
+        """Set random seeds for agent exploration and reproducibility."""
+        torch.manual_seed(seed)
+        np.random.seed(seed)
+
     def select_action(
         self,
-        state: Union[Dict[str, Any], np.ndarray, torch.Tensor],
+        state: Union[Dict[str, Any], StructuredLudoState, np.ndarray, torch.Tensor],
         action_mask: Union[np.ndarray, torch.Tensor],
+        context: Optional[Union[np.ndarray, torch.Tensor]] = None,
         deterministic: bool = False,
     ) -> int:
         """Select action via masked epsilon-greedy policy.
 
         Args:
-            state: Environment state dict or spatial tensor.
+            state: Environment state dict, StructuredLudoState, or spatial tensor.
             action_mask: Binary mask of shape (4,).
+            context: Optional context tensor (12,) if state is spatial tensor.
             deterministic: If True, executes pure greedy action without exploration.
 
         Returns:
@@ -111,8 +121,11 @@ class DQNAgent(BaseAgent):
             if not deterministic and np.random.rand() < self.epsilon:
                 return int(np.random.choice(legal_actions))
 
-        # Representation Ablation: extract state representation
-        if isinstance(state, dict):
+        # Handle different state input types
+        if isinstance(state, StructuredLudoState):
+            spatial_t = torch.from_numpy(state.spatial_tensor).unsqueeze(0).to(self.device)
+            context_t = torch.from_numpy(state.context_vector).unsqueeze(0).to(self.device)
+        elif isinstance(state, dict):
             if self.encoder_type == "flat":
                 raw_obs = extract_raw_observation(state)
                 spatial_t = torch.from_numpy(raw_obs.to_flat_vector()).unsqueeze(0).to(self.device)
@@ -130,7 +143,16 @@ class DQNAgent(BaseAgent):
                 spatial_t = spatial_t.unsqueeze(0)
             elif spatial_t.dim() == 2 and self.encoder_type != "flat":
                 spatial_t = spatial_t.unsqueeze(0)
-            context_t = None
+
+            if context is not None:
+                if isinstance(context, np.ndarray):
+                    context_t = torch.from_numpy(context).float().to(self.device)
+                else:
+                    context_t = context.to(self.device)
+                if context_t.dim() == 1:
+                    context_t = context_t.unsqueeze(0)
+            else:
+                context_t = None
 
         with torch.no_grad():
             q_values = self.online_net(spatial_t, context_t).squeeze(0)  # (4,)
@@ -141,6 +163,34 @@ class DQNAgent(BaseAgent):
                 best_action = int(torch.argmax(q_values).item())
 
         return best_action
+
+    def compute_targets(
+        self,
+        rewards: torch.Tensor,
+        next_states: torch.Tensor,
+        next_contexts: torch.Tensor,
+        dones: torch.Tensor,
+        next_action_masks: torch.Tensor,
+    ) -> torch.Tensor:
+        """Compute Double DQN Bellman targets with action masking.
+
+        Formula (Hasselt et al., 2016):
+            a* = argmax_{a'} Q_online(s', a'; theta) [masked by next_action_masks]
+            y = r + (1 - done) * gamma * Q_target(s', a*; theta^-)
+        """
+        with torch.no_grad():
+            next_q_online = self.online_net(next_states, next_contexts)
+            if self.use_action_masking:
+                masked_next_q_online = mask_q_values(next_q_online, next_action_masks)
+                best_next_actions = torch.argmax(masked_next_q_online, dim=1, keepdim=True)
+            else:
+                best_next_actions = torch.argmax(next_q_online, dim=1, keepdim=True)
+
+            next_q_target = self.target_net(next_states, next_contexts)
+            q_target_val = next_q_target.gather(1, best_next_actions)
+            q_target = rewards + (1.0 - dones) * self.gamma * q_target_val
+
+        return q_target
 
     def train_step(self, batch_size: int = 64) -> Optional[Dict[str, float]]:
         """Perform a single Double DQN optimization step using Prioritized Replay."""
@@ -163,22 +213,8 @@ class DQNAgent(BaseAgent):
         # 1. Current Q-values: Q_online(s, a)
         q_eval = self.online_net(states, contexts).gather(1, actions)  # (B, 1)
 
-        # 2. Double DQN Target Calculation:
-        # a* = argmax_a' Q_online(s', a'; theta) with next action mask (if masking enabled)
-        with torch.no_grad():
-            next_q_online = self.online_net(next_states, next_contexts)
-            if self.use_action_masking:
-                masked_next_q_online = mask_q_values(next_q_online, next_action_masks)
-                best_next_actions = torch.argmax(masked_next_q_online, dim=1, keepdim=True)  # (B, 1)
-            else:
-                best_next_actions = torch.argmax(next_q_online, dim=1, keepdim=True)  # (B, 1)
-
-            # Evaluate Q_target(s', a*; theta^-)
-            next_q_target = self.target_net(next_states, next_contexts)
-            q_target_val = next_q_target.gather(1, best_next_actions)
-
-            # Bellman equation
-            q_target = rewards + (1.0 - dones) * self.gamma * q_target_val
+        # 2. Double DQN Target Calculation
+        q_target = self.compute_targets(rewards, next_states, next_contexts, dones, next_action_masks)
 
         # 3. TD Error and Prioritized Loss
         td_errors = (q_eval - q_target).squeeze(1)  # (B,)
@@ -214,6 +250,10 @@ class DQNAgent(BaseAgent):
         """Polyak soft update of target network parameters."""
         for target_param, online_param in zip(self.target_net.parameters(), self.online_net.parameters()):
             target_param.data.copy_(tau * online_param.data + (1.0 - tau) * target_param.data)
+
+    def hard_update(self) -> None:
+        """Hard update copying online network parameters directly to target network."""
+        self.target_net.load_state_dict(self.online_net.state_dict())
 
     def _decay_epsilon(self) -> None:
         """Linearly decay exploration rate from epsilon_start to epsilon_end."""

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h2>About PhD Research Platform</h2>
+    <p>Scientific motivation, algorithmic architecture, and experimental methodology.</p>
+</div>
+
+<!-- Project Overview Card -->
+<div class="glass-card highlight">
+    <div class="card-header">
+        <div class="card-title">Dissertation Project Overview</div>
+        <span class="badge badge-blue">PhD Research Platform</span>
+    </div>
+    <div style="font-size: 14px; line-height: 1.7; color: var(--text-secondary);">
+        <p style="margin-bottom: 12px;">
+            This project investigates the empirical efficacy of Deep Reinforcement Learning algorithms operating in 
+            <strong>stochastic, partially observable, multi-agent competitive board games</strong>, specifically 4-player competitive Ludo.
+        </p>
+        <p style="margin-bottom: 12px;">
+            Ludo exhibits unique challenges including: (1) highly stochastic transition probabilities driven by discrete 6-sided dice rolls, 
+            (2) severe action masking constraints where only a subset of tokens can legally advance, 
+            (3) non-linear strategic trade-offs between racing tokens forward and capturing opponent pieces to send them back to the yard.
+        </p>
+    </div>
+</div>
+
+<!-- Architectural Pillars -->
+<div class="grid-3">
+    <div class="glass-card">
+        <div class="card-header">
+            <div class="card-title">State Encoding</div>
+            <span class="badge badge-teal">176 Dimensions</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            A vectorized spatial representation encoding token positions across standard tracks, safe squares, home paths, relative distance matrices, and normalized dice rolls.
+        </p>
+    </div>
+
+    <div class="glass-card">
+        <div class="card-header">
+            <div class="card-title">Comparative Baseline</div>
+            <span class="badge badge-indigo">4 DRL Models</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            Evaluates value-based (Double Dueling DQN + PER), on-policy policy gradients (Actor-Critic PPO), maximum entropy actor-critic (Discrete SAC), and distributional RL (Categorical C51).
+        </p>
+    </div>
+
+    <div class="glass-card">
+        <div class="card-header">
+            <div class="card-title">Statistical Rigor</div>
+            <span class="badge badge-blue">Zero Fabrication</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+            Evaluation over 200,000 matches with balanced seating, independent seed sets, parametric/non-parametric tests, effect sizes, and strict distinction between pilot and final data.
+        </p>
+    </div>
+</div>
+
+<!-- Technology Stack Card -->
+<div class="glass-card">
+    <div class="card-header">
+        <div class="card-title">Target Technology Stack</div>
+        <span class="badge badge-emerald">FastAPI + Vanilla Web</span>
+    </div>
+    <div class="grid-4" style="margin-top: 10px;">
+        <div style="background: white; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">BACKEND SERVER</div>
+            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-top: 4px;">FastAPI</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">High-performance async ASGI</div>
+        </div>
+        <div style="background: white; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">ASGI WEB SERVER</div>
+            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-top: 4px;">Uvicorn</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Standard localhost server</div>
+        </div>
+        <div style="background: white; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">FRONTEND THEME</div>
+            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-top: 4px;">Light Glassmorphic</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">100% Light theme only</div>
+        </div>
+        <div style="background: white; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted);">DEEP RL FRAMEWORK</div>
+            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-top: 4px;">PyTorch 2.x</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Custom neural architectures</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

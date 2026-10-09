@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "experiment_id": "EXP_DQN_structured_cnn_42_20261004_135425",
+    "algorithm": "dqn",
+    "encoding": "structured_cnn",
+    "seed": 42,
+    "timestamp": "20261004_135425",
+    "description": "SMOKE TEST ONLY",
+    "config_hash": "baec379f"
+  },
+  "config": {
+    "algorithm": "dqn",
+    "seed": 42,
+    "total_steps": 50,
+    "opponent_type": "random",
+    "eval_games": 2
+  },
+  "runtime_seconds": 0.19,
+  "training_metrics": {
+    "total_steps": 50,
+    "episodes": 0,
+    "dqn_wins": 0,
+    "opponent_wins": 0,
+    "draws": 0,
+    "win_rate": 0.0,
+    "avg_reward": 0.0,
+    "final_loss": 0.0,
+    "final_epsilon": 1.0
+  },
+  "evaluation_metrics": {
+    "total_games": 2,
+    "p0_wins": 2,
+    "p1_wins": 0,
+    "draws": 0,
+    "p0_win_rate": 1.0,
+    "p1_win_rate": 0.0,
+    "draw_rate": 0.0,
+    "avg_turns": 200.0,
+    "avg_p0_reward": 4.274999999999995,
+    "avg_p1_reward": 6.099999999999992
+  },
+  "artifacts": {
+    "checkpoint": "experiments\\EXP_DQN_structured_cnn_42_20261004_135425\\checkpoints\\final_model.pt",
+    "log_dir": "experiments\\EXP_DQN_structured_cnn_42_20261004_135425\\logs",
+    "results_dir": "experiments\\EXP_DQN_structured_cnn_42_20261004_135425\\results"
+  }
+}

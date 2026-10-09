@@ -55,6 +55,11 @@ class PPOTrainer:
         self.arena = SelfPlayArena(env=self.env)
         self.buffer = PPORolloutBuffer(capacity=self.rollout_steps)
 
+    def seed(self, seed: int) -> None:
+        """Seed environment and agent for reproducible training and evaluation."""
+        self.env.reset(seed=seed)
+        self.agent.seed(seed)
+
     def train(
         self,
         total_steps: int = 1000,
@@ -62,6 +67,9 @@ class PPOTrainer:
         eval_games: int = 10,
         checkpoint_dir: Optional[Path] = None,
         callback: Optional[Callable[[Dict[str, Any]], None]] = None,
+        initial_step: int = 0,
+        checkpoint_interval: int = 25000,
+        checkpoint_callback: Optional[Callable[[int, Path], None]] = None,
     ) -> PPOTrainingMetrics:
         """Execute PPO training loop for total_steps interactions.
 
@@ -71,6 +79,9 @@ class PPOTrainer:
             eval_games: Number of evaluation games per interval.
             checkpoint_dir: Directory to save model snapshots.
             callback: Optional callback receiving step metrics.
+            initial_step: Initial step count (for resuming from checkpoint).
+            checkpoint_interval: Step frequency for periodic checkpoints.
+            checkpoint_callback: Optional callback invoked when checkpoint saved.
 
         Returns:
             PPOTrainingMetrics summarizing training execution.
@@ -89,10 +100,10 @@ class PPOTrainer:
         last_entropy = 0.0
         updates = 0
 
-        step = 0
-        last_eval_step = 0
-        last_ckpt_step = 0
-        ckpt_interval = 25000
+        step = initial_step
+        last_eval_step = initial_step
+        last_ckpt_step = initial_step
+        ckpt_interval = checkpoint_interval
         while step < total_steps:
             curr_p = self.env.current_player
             legal_actions = self.env.get_legal_actions()
@@ -109,6 +120,7 @@ class PPOTrainer:
                 action, log_prob, value = self.agent.step(
                     state=struct_state.spatial_tensor,
                     action_mask=mask,
+                    context=struct_state.context_vector,
                     deterministic=False,
                 )
 
@@ -151,7 +163,10 @@ class PPOTrainer:
                         last_value = 0.0
                     else:
                         last_struct = build_structured_representation(obs)
-                        last_value = self.agent.get_value(last_struct.spatial_tensor)
+                        last_value = self.agent.get_value(
+                            last_struct.spatial_tensor,
+                            context=last_struct.context_vector,
+                        )
 
                     self.buffer.compute_gae(
                         last_value=last_value,
@@ -210,6 +225,8 @@ class PPOTrainer:
                 last_ckpt_step = step
                 ckpt_path = checkpoint_dir / f"ppo_step_{step}.pt"
                 self.agent.save_checkpoint(ckpt_path)
+                if checkpoint_callback:
+                    checkpoint_callback(step, ckpt_path)
 
         total_games = ppo_wins + opp_wins + draws
         win_rate = (ppo_wins / total_games) if total_games > 0 else 0.0

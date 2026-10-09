@@ -12,7 +12,10 @@ from phd_ludo_drl.config.config_manager import DiscreteSACConfig
 from phd_ludo_drl.agents.base_agent import BaseAgent
 from phd_ludo_drl.agents.model3.sac_network import DiscreteActor, DiscreteCritic
 from phd_ludo_drl.agents.model3.replay_buffer import DiscreteSACReplayBuffer
-from phd_ludo_drl.encoding.structured_representation import build_structured_representation
+from phd_ludo_drl.encoding.structured_representation import (
+    StructuredLudoState,
+    build_structured_representation,
+)
 
 
 class DiscreteSACAgent(BaseAgent):
@@ -31,6 +34,8 @@ class DiscreteSACAgent(BaseAgent):
         self,
         config: Optional[DiscreteSACConfig] = None,
         latent_dim: int = 128,
+        encoder: Optional[nn.Module] = None,
+        freeze_encoder: bool = False,
         device: Optional[torch.device] = None,
         name: str = "DiscreteSAC",
     ):
@@ -41,6 +46,7 @@ class DiscreteSACAgent(BaseAgent):
         self.critic = DiscreteCritic(
             latent_dim=latent_dim,
             hidden_units=self.config.hidden_units,
+            freeze_encoder=freeze_encoder,
         ).to(self.device)
 
         self.critic_target = DiscreteCritic(
@@ -54,15 +60,17 @@ class DiscreteSACAgent(BaseAgent):
         self.actor = DiscreteActor(
             latent_dim=latent_dim,
             hidden_units=self.config.hidden_units,
+            encoder=encoder,
+            freeze_encoder=freeze_encoder,
         ).to(self.device)
 
-        # Optimizers
+        # Optimizers (trainable parameters only)
         self.critic_optimizer = optim.Adam(
-            self.critic.parameters(),
+            filter(lambda p: p.requires_grad, self.critic.parameters()),
             lr=self.config.critic_lr,
         )
         self.actor_optimizer = optim.Adam(
-            self.actor.parameters(),
+            filter(lambda p: p.requires_grad, self.actor.parameters()),
             lr=self.config.actor_lr,
         )
 
@@ -95,15 +103,58 @@ class DiscreteSACAgent(BaseAgent):
         """Current entropy temperature parameter."""
         return self.log_alpha.exp()
 
+    def freeze_encoder(self) -> None:
+        """Freeze encoder parameters in actor and critic networks."""
+        self.actor.freeze_encoder()
+        self.critic.freeze_encoder()
+        self.critic_optimizer = optim.Adam(
+            filter(lambda p: p.requires_grad, self.critic.parameters()),
+            lr=self.config.critic_lr,
+        )
+        self.actor_optimizer = optim.Adam(
+            filter(lambda p: p.requires_grad, self.actor.parameters()),
+            lr=self.config.actor_lr,
+        )
+
+    def unfreeze_encoder(self) -> None:
+        """Unfreeze encoder parameters in actor and critic networks."""
+        self.actor.unfreeze_encoder()
+        self.critic.unfreeze_encoder()
+        self.critic_optimizer = optim.Adam(
+            self.critic.parameters(),
+            lr=self.config.critic_lr,
+        )
+        self.actor_optimizer = optim.Adam(
+            self.actor.parameters(),
+            lr=self.config.actor_lr,
+        )
+
+    def seed(self, seed: int) -> None:
+        """Set random seeds for reproducibility."""
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+        np.random.seed(seed)
+
     def _prepare_inputs(
         self,
-        state: Union[Dict[str, Any], np.ndarray, torch.Tensor],
+        state: Union[Dict[str, Any], StructuredLudoState, np.ndarray, torch.Tensor],
+        context: Optional[Union[np.ndarray, torch.Tensor]] = None,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         """Convert state input to standard spatial and context tensors."""
+        if hasattr(state, "spatial_tensor") and hasattr(state, "context_vector"):
+            spatial_t = torch.from_numpy(state.spatial_tensor).float().to(self.device)
+            context_t = torch.from_numpy(state.context_vector).float().to(self.device)
+            if spatial_t.dim() == 2:
+                spatial_t = spatial_t.unsqueeze(0)
+            if context_t.dim() == 1:
+                context_t = context_t.unsqueeze(0)
+            return spatial_t, context_t
+
         if isinstance(state, dict):
             struct_state = build_structured_representation(state)
-            spatial_t = torch.from_numpy(struct_state.spatial_tensor).unsqueeze(0).to(self.device)
-            context_t = torch.from_numpy(struct_state.context_vector).unsqueeze(0).to(self.device)
+            spatial_t = torch.from_numpy(struct_state.spatial_tensor).float().unsqueeze(0).to(self.device)
+            context_t = torch.from_numpy(struct_state.context_vector).float().unsqueeze(0).to(self.device)
             return spatial_t, context_t
 
         if isinstance(state, np.ndarray):
@@ -113,25 +164,37 @@ class DiscreteSACAgent(BaseAgent):
 
         if spatial_t.dim() == 2:
             spatial_t = spatial_t.unsqueeze(0)
-        return spatial_t, None
+
+        context_t = None
+        if context is not None:
+            if isinstance(context, np.ndarray):
+                context_t = torch.from_numpy(context).float().to(self.device)
+            else:
+                context_t = context.float().to(self.device)
+            if context_t.dim() == 1:
+                context_t = context_t.unsqueeze(0)
+
+        return spatial_t, context_t
 
     def select_action(
         self,
-        state: Union[Dict[str, Any], np.ndarray, torch.Tensor],
+        state: Union[Dict[str, Any], StructuredLudoState, np.ndarray, torch.Tensor],
         action_mask: Union[np.ndarray, torch.Tensor],
+        context: Optional[Union[np.ndarray, torch.Tensor]] = None,
         deterministic: bool = False,
     ) -> int:
         """Select a strictly legal action using the masked policy.
 
         Args:
-            state: Game state dict or spatial tensor.
+            state: Game state dict, StructuredLudoState, or spatial tensor.
             action_mask: Binary legality mask (4,).
+            context: Optional context tensor (12,) if state is spatial tensor.
             deterministic: If True, selects argmax probability action.
 
         Returns:
             Legal action index [0..3].
         """
-        spatial_t, context_t = self._prepare_inputs(state)
+        spatial_t, context_t = self._prepare_inputs(state, context=context)
         if isinstance(action_mask, np.ndarray):
             mask_t = torch.from_numpy(action_mask).float().to(self.device)
         else:
@@ -143,6 +206,40 @@ class DiscreteSACAgent(BaseAgent):
             action_mask=mask_t,
             deterministic=deterministic,
         )
+
+    def compute_target(
+        self,
+        rewards: torch.Tensor,
+        dones: torch.Tensor,
+        next_states: torch.Tensor,
+        next_contexts: Optional[torch.Tensor],
+        next_action_masks: torch.Tensor,
+    ) -> torch.Tensor:
+        """Compute exact expectation value target for Discrete SAC.
+
+        Formula:
+            V(s') = sum_{a in A_legal} pi(a|s') * [ min_j Q_target,j(s', a) - alpha * log pi(a|s') ]
+            target = r + (1 - d) * gamma * V(s')
+
+        Args:
+            rewards: Batch tensor of step rewards (B,).
+            dones: Batch tensor of done flags (B,).
+            next_states: Batch tensor of next spatial states (B, 4, 52).
+            next_contexts: Batch tensor of next contexts (B, 12).
+            next_action_masks: Batch tensor of next valid action masks (B, 4).
+
+        Returns:
+            Target Q values tensor of shape (B,).
+        """
+        with torch.no_grad():
+            next_probs, next_log_probs = self.actor(next_states, next_contexts, next_action_masks)
+            q1_target, q2_target = self.critic_target(next_states, next_contexts)
+            min_q_target = torch.min(q1_target, q2_target)
+
+            # V(s') = sum_a pi(a|s') * [ min Q(s', a) - alpha * log pi(a|s') ]
+            next_v = (next_probs * (min_q_target - self.alpha * next_log_probs)).sum(dim=-1)
+            target_q = rewards + (1.0 - dones) * self.gamma * next_v
+        return target_q
 
     def train_step(self, batch_size: int = 64) -> Optional[Dict[str, float]]:
         """Execute a single off-policy Soft Actor-Critic optimization step."""
@@ -163,14 +260,7 @@ class DiscreteSACAgent(BaseAgent):
         # -------------------------------------------------------------
         # 1. Critic Update with Exact Expectation Value Target
         # -------------------------------------------------------------
-        with torch.no_grad():
-            next_probs, next_log_probs = self.actor(next_states, next_contexts, next_action_masks)
-            q1_target, q2_target = self.critic_target(next_states, next_contexts)
-            min_q_target = torch.min(q1_target, q2_target)
-
-            # V(s') = sum_a pi(a|s') * [ min Q(s', a) - alpha * log pi(a|s') ]
-            next_v = (next_probs * (min_q_target - self.alpha * next_log_probs)).sum(dim=-1)
-            target_q = rewards + (1.0 - dones) * self.gamma * next_v
+        target_q = self.compute_target(rewards, dones, next_states, next_contexts, next_action_masks)
 
         q1, q2 = self.critic(states, contexts)
         q1_a = q1.gather(1, actions.unsqueeze(1)).squeeze(1)
