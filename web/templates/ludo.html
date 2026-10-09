@@ -1,37 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="page-header" style="margin-bottom: 20px;">
+<div class="page-header" style="margin-bottom: 24px;">
     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
         <div>
             <h2>Ludo Arena</h2>
-            <p style="color: var(--text-muted); font-size: 13px;">4-Player AI Tournament Match Arena</p>
+            <p style="color: var(--text-secondary); font-size: 13.5px;">4-Player AI Tournament Match Arena</p>
         </div>
     </div>
 </div>
 
 <!-- 4-Player Match Setup Card -->
-<div class="glass-card highlight" style="margin-bottom: 20px; padding: 18px 22px;">
-    <div class="card-header" style="margin-bottom: 14px; padding-bottom: 8px;">
-        <div class="card-title" style="font-size: 14px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; color: var(--accent-indigo);"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/></svg>
+<div class="glass-card highlight" style="margin-bottom: 24px; padding: 24px;">
+    <div class="card-header" style="margin-bottom: 16px;">
+        <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--accent);"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/></svg>
             4-Player Controller Setup
         </div>
-        <span class="badge badge-gray" style="font-size: 10.5px;">Deterministic Match</span>
+        <span class="badge badge-gray">Deterministic Match</span>
     </div>
 
-    <div class="grid-4" style="margin-bottom: 14px;">
+    <div class="grid-4" style="margin-bottom: 16px;">
         <!-- Player 0: Red -->
-        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 42, 95, 0.35); border-radius: 10px; padding: 12px 14px; box-shadow: 0 0 12px rgba(255, 42, 95, 0.1);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ff2a5f; box-shadow: 0 0 8px #ff2a5f;"></span>
-                    <strong style="font-size: 12.5px; color: #ff7597;">P0 — Red</strong>
+        <div style="background: var(--player-red-bg); border: 1px solid var(--player-red-border); border-radius: var(--radius-inner); padding: 14px 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-red);"></span>
+                    <strong style="font-size: 13px; color: var(--player-red);">P0 — Red</strong>
                 </div>
-                <span class="badge badge-rose" style="font-size: 9px; padding: 1px 6px;">Top-Left</span>
+                <span class="badge badge-rose" style="font-size: 9.5px;">Top-Left</span>
             </div>
-            <label class="form-label" style="font-size: 10.5px; margin-bottom: 4px;" for="p0Select">Controller:</label>
-            <select id="p0Select" class="form-select" style="font-size: 11.5px; padding: 6px 10px;">
+            <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p0Select">Controller:</label>
+            <select id="p0Select" class="form-select" style="font-size: 12px; width: 100%;">
                 <option value="dqn" selected>Double Dueling DQN + PER</option>
                 <option value="ppo">Actor-Critic PPO</option>
                 <option value="model3">Discrete SAC</option>
@@ -43,16 +43,16 @@
         </div>
 
         <!-- Player 1: Green -->
-        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 230, 118, 0.35); border-radius: 10px; padding: 12px 14px; box-shadow: 0 0 12px rgba(0, 230, 118, 0.1);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00e676; box-shadow: 0 0 8px #00e676;"></span>
-                    <strong style="font-size: 12.5px; color: #69f0ae;">P1 — Green</strong>
+        <div style="background: var(--player-green-bg); border: 1px solid var(--player-green-border); border-radius: var(--radius-inner); padding: 14px 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-green);"></span>
+                    <strong style="font-size: 13px; color: var(--player-green);">P1 — Green</strong>
                 </div>
-                <span class="badge badge-emerald" style="font-size: 9px; padding: 1px 6px;">Top-Right</span>
+                <span class="badge badge-emerald" style="font-size: 9.5px;">Top-Right</span>
             </div>
-            <label class="form-label" style="font-size: 10.5px; margin-bottom: 4px;" for="p1Select">Controller:</label>
-            <select id="p1Select" class="form-select" style="font-size: 11.5px; padding: 6px 10px;">
+            <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p1Select">Controller:</label>
+            <select id="p1Select" class="form-select" style="font-size: 12px; width: 100%;">
                 <option value="expert" selected>Heuristic Expert (Alhajry)</option>
                 <option value="random">Uniform Random</option>
                 <option value="dqn">Double Dueling DQN</option>
@@ -64,16 +64,16 @@
         </div>
 
         <!-- Player 2: Yellow -->
-        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 214, 0, 0.35); border-radius: 10px; padding: 12px 14px; box-shadow: 0 0 12px rgba(255, 214, 0, 0.1);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ffd600; box-shadow: 0 0 8px #ffd600;"></span>
-                    <strong style="font-size: 12.5px; color: #ffea00;">P2 — Yellow</strong>
+        <div style="background: var(--player-yellow-bg); border: 1px solid var(--player-yellow-border); border-radius: var(--radius-inner); padding: 14px 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-yellow);"></span>
+                    <strong style="font-size: 13px; color: var(--player-yellow);">P2 — Yellow</strong>
                 </div>
-                <span class="badge badge-amber" style="font-size: 9px; padding: 1px 6px;">Bottom-Right</span>
+                <span class="badge badge-amber" style="font-size: 9.5px;">Bottom-Right</span>
             </div>
-            <label class="form-label" style="font-size: 10.5px; margin-bottom: 4px;" for="p2Select">Controller:</label>
-            <select id="p2Select" class="form-select" style="font-size: 11.5px; padding: 6px 10px;">
+            <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p2Select">Controller:</label>
+            <select id="p2Select" class="form-select" style="font-size: 12px; width: 100%;">
                 <option value="random" selected>Uniform Random</option>
                 <option value="expert">Heuristic Expert (Alhajry)</option>
                 <option value="dqn">Double Dueling DQN</option>
@@ -85,16 +85,16 @@
         </div>
 
         <!-- Player 3: Blue -->
-        <div style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(0, 176, 255, 0.35); border-radius: 10px; padding: 12px 14px; box-shadow: 0 0 12px rgba(0, 176, 255, 0.1);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00b0ff; box-shadow: 0 0 8px #00b0ff;"></span>
-                    <strong style="font-size: 12.5px; color: #80d8ff;">P3 — Blue</strong>
+        <div style="background: var(--player-blue-bg); border: 1px solid var(--player-blue-border); border-radius: var(--radius-inner); padding: 14px 16px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-blue);"></span>
+                    <strong style="font-size: 13px; color: var(--player-blue);">P3 — Blue</strong>
                 </div>
-                <span class="badge badge-blue" style="font-size: 9px; padding: 1px 6px;">Bottom-Left</span>
+                <span class="badge badge-blue" style="font-size: 9.5px;">Bottom-Left</span>
             </div>
-            <label class="form-label" style="font-size: 10.5px; margin-bottom: 4px;" for="p3Select">Controller:</label>
-            <select id="p3Select" class="form-select" style="font-size: 11.5px; padding: 6px 10px;">
+            <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p3Select">Controller:</label>
+            <select id="p3Select" class="form-select" style="font-size: 12px; width: 100%;">
                 <option value="expert" selected>Heuristic Expert (Alhajry)</option>
                 <option value="random">Uniform Random</option>
                 <option value="dqn">Double Dueling DQN</option>
@@ -107,96 +107,97 @@
     </div>
 
     <!-- Match Controls & Seed -->
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.06);">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <label class="form-label" style="margin-bottom: 0; font-size: 11.5px;" for="seedInput">Seed:</label>
-            <input type="number" id="seedInput" class="form-input" value="42" style="width: 80px; padding: 6px 10px; font-size: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <label class="form-label" style="margin-bottom: 0; font-size: 12px;" for="seedInput">Seed:</label>
+            <input type="number" id="seedInput" class="form-input" value="42" style="width: 90px; text-align: center;">
         </div>
-        <button id="btnNewGame" class="btn btn-primary" onclick="startNewGame()" style="padding: 7px 16px; font-size: 12.5px;">
-            🔄 Restart Match
+        <button id="btnNewGame" class="btn btn-primary" onclick="startNewGame()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 6px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Restart Match
         </button>
     </div>
 </div>
 
 <!-- 4-Player Live Statistics Grid -->
-<div class="grid-4" style="margin-bottom: 20px;">
+<div class="grid-4" style="margin-bottom: 24px;">
     <!-- P0 Red Stats -->
-    <div id="statCardP0" class="metric-card" style="border-top: 2px solid #ff2a5f;">
+    <div id="statCardP0" class="metric-card" style="border-top: 3px solid var(--player-red);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; font-size: 12px; color: #ff7597; display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #ff2a5f; box-shadow: 0 0 6px #ff2a5f;"></span>
+            <span style="font-weight: 800; font-size: 13px; color: var(--player-red); display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-red);"></span>
                 RED (P0)
             </span>
             <span id="p0CtrlBadge" class="badge badge-rose">DQN</span>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: var(--text-muted);">
-            <span>Yard: <strong id="p0Yard" style="color: #ffffff;">4</strong></span>
-            <span>Track: <strong id="p0Track" style="color: #ffffff;">0</strong></span>
-            <span>Goal: <strong id="p0Goal" style="color: #ffffff;">0</strong></span>
+        <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+            <span>Yard: <strong id="p0Yard" style="color: var(--text-primary);">4</strong></span>
+            <span>Track: <strong id="p0Track" style="color: var(--text-primary);">0</strong></span>
+            <span>Goal: <strong id="p0Goal" style="color: var(--text-primary);">0</strong></span>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 11.5px; color: var(--text-muted);">
-            <span>Captures: <strong id="p0Caps" style="color: #ffffff;">0</strong></span>
-            <span>Reward: <strong id="p0Rew" style="color: #818cf8;">0.00</strong></span>
+        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+            <span>Captures: <strong id="p0Caps" style="color: var(--text-primary);">0</strong></span>
+            <span>Reward: <strong id="p0Rew" style="color: var(--accent);">0.00</strong></span>
         </div>
     </div>
 
     <!-- P1 Green Stats -->
-    <div id="statCardP1" class="metric-card" style="border-top: 2px solid #00e676;">
+    <div id="statCardP1" class="metric-card" style="border-top: 3px solid var(--player-green);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; font-size: 12px; color: #69f0ae; display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #00e676; box-shadow: 0 0 6px #00e676;"></span>
+            <span style="font-weight: 800; font-size: 13px; color: var(--player-green); display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-green);"></span>
                 GREEN (P1)
             </span>
             <span id="p1CtrlBadge" class="badge badge-emerald">EXPERT</span>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: var(--text-muted);">
-            <span>Yard: <strong id="p1Yard" style="color: #ffffff;">4</strong></span>
-            <span>Track: <strong id="p1Track" style="color: #ffffff;">0</strong></span>
-            <span>Goal: <strong id="p1Goal" style="color: #ffffff;">0</strong></span>
+        <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+            <span>Yard: <strong id="p1Yard" style="color: var(--text-primary);">4</strong></span>
+            <span>Track: <strong id="p1Track" style="color: var(--text-primary);">0</strong></span>
+            <span>Goal: <strong id="p1Goal" style="color: var(--text-primary);">0</strong></span>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 11.5px; color: var(--text-muted);">
-            <span>Captures: <strong id="p1Caps" style="color: #ffffff;">0</strong></span>
-            <span>Reward: <strong id="p1Rew" style="color: #818cf8;">0.00</strong></span>
+        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+            <span>Captures: <strong id="p1Caps" style="color: var(--text-primary);">0</strong></span>
+            <span>Reward: <strong id="p1Rew" style="color: var(--accent);">0.00</strong></span>
         </div>
     </div>
 
     <!-- P2 Yellow Stats -->
-    <div id="statCardP2" class="metric-card" style="border-top: 2px solid #ffd600;">
+    <div id="statCardP2" class="metric-card" style="border-top: 3px solid var(--player-yellow);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; font-size: 12px; color: #ffea00; display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #ffd600; box-shadow: 0 0 6px #ffd600;"></span>
+            <span style="font-weight: 800; font-size: 13px; color: var(--player-yellow); display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-yellow);"></span>
                 YELLOW (P2)
             </span>
             <span id="p2CtrlBadge" class="badge badge-amber">RANDOM</span>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: var(--text-muted);">
-            <span>Yard: <strong id="p2Yard" style="color: #ffffff;">4</strong></span>
-            <span>Track: <strong id="p2Track" style="color: #ffffff;">0</strong></span>
-            <span>Goal: <strong id="p2Goal" style="color: #ffffff;">0</strong></span>
+        <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+            <span>Yard: <strong id="p2Yard" style="color: var(--text-primary);">4</strong></span>
+            <span>Track: <strong id="p2Track" style="color: var(--text-primary);">0</strong></span>
+            <span>Goal: <strong id="p2Goal" style="color: var(--text-primary);">0</strong></span>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 11.5px; color: var(--text-muted);">
-            <span>Captures: <strong id="p2Caps" style="color: #ffffff;">0</strong></span>
-            <span>Reward: <strong id="p2Rew" style="color: #818cf8;">0.00</strong></span>
+        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+            <span>Captures: <strong id="p2Caps" style="color: var(--text-primary);">0</strong></span>
+            <span>Reward: <strong id="p2Rew" style="color: var(--accent);">0.00</strong></span>
         </div>
     </div>
 
     <!-- P3 Blue Stats -->
-    <div id="statCardP3" class="metric-card" style="border-top: 2px solid #00b0ff;">
+    <div id="statCardP3" class="metric-card" style="border-top: 3px solid var(--player-blue);">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; font-size: 12px; color: #80d8ff; display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #00b0ff; box-shadow: 0 0 6px #00b0ff;"></span>
+            <span style="font-weight: 800; font-size: 13px; color: var(--player-blue); display: flex; align-items: center; gap: 6px;">
+                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-blue);"></span>
                 BLUE (P3)
             </span>
             <span id="p3CtrlBadge" class="badge badge-blue">EXPERT</span>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: var(--text-muted);">
-            <span>Yard: <strong id="p3Yard" style="color: #ffffff;">4</strong></span>
-            <span>Track: <strong id="p3Track" style="color: #ffffff;">0</strong></span>
-            <span>Goal: <strong id="p3Goal" style="color: #ffffff;">0</strong></span>
+        <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+            <span>Yard: <strong id="p3Yard" style="color: var(--text-primary);">4</strong></span>
+            <span>Track: <strong id="p3Track" style="color: var(--text-primary);">0</strong></span>
+            <span>Goal: <strong id="p3Goal" style="color: var(--text-primary);">0</strong></span>
         </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 11.5px; color: var(--text-muted);">
-            <span>Captures: <strong id="p3Caps" style="color: #ffffff;">0</strong></span>
-            <span>Reward: <strong id="p3Rew" style="color: #818cf8;">0.00</strong></span>
+        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+            <span>Captures: <strong id="p3Caps" style="color: var(--text-primary);">0</strong></span>
+            <span>Reward: <strong id="p3Rew" style="color: var(--accent);">0.00</strong></span>
         </div>
     </div>
 </div>
@@ -204,31 +205,31 @@
 <!-- Main Game Arena Section (Board & Controls) -->
 <div class="grid-2">
     <!-- Left Column: The 15x15 SVG Board -->
-    <div class="glass-card" style="display: flex; flex-direction: column; align-items: center; padding: 20px;">
-        <div class="card-header" style="width: 100%; margin-bottom: 12px;">
-            <div class="card-title" style="font-size: 14px;">15×15 Standard Board</div>
+    <div class="glass-card" style="display: flex; flex-direction: column; align-items: center; padding: 24px;">
+        <div class="card-header" style="width: 100%; margin-bottom: 16px;">
+            <div class="card-title">15×15 Standard Board</div>
             <div id="gameStatusBadge"><span class="badge badge-indigo">Active Match</span></div>
         </div>
 
         <!-- SVG Board Container -->
         <div id="boardContainer" class="board-container" style="width: 100%; max-width: 500px; min-height: 500px;">
-            <div style="display: flex; align-items: center; justify-content: center; height: 460px; color: var(--text-muted);">
+            <div style="display: flex; align-items: center; justify-content: center; height: 460px; color: var(--text-secondary);">
                 Initializing 4-Player Arena...
             </div>
         </div>
 
         <!-- Active Player Turn & 3D Animated Rolling Dice Banner -->
-        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding: 10px 16px; background: rgba(15, 23, 42, 0.8); border-radius: 10px; border: 1px solid var(--border-subtle);">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">ACTIVE TURN:</span>
-                <span id="turnInfo" class="badge badge-rose" style="font-size: 12px; padding: 3px 10px;">Player 0 (Red)</span>
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding: 12px 18px; background: var(--surface-secondary); border-radius: var(--radius-inner); border: 1px solid var(--border-subtle);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 12px; color: var(--text-secondary); font-weight: 700;">ACTIVE TURN:</span>
+                <span id="turnInfo" class="badge badge-rose" style="font-size: 12px; padding: 4px 12px;">Player 0 (Red)</span>
             </div>
             
-            <!-- Cute 3D Rolling Dice Animation Box -->
+            <!-- 3D Rolling Dice Animation Box -->
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;">DICE ROLL:</span>
+                <span style="font-size: 12px; color: var(--text-secondary); font-weight: 700;">DICE ROLL:</span>
                 <div id="diceBox3D" class="dice-box-3d">-</div>
-                <span id="diceInfo" class="badge badge-blue" style="font-size: 14px; font-weight: 800; padding: 3px 10px; display: none;">-</span>
+                <span id="diceInfo" class="badge badge-blue" style="font-size: 14px; font-weight: 800; padding: 4px 12px; display: none;">-</span>
             </div>
         </div>
     </div>
@@ -236,40 +237,40 @@
     <!-- Right Column: Step Controls, Manual Actions & Full Telemetry -->
     <div style="display: flex; flex-direction: column; gap: 20px;">
         <!-- Step Execution Card -->
-        <div class="glass-card" style="padding: 20px;">
-            <div class="card-header" style="margin-bottom: 12px;">
-                <div class="card-title" style="font-size: 14px;">Match Controls</div>
+        <div class="glass-card" style="padding: 24px;">
+            <div class="card-header" style="margin-bottom: 16px;">
+                <div class="card-title">Match Controls</div>
                 <span id="terminalBanner" class="badge badge-emerald">In Progress</span>
             </div>
 
-            <div style="display: flex; gap: 10px; margin-bottom: 14px;">
-                <button id="btnStep" class="btn btn-primary" style="flex: 1; padding: 8px 14px; font-size: 12.5px;" onclick="stepGame()">
+            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                <button id="btnStep" class="btn btn-primary" style="flex: 1;" onclick="stepGame()">
                     Step Active Turn &rarr;
                 </button>
-                <button id="btnAutoPlay" class="btn btn-secondary" style="flex: 1; padding: 8px 14px; font-size: 12.5px;" onclick="autoPlay(5)">
+                <button id="btnAutoPlay" class="btn btn-secondary" style="flex: 1;" onclick="autoPlay(5)">
                     Auto Play (5 Turns)
                 </button>
             </div>
 
             <!-- Legal Actions for Current Active Player -->
-            <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px;">
-                <label class="form-label" style="margin-bottom: 6px; font-size: 11px;" id="legalActionLabel">
+            <div style="background: var(--surface-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-inner); padding: 16px;">
+                <label class="form-label" style="margin-bottom: 8px; font-size: 12px;" id="legalActionLabel">
                     Available Token Moves:
                 </label>
-                <div id="legalActionsContainer" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                <div id="legalActionsContainer" style="display: flex; flex-wrap: wrap; gap: 8px;">
                     <!-- Dynamically populated via JS -->
                 </div>
             </div>
         </div>
 
         <!-- Live 4-Player Telemetry Table -->
-        <div class="glass-card" style="flex: 1; padding: 20px;">
-            <div class="card-header" style="margin-bottom: 12px;">
-                <div class="card-title" style="font-size: 14px;">Turn Telemetry Log</div>
+        <div class="glass-card" style="flex: 1; padding: 24px;">
+            <div class="card-header" style="margin-bottom: 16px;">
+                <div class="card-title">Turn Telemetry Log</div>
                 <span id="turnCountBadge" class="badge badge-indigo">Turn: 0</span>
             </div>
 
-            <div class="table-container" style="max-height: 260px; overflow-y: auto;">
+            <div class="table-container" style="max-height: 280px; overflow-y: auto;">
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -286,7 +287,7 @@
                     </thead>
                     <tbody id="turnHistoryBody">
                         <tr>
-                            <td colspan="9" style="text-align: center; color: var(--text-muted);">
+                            <td colspan="9" style="text-align: center; color: var(--text-secondary);">
                                 Match initialized. Awaiting first turn execution.
                             </td>
                         </tr>

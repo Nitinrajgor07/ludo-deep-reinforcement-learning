@@ -204,7 +204,7 @@ function updateUI(state, svg) {
 
     if (state.is_terminal) {
         const winnerText = state.winner !== null
-            ? `🏆 Player ${state.winner} (${PLAYER_THEMES[state.winner]?.color}) Won Match!`
+            ? `VICTORY: Player ${state.winner} (${PLAYER_THEMES[state.winner]?.color}) Won Match!`
             : 'Match Concluded (Truncated / Draw)';
         if (terminalBanner) {
             terminalBanner.className = 'badge badge-rose';

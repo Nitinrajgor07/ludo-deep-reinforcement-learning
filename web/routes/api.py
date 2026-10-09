@@ -64,6 +64,17 @@ def get_status() -> Dict[str, Any]:
     }
 
 
+@router.post("/logout")
+@router.get("/logout")
+def logout() -> Dict[str, Any]:
+    """Perform logout action and return redirect instruction."""
+    return {
+        "status": "logged_out",
+        "message": "Signed out successfully.",
+        "redirect_url": "/dashboard",
+    }
+
+
 @router.get("/models")
 def get_models() -> List[Dict[str, Any]]:
     """Return technical specifications and checkpoint status for the 4 core RL models."""

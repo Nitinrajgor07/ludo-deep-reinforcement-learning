@@ -98,6 +98,7 @@ def models_page(request: Request):
     """Render 4 Deep Reinforcement Learning models overview and checkpoints."""
     specs = data_service.get_model_specs()
     checkpoints = data_service.scan_checkpoints()
+    figures = data_service.get_figures_manifest()
 
     return templates.TemplateResponse(
         request=request,
@@ -108,6 +109,7 @@ def models_page(request: Request):
             "page_title": "RL Models & Architectures",
             "specs": specs,
             "checkpoints": checkpoints,
+            "figures_count": len(figures),
         },
     )
 

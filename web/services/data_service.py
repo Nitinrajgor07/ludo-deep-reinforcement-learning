@@ -130,7 +130,7 @@ class DataService:
         return [
             {
                 "id": "dqn",
-                "name": "Model 1: Double Dueling DQN + PER",
+                "name": "Double Dueling DQN + PER",
                 "display_name": "Double Dueling DQN + PER",
                 "algorithm_type": "Value-Based Off-Policy Q-Learning",
                 "network_architecture": "Conv1D(176->128) -> Dueling [V(s): FC(256), A(s,a): FC(256)]",
@@ -138,11 +138,11 @@ class DataService:
                 "status": "Trained" if ckpt_counts["dqn"] > 0 else "Pending",
                 "checkpoint_count": ckpt_counts["dqn"],
                 "seeds": [42, 101, 202, 303, 404],
-                "description": "Double Q-learning target decoupling with Prioritized Experience Replay (PER: alpha=0.6, beta=0.4->1.0).",
+                "description": "Double Q-learning target decoupling with Prioritized Experience Replay (PER) for Q-value stability.",
             },
             {
                 "id": "ppo",
-                "name": "Model 2: Actor-Critic PPO",
+                "name": "Actor-Critic PPO",
                 "display_name": "Actor-Critic PPO",
                 "algorithm_type": "On-Policy Policy Gradient / Actor-Critic",
                 "network_architecture": "Shared Conv1D(176->128) -> Policy Head (FC 128) + Value Head (FC 128)",
@@ -150,11 +150,11 @@ class DataService:
                 "status": "Trained" if ckpt_counts["ppo"] > 0 else "Pending",
                 "checkpoint_count": ckpt_counts["ppo"],
                 "seeds": [42, 101, 202, 303, 404],
-                "description": "Clipped surrogate objective with Generalized Advantage Estimation (GAE lambda=0.95, gamma=0.99).",
+                "description": "Clipped surrogate objective with Generalized Advantage Estimation (GAE) for policy stability.",
             },
             {
                 "id": "model3",
-                "name": "Model 3: Discrete SAC",
+                "name": "Discrete SAC",
                 "display_name": "Discrete SAC",
                 "algorithm_type": "Maximum Entropy Actor-Critic",
                 "network_architecture": "Twin Soft Q-Critics (Q1, Q2) + Discrete Actor distribution pi(a|s)",
@@ -166,7 +166,7 @@ class DataService:
             },
             {
                 "id": "model4",
-                "name": "Model 4: Categorical C51",
+                "name": "Categorical DQN (C51)",
                 "display_name": "Categorical DQN (C51)",
                 "algorithm_type": "Distributional Reinforcement Learning",
                 "network_architecture": "Shared Feature Network -> 51 atom probability distributions per action",
@@ -330,35 +330,35 @@ class DataService:
 
         return [
             {
-                "icon": "✓",
+                "icon": "check",
                 "title": f"{len(ckpts)} Verified Model Checkpoints",
                 "detail": "Neural weights verified across 5 seeds for DQN, PPO, Discrete SAC, and C51.",
                 "badge": "Checkpoints",
                 "status": "verified",
             },
             {
-                "icon": "✓",
+                "icon": "check",
                 "title": f"{len(figs)} Research Figures Cataloged",
                 "detail": "High-resolution 300 DPI figures with 95% Wilson CIs and ablation curves.",
                 "badge": "Figures",
                 "status": "verified",
             },
             {
-                "icon": "✓",
+                "icon": "check",
                 "title": f"{len(tables)} Empirical Result Tables",
                 "detail": "Descriptive statistics, Welch's t-test, and Mann-Whitney U tests generated.",
                 "badge": "Statistics",
                 "status": "verified",
             },
             {
-                "icon": "✓",
+                "icon": "check",
                 "title": f"{test_info['passing']} Automated Unit Tests Passing",
                 "detail": "100% test pass rate across MDP environment, CNN encoders, and agents.",
                 "badge": "Integrity",
                 "status": "verified",
             },
             {
-                "icon": "⏳",
+                "icon": "clock",
                 "title": "Final 500k-Step Training Pending",
                 "detail": "Full 500k steps x 5 seeds awaiting extended compute; pilot baseline operational.",
                 "badge": "Compute",

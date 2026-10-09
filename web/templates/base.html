@@ -10,69 +10,46 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <!-- Starry Cosmic Background Sparkles Overlay (Matching Reference Image 1) -->
-    <div class="starry-bg" aria-hidden="true">
-        <span class="star-sparkle" style="top: 8%; left: 12%; animation-delay: 0s;">✦</span>
-        <span class="star-sparkle" style="top: 15%; left: 85%; animation-delay: 1.5s;">✨</span>
-        <span class="star-sparkle" style="top: 45%; left: 25%; animation-delay: 0.8s;">✦</span>
-        <span class="star-sparkle" style="top: 65%; left: 78%; animation-delay: 2.2s;">✨</span>
-        <span class="star-sparkle" style="top: 88%; left: 40%; animation-delay: 1.2s;">✦</span>
-        <span class="star-sparkle" style="top: 32%; left: 92%; animation-delay: 2.7s;">✦</span>
-    </div>
 
     <div class="app-shell">
-        <!-- Deep Cosmic Glass Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-brand">
-                <div class="brand-mark">✦</div>
-                <div class="brand-text">
-                    <div class="brand-title">Ludo DRL Lab</div>
-                    <div class="brand-subtitle">Cosmic AI Platform</div>
-                </div>
+        <!-- Top Horizontal Navigation Header -->
+        <header class="top-navbar">
+            <div class="topbar-left">
+                <a href="/dashboard" class="topbar-brand">
+                    <div class="brand-mark">✦</div>
+                    <div class="brand-text">
+                        <div class="brand-title">Ludo DRL Lab</div>
+                        <div class="brand-subtitle">Cosmic AI Platform</div>
+                    </div>
+                </a>
             </div>
 
-            <nav class="sidebar-nav" aria-label="Primary navigation">
-                <div class="nav-section-label">Workspace</div>
-                <a href="/dashboard" class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+            <nav class="top-nav" aria-label="Primary navigation">
+                <a href="/dashboard" class="top-nav-item {% if active_page == 'dashboard' %}active{% endif %}">
                     <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
                     <span>Dashboard</span>
                 </a>
-                <a href="/results" class="nav-item {% if active_page == 'results' %}active{% endif %}">
+                <a href="/results" class="top-nav-item {% if active_page == 'results' %}active{% endif %}">
                     <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></span>
-                    <span style="color: #818cf8; font-weight: 700;">Results Hub</span>
+                    <span>Results Hub</span>
                 </a>
-                <a href="/ludo" class="nav-item {% if active_page == 'ludo' %}active{% endif %}">
+                <a href="/ludo" class="top-nav-item {% if active_page == 'ludo' %}active{% endif %}">
                     <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/><circle cx="15" cy="9" r="1"/><circle cx="9" cy="15" r="1"/></svg></span>
                     <span>Ludo Arena</span>
                 </a>
-                <a href="/models" class="nav-item {% if active_page == 'models' %}active{% endif %}">
+                <a href="/models" class="top-nav-item {% if active_page == 'models' %}active{% endif %}">
                     <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a4 4 0 0 0-4 4v1H6a3 3 0 0 0 0 6h2v2a3 3 0 0 0 6 0v-2h2a3 3 0 0 0 0-6h-2V7a4 4 0 0 0-4-4Z"/><path d="M9 12h.01M15 12h.01"/></svg></span>
                     <span>DRL Models</span>
                 </a>
             </nav>
 
-            <div class="sidebar-footer">
-                <div class="sys-status-row">
-                    <span class="status-pulse"></span>
-                    <span>FastAPI Core Active</span>
-                </div>
-                <div class="sys-meta">Cosmic AI v2.0 &bull; Dark Glass</div>
+            <div class="topbar-right">
+                <span class="badge badge-emerald" style="font-size: 11px; padding: 4px 10px; font-weight: 600;">Pilot Verified</span>
             </div>
-        </aside>
+        </header>
 
-        <!-- Main Workspace -->
+        <!-- Main Workspace Area -->
         <div class="main-area">
-            <!-- Glass Top Navbar -->
-            <header class="topbar">
-                <div class="topbar-left">
-                    <span class="topbar-breadcrumb">Ludo DRL Lab <span aria-hidden="true">/</span> Research workspace</span>
-                    <span class="topbar-title">{{ page_title }}</span>
-                </div>
-                <div class="topbar-right">
-                    <span class="topbar-chip online"><span class="status-pulse"></span>FastAPI Online</span>
-                </div>
-            </header>
-
             <!-- Dynamic Content -->
             <main class="page-content">
                 {% block content %}{% endblock %}
@@ -85,7 +62,7 @@
         <div class="modal-box" onclick="event.stopPropagation()">
             <button class="modal-close-btn" onclick="closeModal()" aria-label="Close image preview">&times;</button>
             <img id="modalImg" src="" alt="Figure Zoom">
-            <div id="modalCaption" class="modal-caption" style="color: #cbd5e1; margin-top: 10px; font-size: 13px;"></div>
+            <div id="modalCaption" class="modal-caption" style="color: var(--text-secondary); margin-top: 10px; font-size: 13px;"></div>
         </div>
     </div>
 

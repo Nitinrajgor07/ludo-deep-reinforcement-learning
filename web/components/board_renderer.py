@@ -1,6 +1,6 @@
 """Interactive SVG Board Renderer for Standard 4-Player Ludo Environment.
 
-Redesigned for the Deep Cosmic Dark AI Laboratory visual language.
+Redesigned for the Soft Light Minimal Card visual system.
 Supports 4 Active Players:
 - Player 0: Red (Top-Left Yard, Start Sq 0, Horizontal Home Row 7 Cols 1..5)
 - Player 1: Green (Top-Right Yard, Start Sq 13, Vertical Home Col 7 Rows 1..5)
@@ -52,12 +52,12 @@ YARD_SLOTS: Dict[int, List[Tuple[float, float]]] = {
     3: [(10.8, 1.8), (10.8, 4.2), (13.2, 1.8), (13.2, 4.2)],
 }
 
-# Deep Cosmic Neon Player Metadata
+# Soft Light Minimal Player Metadata
 PLAYER_COLORS: Dict[int, Dict[str, str]] = {
-    0: {"name": "Red", "hex": "#ff2a5f", "dark": "#9f1239", "light": "rgba(255, 42, 95, 0.15)", "token": "R"},
-    1: {"name": "Green", "hex": "#00e676", "dark": "#065f46", "light": "rgba(0, 230, 118, 0.15)", "token": "G"},
-    2: {"name": "Yellow", "hex": "#ffd600", "dark": "#92400e", "light": "rgba(255, 214, 0, 0.15)", "token": "Y"},
-    3: {"name": "Blue", "hex": "#00b0ff", "dark": "#1e40af", "light": "rgba(0, 176, 255, 0.15)", "token": "B"},
+    0: {"name": "Red", "hex": "#E11D48", "dark": "#9F1239", "light": "#FFF1F2", "token": "R"},
+    1: {"name": "Green", "hex": "#059669", "dark": "#065F46", "light": "#ECFDF5", "token": "G"},
+    2: {"name": "Yellow", "hex": "#D97706", "dark": "#92400E", "light": "#FFFBEB", "token": "Y"},
+    3: {"name": "Blue", "hex": "#0284C7", "dark": "#1E40AF", "light": "#F0F9FF", "token": "B"},
 }
 
 START_SQUARES_MAP: Dict[int, int] = {
@@ -77,22 +77,19 @@ def render_ludo_board_svg(
     winner: Optional[int] = None,
     size: int = 600,
 ) -> str:
-    """Generate an authoritative SVG visualization of the 4-Player Ludo board in Deep Cosmic AI theme."""
+    """Generate an authoritative SVG visualization of the 4-Player Ludo board in Soft Light Card theme."""
     cell = size / 15.0
     safe_set = set(SAFE_SQUARES)
 
     svg: List[str] = [
         f'<svg viewBox="0 0 {size} {size}" width="{size}" height="{size}" xmlns="http://www.w3.org/2000/svg" '
-        f'style="background: #0d121f; border-radius: 16px; box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 20px rgba(99,102,241,0.2); font-family: Plus Jakarta Sans, system-ui, sans-serif;">',
+        f'style="background: #FAFAFC; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.04); font-family: Plus Jakarta Sans, system-ui, sans-serif;">',
         '<defs>',
         '  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">',
-        '    <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.6"/>',
+        '    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.15"/>',
         '  </filter>',
         '  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">',
-        '    <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#ffd600" flood-opacity="0.95"/>',
-        '  </filter>',
-        '  <filter id="neon-glow" x="-40%" y="-40%" width="180%" height="180%">',
-        '    <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#6366f1" flood-opacity="0.8"/>',
+        '    <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#4F46E5" flood-opacity="0.6"/>',
         '  </filter>',
         '</defs>',
     ]
@@ -110,88 +107,88 @@ def render_ludo_board_svg(
             elif 6 <= r <= 8 and 6 <= c <= 8:
                 continue
             else:
-                bg = "#161f33"
-                border = "rgba(99, 102, 241, 0.18)"
+                bg = "#FFFFFF"
+                border = "#E2E8F0"
 
                 # Check for start squares or safe squares
                 for sq, coord in TRACK_COORDINATES.items():
                     if coord == (r, c):
                         if sq == 0:
-                            bg = "rgba(255, 42, 95, 0.25)"  # Red start
-                            border = "#ff2a5f"
+                            bg = "#FFF1F2"  # Red start
+                            border = "#E11D48"
                         elif sq == 13:
-                            bg = "rgba(0, 230, 118, 0.25)"  # Green start
-                            border = "#00e676"
+                            bg = "#ECFDF5"  # Green start
+                            border = "#059669"
                         elif sq == 26:
-                            bg = "rgba(255, 214, 0, 0.25)"  # Yellow start
-                            border = "#ffd600"
+                            bg = "#FFFBEB"  # Yellow start
+                            border = "#D97706"
                         elif sq == 39:
-                            bg = "rgba(0, 176, 255, 0.25)"  # Blue start
-                            border = "#00b0ff"
+                            bg = "#F0F9FF"  # Blue start
+                            border = "#0284C7"
                         elif sq in safe_set:
-                            bg = "rgba(251, 191, 36, 0.2)"  # Star safe square
-                            border = "#fbbf24"
+                            bg = "#FEF3C7"  # Star safe square
+                            border = "#F59E0B"
                         break
 
                 # Check for Home Columns
                 if r == 7 and 1 <= c <= 5:
-                    bg = "rgba(255, 42, 95, 0.35)"  # Red Home
-                    border = "#ff2a5f"
+                    bg = "#FFF1F2"  # Red Home
+                    border = "#E11D48"
                 elif c == 7 and 1 <= r <= 5:
-                    bg = "rgba(0, 230, 118, 0.35)"  # Green Home
-                    border = "#00e676"
+                    bg = "#ECFDF5"  # Green Home
+                    border = "#059669"
                 elif r == 7 and 9 <= c <= 13:
-                    bg = "rgba(255, 214, 0, 0.35)"  # Yellow Home
-                    border = "#ffd600"
+                    bg = "#FFFBEB"  # Yellow Home
+                    border = "#D97706"
                 elif c == 7 and 9 <= r <= 13:
-                    bg = "rgba(0, 176, 255, 0.35)"  # Blue Home
-                    border = "#00b0ff"
+                    bg = "#F0F9FF"  # Blue Home
+                    border = "#0284C7"
 
                 svg.append(f'<rect x="{x}" y="{y}" width="{cell}" height="{cell}" fill="{bg}" stroke="{border}" stroke-width="1.2"/>')
 
     # 2. Four Active Colored Yard Bases
     yards_config = [
         # (x, y, fill, border, label, p_id)
-        (0, 0, "rgba(255, 42, 95, 0.2)", "#ff2a5f", "RED YARD (P0)", 0),
-        (9 * cell, 0, "rgba(0, 230, 118, 0.2)", "#00e676", "GREEN YARD (P1)", 1),
-        (9 * cell, 9 * cell, "rgba(255, 214, 0, 0.2)", "#ffd600", "YELLOW YARD (P2)", 2),
-        (0, 9 * cell, "rgba(0, 176, 255, 0.2)", "#00b0ff", "BLUE YARD (P3)", 3),
+        (0, 0, "#FFF1F2", "#E11D48", "RED YARD (P0)", 0),
+        (9 * cell, 0, "#ECFDF5", "#059669", "GREEN YARD (P1)", 1),
+        (9 * cell, 9 * cell, "#FFFBEB", "#D97706", "YELLOW YARD (P2)", 2),
+        (0, 9 * cell, "#F0F9FF", "#0284C7", "BLUE YARD (P3)", 3),
     ]
 
     for yx, yy, fill, stroke, label, pid in yards_config:
         # Yard base container
         svg.append(f'<rect x="{yx}" y="{yy}" width="{6*cell}" height="{6*cell}" fill="{fill}" stroke="{stroke}" stroke-width="1.8"/>')
-        # Inner dark card
-        svg.append(f'<rect x="{yx + 0.8*cell}" y="{yy + 0.8*cell}" width="{4.4*cell}" height="{4.4*cell}" fill="#0f172a" rx="10" stroke="{stroke}" stroke-width="1.2"/>')
+        # Inner white card
+        svg.append(f'<rect x="{yx + 0.8*cell}" y="{yy + 0.8*cell}" width="{4.4*cell}" height="{4.4*cell}" fill="#FFFFFF" rx="12" stroke="{stroke}" stroke-width="1.2"/>')
         # Yard title
         svg.append(f'<text x="{yx + 3*cell}" y="{yy + 1.4*cell}" font-size="{cell*0.36}px" font-weight="800" fill="{stroke}" text-anchor="middle" letter-spacing="0.5px">{label}</text>')
         # Yard token slots
         for sr, sc in YARD_SLOTS[pid]:
-            slot_fill = "rgba(15, 23, 42, 0.8)"
+            slot_fill = "#FAFAFC"
             slot_border = stroke
             svg.append(f'<circle cx="{sc*cell}" cy="{sr*cell}" r="{cell*0.44}" fill="{slot_fill}" stroke="{slot_border}" stroke-width="1.2" stroke-dasharray="3,2"/>')
 
     # 3. Center Goal Triangles
     cx, cy = 7.5 * cell, 7.5 * cell
     # Left: Red
-    svg.append(f'<polygon points="{6*cell},{6*cell} {cx},{cy} {6*cell},{9*cell}" fill="rgba(255, 42, 95, 0.5)" stroke="#ff2a5f" stroke-width="1.5"/>')
+    svg.append(f'<polygon points="{6*cell},{6*cell} {cx},{cy} {6*cell},{9*cell}" fill="#FFF1F2" stroke="#E11D48" stroke-width="1.5"/>')
     # Top: Green
-    svg.append(f'<polygon points="{6*cell},{6*cell} {cx},{cy} {9*cell},{6*cell}" fill="rgba(0, 230, 118, 0.5)" stroke="#00e676" stroke-width="1.5"/>')
+    svg.append(f'<polygon points="{6*cell},{6*cell} {cx},{cy} {9*cell},{6*cell}" fill="#ECFDF5" stroke="#059669" stroke-width="1.5"/>')
     # Right: Yellow
-    svg.append(f'<polygon points="{9*cell},{6*cell} {cx},{cy} {9*cell},{9*cell}" fill="rgba(255, 214, 0, 0.5)" stroke="#ffd600" stroke-width="1.5"/>')
+    svg.append(f'<polygon points="{9*cell},{6*cell} {cx},{cy} {9*cell},{9*cell}" fill="#FFFBEB" stroke="#D97706" stroke-width="1.5"/>')
     # Bottom: Blue
-    svg.append(f'<polygon points="{6*cell},{9*cell} {cx},{cy} {9*cell},{9*cell}" fill="rgba(0, 176, 255, 0.5)" stroke="#00b0ff" stroke-width="1.5"/>')
+    svg.append(f'<polygon points="{6*cell},{9*cell} {cx},{cy} {9*cell},{9*cell}" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.5"/>')
 
     # Center Goal Emblem
-    svg.append(f'<circle cx="{cx}" cy="{cy}" r="{cell*0.72}" fill="#0f172a" stroke="#818cf8" stroke-width="2" filter="url(#shadow)"/>')
-    svg.append(f'<text x="{cx}" y="{cy + cell*0.14}" font-size="{cell*0.42}px" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="0.5px">GOAL</text>')
+    svg.append(f'<circle cx="{cx}" cy="{cy}" r="{cell*0.72}" fill="#FFFFFF" stroke="#4F46E5" stroke-width="2" filter="url(#shadow)"/>')
+    svg.append(f'<text x="{cx}" y="{cy + cell*0.14}" font-size="{cell*0.42}px" font-weight="900" fill="#19191F" text-anchor="middle" letter-spacing="0.5px">GOAL</text>')
 
     # 4. Safe Square Indicators (Glowing Sparkle Stars)
     for sq in safe_set:
         r, c = TRACK_COORDINATES[sq]
         sx = (c + 0.5) * cell
         sy = (r + 0.65) * cell
-        star_color = "#ffd600"
+        star_color = "#D97706"
         svg.append(f'<text x="{sx}" y="{sy}" font-size="{cell*0.65}px" text-anchor="middle" fill="{star_color}">★</text>')
 
     # 5. Render Tokens
@@ -246,7 +243,7 @@ def render_ludo_board_svg(
 
             t_radius = cell * 0.38
             filter_attr = 'filter="url(#glow)"' if is_legal else 'filter="url(#shadow)"'
-            stroke_color = "#ffd600" if is_selected else ("#ffffff" if is_legal else "rgba(255,255,255,0.4)")
+            stroke_color = "#4F46E5" if is_selected else ("#ffffff" if is_legal else "rgba(255,255,255,0.8)")
             stroke_width = "3.5" if (is_legal or is_selected) else "1.5"
 
             svg.append(

@@ -245,3 +245,12 @@ def test_fastapi_static_assets():
 
     ludo_js_res = client.get("/static/js/ludo.js")
     assert ludo_js_res.status_code == 200
+
+
+def test_fastapi_logout():
+    """Verify POST /api/logout endpoint."""
+    res = client.post("/api/logout")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "logged_out"
+    assert "redirect_url" in data
