@@ -117,7 +117,63 @@
     {% endif %}
 </div>
 
-<!-- Section 2: Robustness & Perturbation Summary -->
+<!-- Section 2: Multi-Mode Benchmark Comparison (1v1 Duel vs. 2v2 Team vs. 4P Free-For-All) -->
+{% if multimode_df is not none and not multimode_df.empty %}
+<div class="glass-card" style="margin-bottom: 24px;">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--accent);"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+            Multi-Mode Benchmark Comparison (1v1 vs. 2v2 vs. 4P FFA)
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="badge badge-indigo">12 Cross-Mode Benchmarks</span>
+            <a href="/api/results/export/table_multimode_comparison?format=csv" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;" download>
+                Export CSV
+            </a>
+            <a href="/api/results/export/table_multimode_comparison?format=json" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;" download>
+                Export JSON
+            </a>
+        </div>
+    </div>
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    {% for col in multimode_df.columns %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in multimode_df.itertuples() %}
+                <tr>
+                    <td><strong>{{ row[1] }}</strong></td>
+                    <td>
+                        <span class="badge {% if '1v1' in row[2] %}badge-rose{% elif '2v2' in row[2] %}badge-indigo{% else %}badge-emerald{% endif %}">
+                            {{ row[2] }}
+                        </span>
+                    </td>
+                    <td>{{ row[3] }}</td>
+                    <td style="font-size: 12px; color: var(--text-secondary);">{{ row[4] }}</td>
+                    <td>{{ row[5] }}</td>
+                    <td>
+                        <strong style="color: {% if '7' in row[6] %}var(--accent){% elif '6' in row[6] %}#059669{% else %}#D97706{% endif %}; font-size: 13.5px;">
+                            {{ row[6] }}
+                        </strong>
+                    </td>
+                    <td>{{ row[7] }}</td>
+                    <td>{{ row[8] }}</td>
+                    <td class="mono" style="font-size: 11.5px;">{{ row[9] }}</td>
+                    <td style="font-size: 12px; color: var(--text-secondary);">{{ row[10] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Section 3: Robustness & Perturbation Summary -->
 {% if robustness_df is not none and not robustness_df.empty %}
 <div class="glass-card" style="margin-bottom: 24px;">
     <div class="card-header">
@@ -171,13 +227,24 @@
 </div>
 {% endif %}
 
-<!-- Section 4: Data Tables Storage Manifest -->
+<!-- Section 4: Data Tables Storage Manifest & Export/Store Management -->
 {% if tables %}
-<div class="glass-card">
-    <div class="card-header">
-        <div class="card-title">Research Data Manifest</div>
-        <span class="badge badge-indigo">{{ tables|length }} Data Tables</span>
+<div class="glass-card" style="margin-bottom: 24px;">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div class="card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--accent);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Research Data Storage & Export Center
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="badge badge-indigo">{{ tables|length }} Tables Stored</span>
+            <label for="resultFileInput" class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload & Store Result (.csv / .json)
+            </label>
+            <input type="file" id="resultFileInput" accept=".csv,.json" style="display: none;" onchange="handleResultUpload(event)">
+        </div>
     </div>
+    <div id="uploadStatusMessage" style="margin-bottom: 12px; display: none;"></div>
     <div class="table-container">
         <table class="data-table">
             <thead>
@@ -186,6 +253,7 @@
                     <th>Row Count</th>
                     <th>Columns</th>
                     <th>Storage Path</th>
+                    <th style="text-align: right;">Export / Download</th>
                 </tr>
             </thead>
             <tbody>
@@ -195,6 +263,14 @@
                     <td>{{ t.rows }}</td>
                     <td>{{ t.columns }}</td>
                     <td class="mono" style="font-size: 11.5px; color: var(--text-secondary);">{{ t.path }}</td>
+                    <td style="text-align: right;">
+                        <a href="/api/results/export/{{ t.name }}?format=csv" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; margin-right: 4px;" download>
+                            CSV
+                        </a>
+                        <a href="/api/results/export/{{ t.name }}?format=json" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;" download>
+                            JSON
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -202,4 +278,39 @@
     </div>
 </div>
 {% endif %}
+
+<script>
+async function handleResultUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const statusEl = document.getElementById('uploadStatusMessage');
+    statusEl.style.display = 'block';
+    statusEl.className = 'badge badge-indigo';
+    statusEl.textContent = `Uploading and storing '${file.name}'...`;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await fetch('/api/results/upload', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            statusEl.className = 'badge badge-emerald';
+            statusEl.textContent = `Success: Stored '${data.file.name}' (${data.file.rows} rows, ${data.file.columns} cols). Reloading...`;
+            setTimeout(() => window.location.reload(), 1200);
+        } else {
+            statusEl.className = 'badge badge-rose';
+            statusEl.textContent = `Upload failed: ${data.detail || 'Error processing file'}`;
+        }
+    } catch (err) {
+        statusEl.className = 'badge badge-rose';
+        statusEl.textContent = `Upload failed: ${err.message}`;
+    }
+}
+</script>
 {% endblock %}

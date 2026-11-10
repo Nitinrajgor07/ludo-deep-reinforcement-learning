@@ -13,6 +13,7 @@ import uvicorn
 
 from web.routes.pages import router as pages_router
 from web.routes.api import router as api_router
+from web.routes.ws import router as ws_router
 from web.services.data_service import get_project_root
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -43,6 +44,7 @@ app.mount("/figures", StaticFiles(directory=str(FIGURES_DIR)), name="figures")
 # Include page & REST API routes
 app.include_router(pages_router)
 app.include_router(api_router)
+app.include_router(ws_router)
 
 
 # Alias routes for convenience

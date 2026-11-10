@@ -1,0 +1,1 @@
+{"timestamp_utc": "2026-11-08T16:48:36.083100+00:00", "step": 100, "episode": 0, "loss": 1.0565225780010223, "mean_q": null, "epsilon": null, "policy_loss": -0.0008064949489181572, "value_loss": 2.1277660131454468, "entropy": 0.6553929299116135, "critic_loss": null, "actor_loss": null, "alpha": null}

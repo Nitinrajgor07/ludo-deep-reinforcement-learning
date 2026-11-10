@@ -1,0 +1,41 @@
+{
+  "experiment_id": "SMOKE_MODEL4_structured_cnn_42_20261108_221836",
+  "run_type": "smoke_test",
+  "is_final_experiment": false,
+  "protocol_version": "1.0.0 (FROZEN)",
+  "algorithm": "model4",
+  "seed": 42,
+  "derived_seeds": {
+    "environment_seed": 42,
+    "agent_seed": 42,
+    "opponent_seed": 52,
+    "evaluation_seed": 1042
+  },
+  "encoding": "structured_cnn",
+  "total_steps": 100,
+  "opponent_type": "random",
+  "eval_games": 2,
+  "eval_interval": null,
+  "checkpoint_interval": 50,
+  "config_hash": "baec379f",
+  "description": "Automated pipeline smoke test for MODEL4",
+  "created_at_utc": "2026-11-08T16:48:37.081194+00:00",
+  "provenance": {
+    "project_version": "1.0.0",
+    "git_commit": "13edaa1bc17143d34dd60dd47e72253f2878e8a5",
+    "git_commit_short": "13edaa1b",
+    "git_branch": "master",
+    "git_dirty": true,
+    "git_commit_date": "2026-10-09T21:39:20+05:30",
+    "python_version": "3.12.10",
+    "platform_system": "Windows",
+    "platform_release": "11",
+    "platform_machine": "AMD64",
+    "processor": "AMD64 Family 23 Model 96 Stepping 1, AuthenticAMD",
+    "torch_version": "2.15.0+cpu",
+    "cuda_available": false,
+    "gymnasium_version": "1.4.0",
+    "numpy_version": "2.5.4",
+    "captured_at_utc": "2026-11-08T16:48:37.076334+00:00"
+  }
+}

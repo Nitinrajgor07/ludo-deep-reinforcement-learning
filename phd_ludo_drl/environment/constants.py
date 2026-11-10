@@ -45,3 +45,10 @@ GOAL_STEP: Final[int] = 56
 
 # Action Space
 ACTION_SPACE_SIZE: Final[int] = TOKENS_PER_PLAYER  # 4 discrete actions: 0, 1, 2, 3
+
+# Standard 2v2 Team mappings for 4-player Ludo
+# Team 0: Red (P0) & Yellow (P2)
+# Team 1: Green (P1) & Blue (P3)
+DEFAULT_TEAMS_4P: Final[dict] = {0: 0, 1: 1, 2: 0, 3: 1}
+TEAM_NAMES_4P: Final[Tuple[str, str]] = ("Team Red-Yellow", "Team Green-Blue")
+TEAM_TOKENS_COUNT: Final[int] = TOKENS_PER_PLAYER * 2  # 8 finished tokens required for team win

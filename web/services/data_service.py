@@ -180,12 +180,15 @@ class DataService:
 
     def load_table_dataframe(self, table_name: str) -> pd.DataFrame:
         """Load results CSV as a pandas DataFrame."""
+        clean_name = Path(table_name).name
         candidates = [
-            self.root / "results" / "tables" / f"{table_name}.csv",
-            self.root / "results" / "tables" / table_name,
-            self.root / "results" / "processed" / f"{table_name}.csv",
-            self.root / "results" / "processed" / table_name,
-            self.root / "docs" / "tables" / f"{table_name}.csv",
+            self.root / "results" / "tables" / f"{clean_name}.csv",
+            self.root / "results" / "tables" / clean_name,
+            self.root / "results" / "custom" / f"{clean_name}.csv",
+            self.root / "results" / "custom" / clean_name,
+            self.root / "results" / "processed" / f"{clean_name}.csv",
+            self.root / "results" / "processed" / clean_name,
+            self.root / "docs" / "tables" / f"{clean_name}.csv",
         ]
         for p in candidates:
             if p.exists() and p.is_file():
@@ -194,6 +197,43 @@ class DataService:
                 except Exception:
                     pass
         return pd.DataFrame()
+
+    def save_custom_result(self, filename: str, content_bytes: bytes) -> Dict[str, Any]:
+        """Save an uploaded or user-submitted result table (CSV or JSON)."""
+        clean_name = Path(filename).name
+        if not (clean_name.endswith(".csv") or clean_name.endswith(".json")):
+            raise ValueError("Only .csv and .json result files are supported.")
+
+        custom_dir = self.root / "results" / "custom"
+        custom_dir.mkdir(parents=True, exist_ok=True)
+        dest_path = custom_dir / clean_name
+
+        dest_path.write_bytes(content_bytes)
+
+        # Validate that it parses as DataFrame or JSON
+        row_count = 0
+        col_count = 0
+        if clean_name.endswith(".csv"):
+            df = pd.read_csv(dest_path)
+            row_count = len(df)
+            col_count = len(df.columns)
+        elif clean_name.endswith(".json"):
+            with open(dest_path, "r", encoding="utf-8") as f:
+                jdata = json.load(f)
+                if isinstance(jdata, list):
+                    row_count = len(jdata)
+                    col_count = len(jdata[0].keys()) if row_count > 0 and isinstance(jdata[0], dict) else 1
+                elif isinstance(jdata, dict):
+                    row_count = len(jdata.keys())
+                    col_count = 1
+
+        return {
+            "name": clean_name,
+            "path": str(dest_path.relative_to(self.root)),
+            "rows": row_count,
+            "columns": col_count,
+            "size_kb": round(len(content_bytes) / 1024, 2),
+        }
 
     def load_table_json(self, table_name: str) -> Optional[Dict[str, Any]]:
         """Load table as JSON response."""
@@ -210,7 +250,12 @@ class DataService:
     def get_tables_manifest(self) -> List[Dict[str, Any]]:
         """List all valid result tables found."""
         tables: List[Dict[str, Any]] = []
-        search_dirs = [self.root / "results" / "tables", self.root / "results" / "processed", self.root / "docs" / "tables"]
+        search_dirs = [
+            self.root / "results" / "tables",
+            self.root / "results" / "custom",
+            self.root / "results" / "processed",
+            self.root / "docs" / "tables",
+        ]
         for d in search_dirs:
             if not d.exists():
                 continue

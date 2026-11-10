@@ -1,0 +1,33 @@
+{
+  "experiment_id": "SMOKE_MODEL3_structured_cnn_42_20261108_221836",
+  "algorithm": "model3",
+  "seed": 42,
+  "protocol_version": "1.0.0 (FROZEN)",
+  "checkpoints": [
+    {
+      "step": 50,
+      "filename": "sac_step_50.pt",
+      "path": "checkpoints\\sac_step_50.pt",
+      "size_bytes": 688750,
+      "sha256": "787bafa4d4b8b1da9e7420c854acffe956de6bef66dbb0a8b6f1febdacf29232",
+      "timestamp_utc": "2026-11-08T16:48:36.637200+00:00"
+    },
+    {
+      "step": 100,
+      "filename": "sac_step_100.pt",
+      "path": "checkpoints\\sac_step_100.pt",
+      "size_bytes": 688807,
+      "sha256": "49b0affcf3968bdb92cf3be87efe70fb2c7befb481a1a73979c8d9936a66284b",
+      "timestamp_utc": "2026-11-08T16:48:36.706187+00:00"
+    },
+    {
+      "step": 100,
+      "filename": "final_model.pt",
+      "path": "checkpoints\\final_model.pt",
+      "size_bytes": 688750,
+      "sha256": "9398192c02a8cc8fc342b25bdc741a5746788a0971a7d25be873ee247f710328",
+      "timestamp_utc": "2026-11-08T16:48:36.723208+00:00"
+    }
+  ],
+  "latest_checkpoint": "checkpoints\\final_model.pt"
+}

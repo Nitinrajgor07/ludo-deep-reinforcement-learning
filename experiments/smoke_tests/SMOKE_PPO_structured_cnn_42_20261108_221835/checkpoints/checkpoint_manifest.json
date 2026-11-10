@@ -1,0 +1,33 @@
+{
+  "experiment_id": "SMOKE_PPO_structured_cnn_42_20261108_221835",
+  "algorithm": "ppo",
+  "seed": 42,
+  "protocol_version": "1.0.0 (FROZEN)",
+  "checkpoints": [
+    {
+      "step": 50,
+      "filename": "ppo_step_50.pt",
+      "path": "checkpoints\\ppo_step_50.pt",
+      "size_bytes": 206601,
+      "sha256": "f7451fa85b3e8e973c96797368c4609f8bcb5c583d07a4b8cf3d7f42aa464f05",
+      "timestamp_utc": "2026-11-08T16:48:35.965792+00:00"
+    },
+    {
+      "step": 100,
+      "filename": "ppo_step_100.pt",
+      "path": "checkpoints\\ppo_step_100.pt",
+      "size_bytes": 618865,
+      "sha256": "abf878a19d340910c35e8c824b2a94f64e710cbcb306d36f0fcb232c863b0eda",
+      "timestamp_utc": "2026-11-08T16:48:36.097100+00:00"
+    },
+    {
+      "step": 100,
+      "filename": "final_model.pt",
+      "path": "checkpoints\\final_model.pt",
+      "size_bytes": 618803,
+      "sha256": "888bf318e027374c250093106342d890ab055e2519e8e29c3d282b7233adfc1b",
+      "timestamp_utc": "2026-11-08T16:48:36.109648+00:00"
+    }
+  ],
+  "latest_checkpoint": "checkpoints\\final_model.pt"
+}

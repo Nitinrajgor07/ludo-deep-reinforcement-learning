@@ -1,0 +1,33 @@
+{
+  "experiment_id": "SMOKE_DQN_structured_cnn_42_20261108_221833",
+  "algorithm": "dqn",
+  "seed": 42,
+  "protocol_version": "1.0.0 (FROZEN)",
+  "checkpoints": [
+    {
+      "step": 50,
+      "filename": "dqn_step_50.pt",
+      "path": "checkpoints\\dqn_step_50.pt",
+      "size_bytes": 681175,
+      "sha256": "02f5b08fd5ca32974517ee5a169eaac2295b68a41acb0b746a4be47fdb9f8a73",
+      "timestamp_utc": "2026-11-08T16:48:35.474487+00:00"
+    },
+    {
+      "step": 100,
+      "filename": "dqn_step_100.pt",
+      "path": "checkpoints\\dqn_step_100.pt",
+      "size_bytes": 681209,
+      "sha256": "41f57a40ec688803bcbe58cbef14cd0d9931e29d059538154c8c766bbdb7097b",
+      "timestamp_utc": "2026-11-08T16:48:35.507787+00:00"
+    },
+    {
+      "step": 100,
+      "filename": "final_model.pt",
+      "path": "checkpoints\\final_model.pt",
+      "size_bytes": 681175,
+      "sha256": "6e1d0adb0f59251423e3824242dc2f26f7d1e7855d528a848ba06f459bb08141",
+      "timestamp_utc": "2026-11-08T16:48:35.521691+00:00"
+    }
+  ],
+  "latest_checkpoint": "checkpoints\\final_model.pt"
+}

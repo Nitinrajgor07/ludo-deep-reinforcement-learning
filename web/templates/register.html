@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="min-height: calc(100vh - 160px); display: flex; align-items: center; justify-content: center; padding: 24px 16px;">
+    <div class="glass-card" style="width: 100%; max-width: 460px; padding: 36px 32px; box-shadow: var(--shadow-hover); border-radius: var(--radius-card);">
+        <div style="text-align: center; margin-bottom: 26px;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: var(--radius-inner); background: var(--surface-secondary); border: 1px solid var(--border-subtle); margin-bottom: 12px; box-shadow: var(--shadow-card);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px; color: var(--accent);"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            </div>
+            <h2 style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px 0;">Create Account</h2>
+            <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Register for SQLite-backed PhD Ludo DRL access</p>
+        </div>
+
+        {% if error %}
+        <div style="margin-bottom: 20px; padding: 12px 16px; background: #FFF1F2; border: 1px solid #E11D48; border-radius: var(--radius-compact); color: #9F1239; font-size: 12.5px; display: flex; align-items: flex-start; gap: 8px;">
+            <span style="font-weight: 700; color: #E11D48;">!</span>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        {% if message %}
+        <div style="margin-bottom: 20px; padding: 12px 16px; background: #ECFDF5; border: 1px solid #059669; border-radius: var(--radius-compact); color: #065F46; font-size: 12.5px; display: flex; align-items: flex-start; gap: 8px;">
+            <span style="font-weight: 700; color: #059669;">✓</span>
+            <span>{{ message }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Live Existence Warning Banner -->
+        <div id="user-exists-banner" style="display: none; margin-bottom: 18px; padding: 12px 14px; background: #FEF3C7; border: 1px solid #D97706; border-radius: var(--radius-compact); font-size: 12px; color: #92400E;">
+            <div style="font-weight: 700; margin-bottom: 4px;">Notice: Account already exists</div>
+            <div>This username is already registered in the database.</div>
+            <div style="margin-top: 6px;">
+                <a id="user-exists-login-link" href="/login" style="font-weight: 700; color: #B45309; text-decoration: underline;">
+                    Sign in with this account &rarr;
+                </a>
+            </div>
+        </div>
+
+        <form action="/register" method="POST" style="display: flex; flex-direction: column; gap: 14px;">
+            <div>
+                <label for="full_name" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block; font-weight: 600;">Full Name</label>
+                <input type="text" id="full_name" name="full_name" class="form-input" placeholder="e.g. Researcher Alice" style="width: 100%;">
+            </div>
+
+            <div>
+                <label for="username" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block; font-weight: 600;">Username</label>
+                <div style="position: relative;">
+                    <input type="text" id="username" name="username" class="form-input" placeholder="e.g. alice" value="{{ username }}" required autofocus style="width: 100%; padding-right: 32px;" onblur="checkUsernameAvailability()">
+                    <span id="reg-lookup-spinner" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); display: none; font-size: 12px; color: var(--accent);">⟳</span>
+                </div>
+                <span style="font-size: 11px; color: var(--text-secondary); margin-top: 3px; display: block;">3–50 characters (letters, numbers, hyphens, underscores, or periods). Creates an individual player profile.</span>
+            </div>
+
+            <div>
+                <label for="email" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block; font-weight: 600;">Email (Optional)</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="alice@university.edu" style="width: 100%;">
+                <span style="font-size: 11px; color: var(--text-secondary); margin-top: 3px; display: block;">Optional. Used for identity and player avatar display.</span>
+            </div>
+
+            <div>
+                <label for="password" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block; font-weight: 600;">Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="password" name="password" class="form-input" placeholder="At least 4 characters" required minlength="4" style="width: 100%; padding-right: 38px;">
+                    <button type="button" onclick="togglePasswordVisibility('password', this)" tabindex="-1" title="Toggle password visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px; display: flex; align-items: center;">
+                        <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    </button>
+                </div>
+                <span style="font-size: 11px; color: var(--text-secondary); margin-top: 3px; display: block;">At least 4 characters (salted PBKDF2 hashing).</span>
+            </div>
+
+            <div style="background: var(--surface-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-compact); padding: 10px 12px; font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;">
+                <strong style="color: var(--text-primary);">ℹ Individual Account:</strong> Registration creates your individual player profile. Team membership (Team 0: Red+Yellow, Team 1: Green+Blue) is assigned dynamically when taking seats in matches.
+            </div>
+
+            <button type="submit" id="reg-submit-btn" class="btn btn-primary" style="width: 100%; margin-top: 4px; padding: 10px; font-weight: 700; font-size: 14px;">
+                Register Individual Account &rarr;
+            </button>
+        </form>
+
+        <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border-subtle); text-align: center; font-size: 12.5px; color: var(--text-secondary);">
+            Already have an account?
+            <a href="/login" style="color: var(--accent); font-weight: 700; text-decoration: none;">Sign in here</a>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePasswordVisibility(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    if (!input) return;
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    const eye = btn.querySelector('.eye-icon');
+    const eyeOff = btn.querySelector('.eye-off-icon');
+    if (eye && eyeOff) {
+        eye.style.display = isPass ? 'none' : 'block';
+        eyeOff.style.display = isPass ? 'block' : 'none';
+    }
+}
+
+async function checkUsernameAvailability() {
+    const input = document.getElementById('username');
+    const val = input.value.trim();
+    const banner = document.getElementById('user-exists-banner');
+    const loginLink = document.getElementById('user-exists-login-link');
+    const spinner = document.getElementById('reg-lookup-spinner');
+
+    if (!val) {
+        banner.style.display = 'none';
+        return;
+    }
+
+    spinner.style.display = 'inline-block';
+    try {
+        const res = await fetch(`/api/auth/check?identifier=${encodeURIComponent(val)}`);
+        const data = await res.json();
+        if (data.exists) {
+            banner.style.display = 'block';
+            loginLink.href = `/login?username=${encodeURIComponent(val)}`;
+        } else {
+            banner.style.display = 'none';
+        }
+    } catch (e) {
+        // silent fallback
+    } finally {
+        spinner.style.display = 'none';
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    const val = document.getElementById('username')?.value.trim();
+    if (val) {
+        checkUsernameAvailability();
+    }
+});
+</script>
+{% endblock %}

@@ -1,304 +1,954 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+<style>
+/* Phase 4 Arena & Lobby Styles */
+.arena-tab-btn {
+    padding: 10px 20px;
+    border-radius: var(--radius-inner);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-primary);
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.arena-tab-btn.active {
+    background: var(--accent);
+    color: #FFFFFF;
+    border-color: var(--accent);
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+}
+.mode-card {
+    background: var(--surface-primary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-outer);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.25s ease;
+    box-shadow: var(--shadow-subtle);
+    position: relative;
+    overflow: hidden;
+}
+.mode-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--accent-border);
+}
+.mode-card.selected {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light), 0 8px 30px rgba(79, 70, 229, 0.12);
+}
+.mode-type-pill {
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-secondary);
+    color: var(--text-secondary);
+    transition: all 0.15s ease;
+}
+.mode-type-pill.active {
+    background: var(--accent);
+    color: #FFFFFF;
+    border-color: var(--accent);
+}
+.lobby-seat-card {
+    background: var(--surface-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-inner);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+.lobby-seat-card.active-seat {
+    border-color: var(--accent);
+    background: var(--surface-primary);
+    box-shadow: 0 4px 16px rgba(79, 70, 229, 0.08);
+}
+.team-indicator-card {
+    padding: 12px 16px;
+    border-radius: var(--radius-inner);
+    border: 1px solid var(--border-subtle);
+    background: var(--surface-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.pass-device-banner {
+    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+    border: 1px solid #C7D2FE;
+    color: #3730A3;
+    padding: 12px 18px;
+    border-radius: var(--radius-inner);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: pulseNotice 2s infinite ease-in-out;
+}
+@keyframes pulseNotice {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.01); box-shadow: 0 4px 18px rgba(99, 102, 241, 0.2); }
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-header" style="margin-bottom: 24px;">
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+<div class="page-header" style="margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div>
             <h2>Ludo Arena</h2>
-            <p style="color: var(--text-secondary); font-size: 13.5px;">4-Player AI Tournament Match Arena</p>
+            <p style="color: var(--text-secondary); font-size: 13.5px;">Authoritative Multiplayer & DRL Research Platform</p>
+        </div>
+        <!-- Arena Primary Navigation Tabs -->
+        <div style="display: flex; gap: 8px; background: var(--surface-secondary); padding: 4px; border-radius: var(--radius-inner); border: 1px solid var(--border-subtle);">
+            <button id="tabBtnPlayable" class="arena-tab-btn active" onclick="switchArenaTab('playable')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Playable Modes
+            </button>
+            <button id="tabBtnResearch" class="arena-tab-btn" onclick="switchArenaTab('research')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                Research AI Tournament
+            </button>
         </div>
     </div>
 </div>
 
-<!-- 4-Player Match Setup Card -->
-<div class="glass-card highlight" style="margin-bottom: 24px; padding: 24px;">
-    <div class="card-header" style="margin-bottom: 16px;">
-        <div class="card-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--accent);"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/></svg>
-            4-Player Controller Setup
-        </div>
-        <span class="badge badge-gray">Deterministic Match</span>
-    </div>
+<!-- ========================================================================= -->
+<!-- SECTION A: PLAYABLE MULTIPLAYER ARENA (PHASE 4)                           -->
+<!-- ========================================================================= -->
+<div id="tabPlayableArena">
 
-    <div class="grid-4" style="margin-bottom: 16px;">
-        <!-- Player 0: Red -->
-        <div style="background: var(--player-red-bg); border: 1px solid var(--player-red-border); border-radius: var(--radius-inner); padding: 14px 16px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-red);"></span>
-                    <strong style="font-size: 13px; color: var(--player-red);">P0 — Red</strong>
+    <!-- Sub-view 1: Game Mode Selection Screen -->
+    <div id="playableModeSelectSection" style="margin-bottom: 24px;">
+        <div style="margin-bottom: 16px;">
+            <h3 style="font-size: 16px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">Select Match Mode</h3>
+            <p style="font-size: 13px; color: var(--text-secondary);">Choose your gameplay format: play solo against trained DRL models, challenge players locally on this PC, or connect in real-time online.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+
+            <!-- Mode 1: Human vs AI (1v1) -->
+            <div class="mode-card highlight">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; color: var(--accent);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+                        </div>
+                        <span class="badge badge-indigo">1 vs 1 Single Player</span>
+                    </div>
+                    <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 6px;">Human vs AI (1v1)</h3>
+                    <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">
+                        Play as Red (P0) against a trained Deep Reinforcement Learning neural network or heuristic expert on the authoritative two-player board.
+                    </p>
+
+                    <div style="margin-bottom: 16px;">
+                        <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="aiOpponentSelect">DRL / AI Opponent:</label>
+                        <select id="aiOpponentSelect" class="form-select" style="font-size: 12.5px;">
+                            <option value="dqn" selected>Double Dueling DQN + PER (Trained)</option>
+                            <option value="ppo">Actor-Critic PPO (Trained)</option>
+                            <option value="model3">Discrete SAC (Trained)</option>
+                            <option value="model4">Categorical C51 (Trained)</option>
+                            <option value="expert">Heuristic Expert (Alhajry et al.)</option>
+                            <option value="random">Uniform Random Baseline</option>
+                        </select>
+                    </div>
                 </div>
-                <span class="badge badge-rose" style="font-size: 9.5px;">Top-Left</span>
-            </div>
-            <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p0Select">Controller:</label>
-            <select id="p0Select" class="form-select" style="font-size: 12px; width: 100%;">
-                <option value="dqn" selected>Double Dueling DQN + PER</option>
-                <option value="ppo">Actor-Critic PPO</option>
-                <option value="model3">Discrete SAC</option>
-                <option value="model4">Categorical C51</option>
-                <option value="expert">Heuristic Expert</option>
-                <option value="random">Uniform Random</option>
-                <option value="human">Human Player</option>
-            </select>
-        </div>
 
-        <!-- Player 1: Green -->
-        <div style="background: var(--player-green-bg); border: 1px solid var(--player-green-border); border-radius: var(--radius-inner); padding: 14px 16px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-green);"></span>
-                    <strong style="font-size: 13px; color: var(--player-green);">P1 — Green</strong>
-                </div>
-                <span class="badge badge-emerald" style="font-size: 9.5px;">Top-Right</span>
-            </div>
-            <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p1Select">Controller:</label>
-            <select id="p1Select" class="form-select" style="font-size: 12px; width: 100%;">
-                <option value="expert" selected>Heuristic Expert (Alhajry)</option>
-                <option value="random">Uniform Random</option>
-                <option value="dqn">Double Dueling DQN</option>
-                <option value="ppo">Actor-Critic PPO</option>
-                <option value="model3">Discrete SAC</option>
-                <option value="model4">Categorical C51</option>
-                <option value="human">Human Player</option>
-            </select>
-        </div>
-
-        <!-- Player 2: Yellow -->
-        <div style="background: var(--player-yellow-bg); border: 1px solid var(--player-yellow-border); border-radius: var(--radius-inner); padding: 14px 16px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-yellow);"></span>
-                    <strong style="font-size: 13px; color: var(--player-yellow);">P2 — Yellow</strong>
-                </div>
-                <span class="badge badge-amber" style="font-size: 9.5px;">Bottom-Right</span>
-            </div>
-            <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p2Select">Controller:</label>
-            <select id="p2Select" class="form-select" style="font-size: 12px; width: 100%;">
-                <option value="random" selected>Uniform Random</option>
-                <option value="expert">Heuristic Expert (Alhajry)</option>
-                <option value="dqn">Double Dueling DQN</option>
-                <option value="ppo">Actor-Critic PPO</option>
-                <option value="model3">Discrete SAC</option>
-                <option value="model4">Categorical C51</option>
-                <option value="human">Human Player</option>
-            </select>
-        </div>
-
-        <!-- Player 3: Blue -->
-        <div style="background: var(--player-blue-bg); border: 1px solid var(--player-blue-border); border-radius: var(--radius-inner); padding: 14px 16px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-blue);"></span>
-                    <strong style="font-size: 13px; color: var(--player-blue);">P3 — Blue</strong>
-                </div>
-                <span class="badge badge-blue" style="font-size: 9.5px;">Bottom-Left</span>
-            </div>
-            <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p3Select">Controller:</label>
-            <select id="p3Select" class="form-select" style="font-size: 12px; width: 100%;">
-                <option value="expert" selected>Heuristic Expert (Alhajry)</option>
-                <option value="random">Uniform Random</option>
-                <option value="dqn">Double Dueling DQN</option>
-                <option value="ppo">Actor-Critic PPO</option>
-                <option value="model3">Discrete SAC</option>
-                <option value="model4">Categorical C51</option>
-                <option value="human">Human Player</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Match Controls & Seed -->
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <label class="form-label" style="margin-bottom: 0; font-size: 12px;" for="seedInput">Seed:</label>
-            <input type="number" id="seedInput" class="form-input" value="42" style="width: 90px; text-align: center;">
-        </div>
-        <button id="btnNewGame" class="btn btn-primary" onclick="startNewGame()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 6px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-            Restart Match
-        </button>
-    </div>
-</div>
-
-<!-- 4-Player Live Statistics Grid -->
-<div class="grid-4" style="margin-bottom: 24px;">
-    <!-- P0 Red Stats -->
-    <div id="statCardP0" class="metric-card" style="border-top: 3px solid var(--player-red);">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; font-size: 13px; color: var(--player-red); display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-red);"></span>
-                RED (P0)
-            </span>
-            <span id="p0CtrlBadge" class="badge badge-rose">DQN</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
-            <span>Yard: <strong id="p0Yard" style="color: var(--text-primary);">4</strong></span>
-            <span>Track: <strong id="p0Track" style="color: var(--text-primary);">0</strong></span>
-            <span>Goal: <strong id="p0Goal" style="color: var(--text-primary);">0</strong></span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
-            <span>Captures: <strong id="p0Caps" style="color: var(--text-primary);">0</strong></span>
-            <span>Reward: <strong id="p0Rew" style="color: var(--accent);">0.00</strong></span>
-        </div>
-    </div>
-
-    <!-- P1 Green Stats -->
-    <div id="statCardP1" class="metric-card" style="border-top: 3px solid var(--player-green);">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; font-size: 13px; color: var(--player-green); display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-green);"></span>
-                GREEN (P1)
-            </span>
-            <span id="p1CtrlBadge" class="badge badge-emerald">EXPERT</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
-            <span>Yard: <strong id="p1Yard" style="color: var(--text-primary);">4</strong></span>
-            <span>Track: <strong id="p1Track" style="color: var(--text-primary);">0</strong></span>
-            <span>Goal: <strong id="p1Goal" style="color: var(--text-primary);">0</strong></span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
-            <span>Captures: <strong id="p1Caps" style="color: var(--text-primary);">0</strong></span>
-            <span>Reward: <strong id="p1Rew" style="color: var(--accent);">0.00</strong></span>
-        </div>
-    </div>
-
-    <!-- P2 Yellow Stats -->
-    <div id="statCardP2" class="metric-card" style="border-top: 3px solid var(--player-yellow);">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; font-size: 13px; color: var(--player-yellow); display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-yellow);"></span>
-                YELLOW (P2)
-            </span>
-            <span id="p2CtrlBadge" class="badge badge-amber">RANDOM</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
-            <span>Yard: <strong id="p2Yard" style="color: var(--text-primary);">4</strong></span>
-            <span>Track: <strong id="p2Track" style="color: var(--text-primary);">0</strong></span>
-            <span>Goal: <strong id="p2Goal" style="color: var(--text-primary);">0</strong></span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
-            <span>Captures: <strong id="p2Caps" style="color: var(--text-primary);">0</strong></span>
-            <span>Reward: <strong id="p2Rew" style="color: var(--accent);">0.00</strong></span>
-        </div>
-    </div>
-
-    <!-- P3 Blue Stats -->
-    <div id="statCardP3" class="metric-card" style="border-top: 3px solid var(--player-blue);">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 800; font-size: 13px; color: var(--player-blue); display: flex; align-items: center; gap: 6px;">
-                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-blue);"></span>
-                BLUE (P3)
-            </span>
-            <span id="p3CtrlBadge" class="badge badge-blue">EXPERT</span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
-            <span>Yard: <strong id="p3Yard" style="color: var(--text-primary);">4</strong></span>
-            <span>Track: <strong id="p3Track" style="color: var(--text-primary);">0</strong></span>
-            <span>Goal: <strong id="p3Goal" style="color: var(--text-primary);">0</strong></span>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
-            <span>Captures: <strong id="p3Caps" style="color: var(--text-primary);">0</strong></span>
-            <span>Reward: <strong id="p3Rew" style="color: var(--accent);">0.00</strong></span>
-        </div>
-    </div>
-</div>
-
-<!-- Main Game Arena Section (Board & Controls) -->
-<div class="grid-2">
-    <!-- Left Column: The 15x15 SVG Board -->
-    <div class="glass-card" style="display: flex; flex-direction: column; align-items: center; padding: 24px;">
-        <div class="card-header" style="width: 100%; margin-bottom: 16px;">
-            <div class="card-title">15×15 Standard Board</div>
-            <div id="gameStatusBadge"><span class="badge badge-indigo">Active Match</span></div>
-        </div>
-
-        <!-- SVG Board Container -->
-        <div id="boardContainer" class="board-container" style="width: 100%; max-width: 500px; min-height: 500px;">
-            <div style="display: flex; align-items: center; justify-content: center; height: 460px; color: var(--text-secondary);">
-                Initializing 4-Player Arena...
-            </div>
-        </div>
-
-        <!-- Active Player Turn & 3D Animated Rolling Dice Banner -->
-        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding: 12px 18px; background: var(--surface-secondary); border-radius: var(--radius-inner); border: 1px solid var(--border-subtle);">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 12px; color: var(--text-secondary); font-weight: 700;">ACTIVE TURN:</span>
-                <span id="turnInfo" class="badge badge-rose" style="font-size: 12px; padding: 4px 12px;">Player 0 (Red)</span>
-            </div>
-            
-            <!-- 3D Rolling Dice Animation Box -->
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 12px; color: var(--text-secondary); font-weight: 700;">DICE ROLL:</span>
-                <div id="diceBox3D" class="dice-box-3d">-</div>
-                <span id="diceInfo" class="badge badge-blue" style="font-size: 14px; font-weight: 800; padding: 4px 12px; display: none;">-</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Column: Step Controls, Manual Actions & Full Telemetry -->
-    <div style="display: flex; flex-direction: column; gap: 20px;">
-        <!-- Step Execution Card -->
-        <div class="glass-card" style="padding: 24px;">
-            <div class="card-header" style="margin-bottom: 16px;">
-                <div class="card-title">Match Controls</div>
-                <span id="terminalBanner" class="badge badge-emerald">In Progress</span>
-            </div>
-
-            <div style="display: flex; gap: 12px; margin-bottom: 16px;">
-                <button id="btnStep" class="btn btn-primary" style="flex: 1;" onclick="stepGame()">
-                    Step Active Turn &rarr;
-                </button>
-                <button id="btnAutoPlay" class="btn btn-secondary" style="flex: 1;" onclick="autoPlay(5)">
-                    Auto Play (5 Turns)
+                <button class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 700;" onclick="startMode1HumanVsAI()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 6px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                    Start 1v1 AI Match
                 </button>
             </div>
 
-            <!-- Legal Actions for Current Active Player -->
-            <div style="background: var(--surface-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-inner); padding: 16px;">
-                <label class="form-label" style="margin-bottom: 8px; font-size: 12px;" id="legalActionLabel">
-                    Available Token Moves:
-                </label>
-                <div id="legalActionsContainer" style="display: flex; flex-wrap: wrap; gap: 8px;">
-                    <!-- Dynamically populated via JS -->
+            <!-- Mode 2: Human vs Human (1v1) -->
+            <div class="mode-card">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: #FFF1F2; display: flex; align-items: center; justify-content: center; color: var(--player-red);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <span class="badge badge-rose">1 vs 1 Head-to-Head</span>
+                    </div>
+                    <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 6px;">Human vs Human (1v1)</h3>
+                    <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
+                        Competitive 2-player match between two human players. Play pass-and-play on this computer or connect online using a 6-character room code.
+                    </p>
+
+                    <!-- Type Switcher (Local vs Online) -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                        <button id="pill1v1Local" class="mode-type-pill active" onclick="setModeOption('1v1', 'local')">Local Pass & Play</button>
+                        <button id="pill1v1Online" class="mode-type-pill" onclick="setModeOption('1v1', 'online')">Online Multiplayer</button>
+                    </div>
+                </div>
+
+                <div id="btnGroup1v1Local" style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 700; background: var(--player-red); color: white;" onclick="startLocalMatch('1v1_human')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 6px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Start Local 1v1 Match
+                    </button>
+                </div>
+                <div id="btnGroup1v1Online" style="display: none; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <button class="btn btn-primary" style="justify-content: center; font-weight: 700;" onclick="openCreateRoomModal('1v1_human')">
+                        + Create Room
+                    </button>
+                    <button class="btn btn-secondary" style="justify-content: center; font-weight: 700;" onclick="openJoinRoomModal()">
+                        🔗 Join Room
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mode 3: Team vs Team (2v2) -->
+            <div class="mode-card">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+                        <div style="width: 44px; height: 44px; border-radius: 12px; background: #ECFDF5; display: flex; align-items: center; justify-content: center; color: var(--player-green);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <span class="badge badge-emerald">2 vs 2 Co-op Teams</span>
+                    </div>
+                    <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 6px;">Team vs Team (2v2)</h3>
+                    <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
+                        Team 0 (Red+Yellow) vs Team 1 (Green+Blue). Teammates cannot capture each other and can form joint blockades. 8 finished team tokens win!
+                    </p>
+
+                    <!-- Type Switcher (Local vs Online) -->
+                    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                        <button id="pill2v2Local" class="mode-type-pill active" onclick="setModeOption('2v2', 'local')">Local Pass & Play</button>
+                        <button id="pill2v2Online" class="mode-type-pill" onclick="setModeOption('2v2', 'online')">Online Multiplayer</button>
+                    </div>
+                </div>
+
+                <div id="btnGroup2v2Local" style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 700; background: var(--player-green); color: white;" onclick="startLocalMatch('2v2_team')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 6px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Launch 2v2 Demonstration Lobby
+                    </button>
+                    <div style="font-size: 11px; color: var(--text-secondary); text-align: center; margin-top: 2px;">
+                        🖥️ Local 4-Player Demonstration • Pass-and-Play on this PC • Offline
+                    </div>
+                </div>
+                <div id="btnGroup2v2Online" style="display: none; flex-direction: column; gap: 8px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button class="btn btn-primary" style="justify-content: center; font-weight: 700;" onclick="openCreateRoomModal('2v2_team')">
+                            + Create Room
+                        </button>
+                        <button class="btn btn-secondary" style="justify-content: center; font-weight: 700;" onclick="openJoinRoomModal()">
+                            🔗 Join Room
+                        </button>
+                    </div>
+                    <div style="font-size: 11px; color: var(--text-secondary); text-align: center; margin-top: 2px;">
+                        🌐 Real-Time Online Multiplayer • Requires WebSockets & Room Code
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Sub-view 2: Multiplayer Waiting Lobby (shown when in a room waiting for players) -->
+    <div id="multiplayerLobbySection" class="glass-card highlight" style="display: none; margin-bottom: 24px; padding: 28px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-subtle);">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <span id="lobbyModeBadge" class="badge badge-indigo">1v1 Online Match</span>
+                    <span id="lobbyStatusBadge" class="badge badge-amber">Waiting for Players...</span>
+                    <span id="lobbyConnectionBadge" class="badge badge-emerald">Online WebSocket</span>
+                </div>
+                <h3 style="font-size: 20px; font-weight: 900; margin: 0;">Multiplayer Game Lobby</h3>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">Share your room code with other players to join the match.</p>
+            </div>
+
+            <!-- Room Code Share Card -->
+            <div style="background: var(--surface-primary); border: 2px dashed var(--accent); border-radius: var(--radius-inner); padding: 14px 20px; text-align: center; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow-subtle);">
+                <div>
+                    <div style="font-size: 10.5px; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Room Code</div>
+                    <div id="lobbyRoomCodeDisplay" style="font-family: var(--font-mono); font-size: 26px; font-weight: 900; color: var(--accent); letter-spacing: 3px;">------</div>
+                </div>
+                <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="copyRoomCode()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 4px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    <span id="copyBtnText">Copy Code</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Seating Grid -->
+        <div id="lobbySeatsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+            <!-- Rendered dynamically via JavaScript -->
+        </div>
+
+        <!-- Lobby Action Controls -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; padding-top: 16px; border-top: 1px solid var(--border-subtle);">
+            <button class="btn btn-secondary" onclick="leaveMultiplayerRoom()">
+                &larr; Leave Room
+            </button>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button id="btnLobbyReady" class="btn btn-secondary" onclick="togglePlayerReady()">
+                    ✓ I am Ready
+                </button>
+                <button id="btnLobbyStart" class="btn btn-primary" style="display: none; font-weight: 800; background: var(--accent);" onclick="startMultiplayerMatch()">
+                    ▶ Start Match
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sub-view 3: Active Playable Arena Board & Controls -->
+    <div id="playableArenaSection" style="display: none;">
+
+        <!-- 2v2 Team Status Banner (shown when in 2v2 Mode) -->
+        <div id="teamBannerContainer" style="display: none; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
+            <div class="team-indicator-card" style="border-left: 4px solid var(--player-red);">
+                <div>
+                    <strong style="color: var(--player-red); font-size: 13px;">Team 0: Red & Yellow (P0 + P2)</strong>
+                    <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 2px;">Friendly Blockades Active • 8 Tokens to Win</div>
+                </div>
+                <div>
+                    <span id="team0FinishedPill" class="badge badge-rose" style="font-size: 12px; font-weight: 800;">0 / 8 Finished</span>
+                </div>
+            </div>
+
+            <div class="team-indicator-card" style="border-left: 4px solid var(--player-green);">
+                <div>
+                    <strong style="color: var(--player-green); font-size: 13px;">Team 1: Green & Blue (P1 + P3)</strong>
+                    <div style="font-size: 11.5px; color: var(--text-secondary); margin-top: 2px;">Friendly Blockades Active • 8 Tokens to Win</div>
+                </div>
+                <div>
+                    <span id="team1FinishedPill" class="badge badge-emerald" style="font-size: 12px; font-weight: 800;">0 / 8 Finished</span>
                 </div>
             </div>
         </div>
 
-        <!-- Live 4-Player Telemetry Table -->
-        <div class="glass-card" style="flex: 1; padding: 24px;">
-            <div class="card-header" style="margin-bottom: 16px;">
-                <div class="card-title">Turn Telemetry Log</div>
-                <span id="turnCountBadge" class="badge badge-indigo">Turn: 0</span>
+        <!-- Local Pass-Device Banner (shown in Local Pass-and-Play mode) -->
+        <div id="localPassNotice" class="pass-device-banner" style="display: none; margin-bottom: 20px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <span id="localPassNoticeText">Local Pass-and-Play: Active Turn</span>
+        </div>
+
+        <!-- Arena Main Grid (SVG Board & Controls) -->
+        <div class="grid-2">
+            <!-- Left Column: Interactive SVG Board -->
+            <div class="glass-card" style="display: flex; flex-direction: column; align-items: center; padding: 24px;">
+                <div class="card-header" style="width: 100%; margin-bottom: 16px;">
+                    <div class="card-title" id="playableArenaTitle">Authoritative Ludo Board</div>
+                    <div id="playableGameStatusBadge"><span class="badge badge-emerald">Match Active</span></div>
+                </div>
+
+                <!-- SVG Board Container -->
+                <div id="playableBoardContainer" class="board-container" style="width: 100%; max-width: 500px; min-height: 500px;">
+                    <!-- Rendered dynamically via SVG string -->
+                </div>
+
+                <!-- Turn Indicator & 3D Rolling Dice Banner -->
+                <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding: 12px 18px; background: var(--surface-secondary); border-radius: var(--radius-inner); border: 1px solid var(--border-subtle);">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 12px; color: var(--text-secondary); font-weight: 700;">ACTIVE TURN:</span>
+                        <span id="playableTurnBadge" class="badge badge-rose" style="font-size: 12.5px; padding: 4px 12px;">Player 0 (Red)</span>
+                    </div>
+
+                    <!-- 3D Rolling Dice Box -->
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 12px; color: var(--text-secondary); font-weight: 700;">DICE ROLL:</span>
+                        <div id="playableDiceBox3D" class="dice-box-3d">-</div>
+                    </div>
+                </div>
             </div>
 
-            <div class="table-container" style="max-height: 280px; overflow-y: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Turn</th>
-                            <th>Player</th>
-                            <th>Color</th>
-                            <th>Dice</th>
-                            <th>Action</th>
-                            <th>Reward</th>
-                            <th>Capture</th>
-                            <th>Bonus</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="turnHistoryBody">
-                        <tr>
-                            <td colspan="9" style="text-align: center; color: var(--text-secondary);">
-                                Match initialized. Awaiting first turn execution.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Right Column: Player Controls & Available Actions -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Controls Card -->
+                <div class="glass-card" style="padding: 24px;">
+                    <div class="card-header" style="margin-bottom: 16px;">
+                        <div class="card-title">Gameplay Action Controls</div>
+                        <span id="playableActionPhaseBadge" class="badge badge-indigo">Awaiting Dice Roll</span>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 16px;">
+                        <button id="btnPlayableRoll" class="btn btn-primary" style="font-size: 14px; font-weight: 800; background: #4F46E5; color: white; padding: 12px;" onclick="onPlayableRollClick()">
+                            🎲 Roll Authoritative Dice
+                        </button>
+                    </div>
+
+                    <!-- Available Moves Box -->
+                    <div style="background: var(--surface-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-inner); padding: 16px; margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <label class="form-label" style="margin-bottom: 0; font-size: 12px; font-weight: 700;">
+                                Select Token to Move:
+                            </label>
+                            <span id="playableMoveNotice" class="badge badge-rose" style="font-size: 10px; display: none;">YOUR TURN TO MOVE!</span>
+                        </div>
+                        <div id="playableLegalActionsContainer" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <span style="font-size: 12px; color: var(--text-secondary);">Roll the dice first to reveal valid moves.</span>
+                        </div>
+                        <p style="font-size: 11px; color: var(--text-secondary); margin: 10px 0 0 0;">
+                            💡 <em>Tip: You can also click directly on glowing highlighted tokens on the SVG board!</em>
+                        </p>
+                    </div>
+
+                    <!-- Match Exit Button -->
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button class="btn btn-secondary" style="font-size: 11px;" onclick="exitPlayableMatch()">
+                            Exit Match & Return to Modes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Telemetry / Move History -->
+                <div class="glass-card" style="flex: 1; padding: 24px;">
+                    <div class="card-header" style="margin-bottom: 14px;">
+                        <div class="card-title">Live Match Log</div>
+                        <span id="playableTurnCountBadge" class="badge badge-indigo">Turn: 0</span>
+                    </div>
+
+                    <div class="table-container" style="max-height: 240px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Turn</th>
+                                    <th>Seat</th>
+                                    <th>Player</th>
+                                    <th>Dice</th>
+                                    <th>Move</th>
+                                    <th>Event</th>
+                                </tr>
+                            </thead>
+                            <tbody id="playableHistoryBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: var(--text-secondary);">
+                                        Match initiated. Awaiting first turn.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ========================================================================= -->
+<!-- SECTION B: PRESERVED RESEARCH AI TOURNAMENT (ORIGINAL PRE-EXISTING ARENA)-->
+<!-- ========================================================================= -->
+<div id="tabResearchTournament" style="display: none;">
+
+    <!-- 4-Player Match Setup Card -->
+    <div class="glass-card highlight" style="margin-bottom: 24px; padding: 24px;">
+        <div class="card-header" style="margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--accent);"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/></svg>
+                4-Player AI Tournament & Preset Setup
+            </div>
+            <!-- Quick Preset Mode Selector -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 11.5px; font-weight: 700; color: var(--text-secondary);">Match Mode:</span>
+                <select id="quickPresetSelect" class="form-select" style="font-size: 12px; padding: 4px 10px; width: auto;" onchange="applyPresetMode(this.value)">
+                    <option value="custom">Custom Setup</option>
+                    <option value="2p_2ai" selected>2 Players (P0+P1) vs 2 AI (P2+P3)</option>
+                    <option value="1p_3ai">1 Player (P0) vs 3 AI</option>
+                    <option value="team_2v2">2v2 Co-op (P0+P2 vs P1+P3)</option>
+                    <option value="ai_tournament">Full AI Tournament (DQN vs Expert)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid-4" style="margin-bottom: 16px;">
+            <!-- Player 0: Red -->
+            <div style="background: var(--player-red-bg); border: 1px solid var(--player-red-border); border-radius: var(--radius-inner); padding: 14px 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-red);"></span>
+                        <strong style="font-size: 13px; color: var(--player-red);">P0 — Red</strong>
+                    </div>
+                    <span class="badge badge-rose" style="font-size: 9.5px;">Top-Left</span>
+                </div>
+                <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p0Select">Controller:</label>
+                <select id="p0Select" class="form-select" style="font-size: 12px; width: 100%;">
+                    <option value="human" selected>Human Player (Manual)</option>
+                    <option value="dqn">Double Dueling DQN + PER</option>
+                    <option value="ppo">Actor-Critic PPO</option>
+                    <option value="model3">Discrete SAC</option>
+                    <option value="model4">Categorical C51</option>
+                    <option value="expert">Heuristic Expert</option>
+                    <option value="random">Uniform Random</option>
+                </select>
+            </div>
+
+            <!-- Player 1: Green -->
+            <div style="background: var(--player-green-bg); border: 1px solid var(--player-green-border); border-radius: var(--radius-inner); padding: 14px 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-green);"></span>
+                        <strong style="font-size: 13px; color: var(--player-green);">P1 — Green</strong>
+                    </div>
+                    <span class="badge badge-emerald" style="font-size: 9.5px;">Top-Right</span>
+                </div>
+                <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p1Select">Controller:</label>
+                <select id="p1Select" class="form-select" style="font-size: 12px; width: 100%;">
+                    <option value="human" selected>Human Player (Manual)</option>
+                    <option value="expert">Heuristic Expert (Alhajry)</option>
+                    <option value="random">Uniform Random</option>
+                    <option value="dqn">Double Dueling DQN</option>
+                    <option value="ppo">Actor-Critic PPO</option>
+                    <option value="model3">Discrete SAC</option>
+                    <option value="model4">Categorical C51</option>
+                </select>
+            </div>
+
+            <!-- Player 2: Yellow -->
+            <div style="background: var(--player-yellow-bg); border: 1px solid var(--player-yellow-border); border-radius: var(--radius-inner); padding: 14px 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-yellow);"></span>
+                        <strong style="font-size: 13px; color: var(--player-yellow);">P2 — Yellow</strong>
+                    </div>
+                    <span class="badge badge-amber" style="font-size: 9.5px;">Bottom-Right</span>
+                </div>
+                <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p2Select">Controller:</label>
+                <select id="p2Select" class="form-select" style="font-size: 12px; width: 100%;">
+                    <option value="dqn" selected>Double Dueling DQN</option>
+                    <option value="ppo">Actor-Critic PPO</option>
+                    <option value="model3">Discrete SAC</option>
+                    <option value="model4">Categorical C51</option>
+                    <option value="expert">Heuristic Expert (Alhajry)</option>
+                    <option value="random">Uniform Random</option>
+                    <option value="human">Human Player (Manual)</option>
+                </select>
+            </div>
+
+            <!-- Player 3: Blue -->
+            <div style="background: var(--player-blue-bg); border: 1px solid var(--player-blue-border); border-radius: var(--radius-inner); padding: 14px 16px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--player-blue);"></span>
+                        <strong style="font-size: 13px; color: var(--player-blue);">P3 — Blue</strong>
+                    </div>
+                    <span class="badge badge-blue" style="font-size: 9.5px;">Bottom-Left</span>
+                </div>
+                <label class="form-label" style="font-size: 11px; margin-bottom: 6px;" for="p3Select">Controller:</label>
+                <select id="p3Select" class="form-select" style="font-size: 12px; width: 100%;">
+                    <option value="ppo" selected>Actor-Critic PPO</option>
+                    <option value="dqn">Double Dueling DQN</option>
+                    <option value="expert">Heuristic Expert (Alhajry)</option>
+                    <option value="random">Uniform Random</option>
+                    <option value="model3">Discrete SAC</option>
+                    <option value="model4">Categorical C51</option>
+                    <option value="human">Human Player (Manual)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Match Controls & Seed -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <label class="form-label" style="margin-bottom: 0; font-size: 12px;" for="seedInput">Seed:</label>
+                <input type="number" id="seedInput" class="form-input" value="42" style="width: 90px; text-align: center;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label class="form-label" style="margin-bottom: 0; font-size: 12px;" for="timerDurationSelect">Timer:</label>
+                <select id="timerDurationSelect" class="form-select" style="font-size: 12px; padding: 4px 8px; width: auto;" onchange="setTurnTimerDuration(this.value)">
+                    <option value="10">10 Seconds</option>
+                    <option value="15" selected>15 Seconds</option>
+                    <option value="30">30 Seconds</option>
+                    <option value="0">Off (No Timer)</option>
+                </select>
+            </div>
+            <button id="btnNewGame" class="btn btn-primary" onclick="startNewGame()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; margin-right: 6px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Start Match
+            </button>
+        </div>
+    </div>
+
+    <!-- 4-Player Live Statistics Grid -->
+    <div class="grid-4" style="margin-bottom: 24px;">
+        <!-- P0 Red Stats -->
+        <div id="statCardP0" class="metric-card" style="border-top: 3px solid var(--player-red);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 800; font-size: 13px; color: var(--player-red); display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-red);"></span>
+                    RED (P0)
+                </span>
+                <span id="p0CtrlBadge" class="badge badge-rose">DQN</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+                <span>Yard: <strong id="p0Yard" style="color: var(--text-primary);">4</strong></span>
+                <span>Track: <strong id="p0Track" style="color: var(--text-primary);">0</strong></span>
+                <span>Goal: <strong id="p0Goal" style="color: var(--text-primary);">0</strong></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+                <span>Captures: <strong id="p0Caps" style="color: var(--text-primary);">0</strong></span>
+                <span>Reward: <strong id="p0Rew" style="color: var(--accent);">0.00</strong></span>
+            </div>
+        </div>
+
+        <!-- P1 Green Stats -->
+        <div id="statCardP1" class="metric-card" style="border-top: 3px solid var(--player-green);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 800; font-size: 13px; color: var(--player-green); display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-green);"></span>
+                    GREEN (P1)
+                </span>
+                <span id="p1CtrlBadge" class="badge badge-emerald">EXPERT</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+                <span>Yard: <strong id="p1Yard" style="color: var(--text-primary);">4</strong></span>
+                <span>Track: <strong id="p1Track" style="color: var(--text-primary);">0</strong></span>
+                <span>Goal: <strong id="p1Goal" style="color: var(--text-primary);">0</strong></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+                <span>Captures: <strong id="p1Caps" style="color: var(--text-primary);">0</strong></span>
+                <span>Reward: <strong id="p1Rew" style="color: var(--accent);">0.00</strong></span>
+            </div>
+        </div>
+
+        <!-- P2 Yellow Stats -->
+        <div id="statCardP2" class="metric-card" style="border-top: 3px solid var(--player-yellow);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 800; font-size: 13px; color: var(--player-yellow); display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-yellow);"></span>
+                    YELLOW (P2)
+                </span>
+                <span id="p2CtrlBadge" class="badge badge-amber">RANDOM</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+                <span>Yard: <strong id="p2Yard" style="color: var(--text-primary);">4</strong></span>
+                <span>Track: <strong id="p2Track" style="color: var(--text-primary);">0</strong></span>
+                <span>Goal: <strong id="p2Goal" style="color: var(--text-primary);">0</strong></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+                <span>Captures: <strong id="p2Caps" style="color: var(--text-primary);">0</strong></span>
+                <span>Reward: <strong id="p2Rew" style="color: var(--accent);">0.00</strong></span>
+            </div>
+        </div>
+
+        <!-- P3 Blue Stats -->
+        <div id="statCardP3" class="metric-card" style="border-top: 3px solid var(--player-blue);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 800; font-size: 13px; color: var(--player-blue); display: flex; align-items: center; gap: 6px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--player-blue);"></span>
+                    BLUE (P3)
+                </span>
+                <span id="p3CtrlBadge" class="badge badge-blue">EXPERT</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; color: var(--text-secondary);">
+                <span>Yard: <strong id="p3Yard" style="color: var(--text-primary);">4</strong></span>
+                <span>Track: <strong id="p3Track" style="color: var(--text-primary);">0</strong></span>
+                <span>Goal: <strong id="p3Goal" style="color: var(--text-primary);">0</strong></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+                <span>Captures: <strong id="p3Caps" style="color: var(--text-primary);">0</strong></span>
+                <span>Reward: <strong id="p3Rew" style="color: var(--accent);">0.00</strong></span>
             </div>
         </div>
     </div>
+
+    <!-- Main Game Arena Section (Board & Controls) -->
+    <div class="grid-2">
+        <!-- Left Column: The 15x15 SVG Board -->
+        <div class="glass-card" style="display: flex; flex-direction: column; align-items: center; padding: 24px;">
+            <div class="card-header" style="width: 100%; margin-bottom: 16px;">
+                <div class="card-title">15×15 Standard Board</div>
+                <div id="gameStatusBadge"><span class="badge badge-indigo">Active Match</span></div>
+            </div>
+
+            <!-- SVG Board Container -->
+            <div id="boardContainer" class="board-container" style="width: 100%; max-width: 500px; min-height: 500px;">
+                <div style="display: flex; align-items: center; justify-content: center; height: 460px; color: var(--text-secondary);">
+                    Initializing 4-Player Arena...
+                </div>
+            </div>
+
+            <!-- Active Player Turn & 3D Animated Rolling Dice Banner -->
+            <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 18px; padding: 12px 18px; background: var(--surface-secondary); border-radius: var(--radius-inner); border: 1px solid var(--border-subtle);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 12px; color: var(--text-secondary); font-weight: 700;">ACTIVE TURN:</span>
+                    <span id="turnInfo" class="badge badge-rose" style="font-size: 12px; padding: 4px 12px;">Player 0 (Red)</span>
+                </div>
+
+                <!-- 3D Rolling Dice Animation Box -->
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 12px; color: var(--text-secondary); font-weight: 700;">DICE ROLL:</span>
+                    <div id="diceBox3D" class="dice-box-3d">-</div>
+                    <span id="diceInfo" class="badge badge-blue" style="font-size: 14px; font-weight: 800; padding: 4px 12px; display: none;">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Step Controls, Manual Actions & Full Telemetry -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Step Execution Card -->
+            <div class="glass-card" style="padding: 24px;">
+                <div class="card-header" style="margin-bottom: 16px;">
+                    <div class="card-title">Match & Player Controls</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="turnTimerBadge" class="badge badge-amber" style="font-size: 11.5px; font-weight: 700;">⏱️ Turn Timer: 15s</span>
+                        <span id="terminalBanner" class="badge badge-emerald">In Progress</span>
+                    </div>
+                </div>
+
+                <!-- Start Match & Primary Controls -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                    <button id="btnStartMatch" class="btn btn-primary" style="font-weight: 700; background: var(--accent); color: white;" onclick="startNewGame()">
+                        ▶ Start / Restart Match
+                    </button>
+                    <button id="btnRollDice" class="btn btn-primary" style="background: #4F46E5; color: white; font-weight: 700;" onclick="manualRollDice()">
+                        🎲 Roll Dice (Manual)
+                    </button>
+                </div>
+
+                <!-- Step & Auto Play Controls -->
+                <div style="display: flex; gap: 10px; margin-bottom: 14px;">
+                    <button id="btnStep" class="btn btn-secondary" style="flex: 1;" onclick="stepGame()">
+                        Step AI Turn &rarr;
+                    </button>
+                    <button id="btnAutoPlay" class="btn btn-secondary" style="flex: 1;" onclick="autoPlay(5)">
+                        Auto Play (5 Turns)
+                    </button>
+                </div>
+
+                <!-- Turn Timer Progress Indicator -->
+                <div style="margin-bottom: 14px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-secondary); margin-bottom: 4px;">
+                        <span id="timerLabel">Turn Countdown:</span>
+                        <span id="timerSeconds">15s remaining</span>
+                    </div>
+                    <div style="width: 100%; height: 6px; background: var(--surface-secondary); border-radius: 999px; overflow: hidden; border: 1px solid var(--border-subtle);">
+                        <div id="turnProgressBar" style="width: 100%; height: 100%; background: #10B981; transition: width 1s linear, background-color 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <!-- Legal Actions for Current Active Player -->
+                <div style="background: var(--surface-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-inner); padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label class="form-label" style="margin-bottom: 0; font-size: 12px; font-weight: 700;" id="legalActionLabel">
+                            Available Token Moves:
+                        </label>
+                        <span id="manualTurnBadge" class="badge badge-rose" style="font-size: 10.5px; display: none;">YOUR TURN TO MOVE!</span>
+                    </div>
+                    <div id="legalActionsContainer" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <!-- Dynamically populated via JS -->
+                    </div>
+                    <p style="font-size: 11px; color: var(--text-secondary); margin: 8px 0 0 0;">
+                        💡 <em>Tip: You can also directly click on the highlighted glowing tokens on the 15×15 board!</em>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Live 4-Player Telemetry Table -->
+            <div class="glass-card" style="flex: 1; padding: 24px;">
+                <div class="card-header" style="margin-bottom: 16px;">
+                    <div class="card-title">Turn Telemetry Log</div>
+                    <span id="turnCountBadge" class="badge badge-indigo">Turn: 0</span>
+                </div>
+
+                <div class="table-container" style="max-height: 280px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Turn</th>
+                                <th>Player</th>
+                                <th>Color</th>
+                                <th>Dice</th>
+                                <th>Action</th>
+                                <th>Reward</th>
+                                <th>Capture</th>
+                                <th>Bonus</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="turnHistoryBody">
+                            <tr>
+                                <td colspan="9" style="text-align: center; color: var(--text-secondary);">
+                                    Match initialized. Awaiting first turn execution.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Realtime Match Results & Persistent SQLite Match History Card -->
+    <div class="glass-card" style="margin-top: 24px; padding: 24px;">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+            <div class="card-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px; color: var(--accent);"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                Realtime Stored Matches & Win History (SQLite DB)
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <span id="realtimeMatchCountBadge" class="badge badge-emerald">0 Matches Stored</span>
+                <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="fetchMatchesHistory()">
+                    ↻ Refresh Live History
+                </button>
+            </div>
+        </div>
+
+        <!-- Match Summary KPI Pills -->
+        <div id="liveLeaderboardPills" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px;">
+            <!-- Filled via JS -->
+        </div>
+
+        <!-- Match History Table -->
+        <div class="table-container" style="max-height: 260px; overflow-y: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Match ID</th>
+                        <th>Mode</th>
+                        <th>Winner</th>
+                        <th>Winner Controller</th>
+                        <th>Total Turns</th>
+                        <th>Players & Controllers</th>
+                        <th>Recorded Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="realtimeMatchesBody">
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-secondary);">
+                            No matches recorded in database yet. Finish a match to store its result automatically!
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
+
+<!-- ========================================================================= -->
+<!-- MODALS                                                                    -->
+<!-- ========================================================================= -->
+
+<!-- Modal: Create Multiplayer Room -->
+<div id="modalCreateRoom" class="modal-overlay" onclick="closeCreateRoomModal(event)">
+    <div class="modal-box" style="width: 440px;" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeCreateRoomModal()">&times;</button>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div>
+                <h3 style="font-size: 17px; font-weight: 800; margin: 0;">Create Game Room</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">Generate an authoritative multiplayer match room</p>
+            </div>
+        </div>
+
+        <form onsubmit="submitCreateRoom(event)">
+            <div style="margin-bottom: 16px;">
+                <label class="form-label" style="font-size: 12px; margin-bottom: 6px;">Game Mode:</label>
+                <select id="createRoomModeSelect" class="form-select" style="font-size: 13px;">
+                    <option value="1v1_human">Human vs Human (1v1) — 2 Players</option>
+                    <option value="2v2_team">Team vs Team (2v2) — 4 Players (Co-op)</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label class="form-label" style="font-size: 12px; margin-bottom: 6px;">Connection Type:</label>
+                <div style="background: var(--surface-secondary); padding: 10px 14px; border-radius: var(--radius-compact); border: 1px solid var(--border-subtle); font-size: 12px; color: var(--text-primary); display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #059669;"></span>
+                    <span><strong>Online Multiplayer</strong> (Real-time WebSockets with 6-char Room Code)</span>
+                </div>
+            </div>
+
+            <div id="createRoomError" style="display: none; padding: 10px 12px; background: #FFF1F2; border: 1px solid #FECDD3; color: #9F1239; border-radius: var(--radius-compact); font-size: 12px; margin-bottom: 16px;"></div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-secondary" onclick="closeCreateRoomModal()">Cancel</button>
+                <button type="submit" id="btnSubmitCreateRoom" class="btn btn-primary" style="font-weight: 700;">Create & Enter Lobby</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Join Multiplayer Room -->
+<div id="modalJoinRoom" class="modal-overlay" onclick="closeJoinRoomModal(event)">
+    <div class="modal-box" style="width: 440px;" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" onclick="closeJoinRoomModal()">&times;</button>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+            <div style="width: 36px; height: 36px; border-radius: 10px; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </div>
+            <div>
+                <h3 style="font-size: 17px; font-weight: 800; margin: 0;">Join Game Room</h3>
+                <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">Enter the 6-character room code to join</p>
+            </div>
+        </div>
+
+        <form onsubmit="submitJoinRoom(event)">
+            <div style="margin-bottom: 18px;">
+                <label class="form-label" style="font-size: 12px; margin-bottom: 6px;" for="joinRoomCodeInput">6-Character Room Code:</label>
+                <input type="text" id="joinRoomCodeInput" class="form-input" maxlength="6" placeholder="e.g. ABC789" style="font-family: var(--font-mono); font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 4px;" required autocomplete="off">
+            </div>
+
+            <div id="joinRoomError" style="display: none; padding: 10px 12px; background: #FFF1F2; border: 1px solid #FECDD3; color: #9F1239; border-radius: var(--radius-compact); font-size: 12px; margin-bottom: 16px;"></div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-secondary" onclick="closeJoinRoomModal()">Cancel</button>
+                <button type="submit" id="btnSubmitJoinRoom" class="btn btn-primary" style="font-weight: 700;">Join Room</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal: Victory / Game Finished -->
+<div id="modalGameFinished" class="modal-overlay">
+    <div class="modal-box" style="width: 520px; max-width: 95%; text-align: center;" onclick="event.stopPropagation()">
+        <div style="width: 60px; height: 60px; border-radius: 50%; background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; font-size: 30px; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15);">
+            🏆
+        </div>
+        <div style="display: inline-block; margin-bottom: 6px;">
+            <span class="badge badge-emerald" style="font-size: 11px; font-weight: 800; letter-spacing: 0.5px;">MATCH COMPLETED</span>
+        </div>
+        <h3 id="victoryTitle" style="font-size: 21px; font-weight: 900; margin-bottom: 4px;">Victory Achieved!</h3>
+        <p id="victorySubtitle" style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 18px;">Authoritative match result recorded and persisted.</p>
+
+        <div id="victoryStatsBox" style="background: var(--surface-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-inner); padding: 16px; margin-bottom: 20px; text-align: left; font-size: 12.5px;">
+            <!-- Rendered dynamically via JS -->
+        </div>
+
+        <div id="victoryActionButtons" style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-primary" style="font-weight: 800; background: var(--player-green); color: white;" onclick="restartPlayableMatch()">
+                🔄 Play Again
+            </button>
+            <button class="btn btn-secondary" style="font-weight: 700;" onclick="window.location.href='/dashboard'">
+                📊 Return to Dashboard
+            </button>
+            <button class="btn btn-secondary" style="font-weight: 700;" onclick="viewMatchResultsFromModal()">
+                📜 View Match Results
+            </button>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{{ url_for('static', path='js/ludo.js') }}"></script>
+<!-- Pass authenticated user context to JavaScript safely -->
+<script>
+    window.CURRENT_USER = {
+        id: {{ current_user.id if current_user else 0 }},
+        username: "{{ current_user.username if current_user else 'Guest' }}",
+        avatar: "{{ current_user.avatar_color if current_user else 'rose' }}",
+        rating: {{ current_user.rating if current_user else 1000 }}
+    };
+</script>
+<script src="{{ url_for('static', path='js/ludo.js') }}?v=4"></script>
 {% endblock %}

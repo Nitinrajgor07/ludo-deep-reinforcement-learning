@@ -4,18 +4,33 @@ Provides real empirical data, checkpoint inventory, hardware telemetry, and inte
 100% Light Theme AI Research Standard. Zero Streamlit Dependency.
 """
 
+from pathlib import Path
 from typing import Any, Dict, List, Optional
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, File, HTTPException, Query, Request, Response, UploadFile
+from fastapi.responses import FileResponse, PlainTextResponse
 from pydantic import BaseModel, Field
 
 from web.services.data_service import data_service, get_system_telemetry
 from web.services.game_service import game_service
+from web.services.room_service import room_service
+from web.utils.auth import (
+    check_user_exists,
+    delete_session,
+    get_match_statistics_summary,
+    get_recent_matches,
+    get_user_by_identifier,
+    get_user_by_session,
+    get_user_match_history,
+    get_user_profile,
+    update_user_profile,
+)
 
 router = APIRouter(prefix="/api", tags=["API"])
 
 
 class NewGameRequest(BaseModel):
     session_id: Optional[str] = None
+    num_players: Optional[int] = 4
     p0_type: Optional[str] = "dqn"
     p1_type: Optional[str] = "expert"
     p2_type: Optional[str] = "random"
@@ -64,10 +79,133 @@ def get_status() -> Dict[str, Any]:
     }
 
 
+class AccountCheckRequest(BaseModel):
+    identifier: Optional[str] = None
+    username: Optional[str] = None
+    email: Optional[str] = None
+
+
+@router.get("/auth/check")
+@router.post("/auth/check")
+def check_account_existence(
+    username: Optional[str] = Query(None),
+    email: Optional[str] = Query(None),
+    identifier: Optional[str] = Query(None),
+    body: Optional[AccountCheckRequest] = None,
+) -> Dict[str, Any]:
+    """Check whether an account exists in the SQLite database by username or email.
+
+    Accepts input via query parameters (?username=... or ?identifier=...)
+    or via JSON body (POST).
+    """
+    target = (
+        (body.identifier if body and body.identifier else None)
+        or (body.username if body and body.username else None)
+        or (body.email if body and body.email else None)
+        or identifier
+        or username
+        or email
+    )
+    if not target or not target.strip():
+        return {
+            "exists": False,
+            "identifier": "",
+            "username": None,
+            "full_name": None,
+            "email": None,
+            "message": "No username or email provided.",
+        }
+
+    target = target.strip()
+    user = get_user_by_identifier(target)
+    if user:
+        return {
+            "exists": True,
+            "identifier": target,
+            "username": user["username"],
+            "full_name": user["full_name"],
+            "email": user["email"],
+            "message": f"Account '{user['username']}' found in database.",
+        }
+    return {
+        "exists": False,
+        "identifier": target,
+        "username": target.lower(),
+        "full_name": None,
+        "email": None,
+        "message": f"Account '{target}' not found in database.",
+    }
+
+
+class ProfileUpdateRequest(BaseModel):
+    full_name: Optional[str] = None
+    email: Optional[str] = None
+    avatar_color: Optional[str] = None
+    bio: Optional[str] = None
+
+
+def _get_authenticated_user(request: Request) -> Dict[str, Any]:
+    """Extract authenticated user from session cookie or Authorization Bearer header."""
+    token = request.cookies.get("session_token")
+    if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header[7:].strip()
+    if not token:
+        raise HTTPException(status_code=401, detail="Authentication required. Please sign in.")
+    user = get_user_by_session(token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid or expired session. Please sign in again.")
+    return user
+
+
+@router.get("/profile")
+def get_profile(request: Request) -> Dict[str, Any]:
+    """Retrieve player profile, aggregate statistics, and recent match history."""
+    user = _get_authenticated_user(request)
+    profile = get_user_profile(user["id"])
+    history = get_user_match_history(user["id"], limit=20)
+    return {
+        "status": "ok",
+        "profile": profile,
+        "history": history,
+    }
+
+
+@router.put("/profile")
+@router.post("/profile")
+def update_profile(request: Request, body: ProfileUpdateRequest) -> Dict[str, Any]:
+    """Update profile fields (full_name, email, avatar_color, bio) for the authenticated player."""
+    user = _get_authenticated_user(request)
+    try:
+        updated = update_user_profile(
+            user_id=user["id"],
+            full_name=body.full_name,
+            email=body.email,
+            avatar_color=body.avatar_color,
+            bio=body.bio,
+        )
+        return {
+            "status": "ok",
+            "message": "Profile updated successfully.",
+            "profile": updated,
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
 @router.post("/logout")
 @router.get("/logout")
-def logout() -> Dict[str, Any]:
-    """Perform logout action and return redirect instruction."""
+def logout(request: Request, response: Response) -> Dict[str, Any]:
+    """Perform logout action, invalidate session in database, and clear cookie."""
+    token = request.cookies.get("session_token")
+    if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header[7:].strip()
+    if token:
+        delete_session(token)
+    response.delete_cookie("session_token")
     return {
         "status": "logged_out",
         "message": "Signed out successfully.",
@@ -94,6 +232,52 @@ def get_table(table_name: str) -> Dict[str, Any]:
     if data is None:
         raise HTTPException(status_code=404, detail=f"Table '{table_name}' not available yet.")
     return data
+
+
+@router.get("/results/export/{table_name}")
+def export_table(table_name: str, format: str = Query("csv", pattern="^(csv|json)$")):
+    """Export and download empirical table as CSV or JSON file."""
+    df = data_service.load_table_dataframe(table_name)
+    if df.empty:
+        raise HTTPException(status_code=404, detail=f"Result table '{table_name}' not found.")
+
+    clean_name = Path(table_name).stem
+    if format == "json":
+        json_content = df.to_json(orient="records", indent=2)
+        return PlainTextResponse(
+            content=json_content,
+            media_type="application/json",
+            headers={"Content-Disposition": f"attachment; filename={clean_name}.json"},
+        )
+    else:
+        csv_content = df.to_csv(index=False)
+        return PlainTextResponse(
+            content=csv_content,
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename={clean_name}.csv"},
+        )
+
+
+@router.post("/results/upload")
+async def upload_result(file: UploadFile = File(...)) -> Dict[str, Any]:
+    """Store an uploaded empirical result dataset (CSV or JSON)."""
+    filename = file.filename or "uploaded_result.csv"
+    if not (filename.endswith(".csv") or filename.endswith(".json")):
+        raise HTTPException(status_code=400, detail="Only .csv and .json files are accepted.")
+
+    content = await file.read()
+    if not content:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+    try:
+        saved_info = data_service.save_custom_result(filename, content)
+        return {
+            "status": "success",
+            "message": f"Successfully stored result file '{filename}'.",
+            "file": saved_info,
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Failed to process result file: {exc}")
 
 
 @router.get("/visualizations")
@@ -141,6 +325,18 @@ def get_statistics_info() -> Dict[str, Any]:
     }
 
 
+@router.get("/ludo/matches")
+def get_matches_history(limit: int = Query(20, ge=1, le=100)) -> Dict[str, Any]:
+    """Retrieve realtime SQLite match history and statistics."""
+    matches = get_recent_matches(limit=limit)
+    summary = get_match_statistics_summary()
+    return {
+        "status": "success",
+        "summary": summary,
+        "matches": matches,
+    }
+
+
 # --- Interactive 4-Player Ludo Arena Endpoints ---
 
 @router.post("/ludo/new")
@@ -151,20 +347,29 @@ def new_game(req: NewGameRequest) -> Dict[str, Any]:
     p2 = req.p2_type or "random"
     p3 = req.p3_type or "expert"
 
-    player_types = {0: p0, 1: p1, 2: p2, 3: p3}
+    n_players = 2 if req.num_players == 2 else 4
+    if n_players == 2:
+        player_types = {0: p0, 1: p1}
+    else:
+        player_types = {0: p0, 1: p1, 2: p2, 3: p3}
 
-    session = game_service.get_or_create_session(
-        session_id=req.session_id,
-        player_types=player_types,
-        checkpoint_path=req.checkpoint_path,
-        seed=req.seed,
-    )
-    if req.session_id:
-        session = game_service.reset_session(
+    try:
+        session = game_service.get_or_create_session(
             session_id=req.session_id,
             player_types=player_types,
+            checkpoint_path=req.checkpoint_path,
             seed=req.seed,
+            num_players=n_players,
         )
+        if req.session_id:
+            session = game_service.reset_session(
+                session_id=req.session_id,
+                player_types=player_types,
+                seed=req.seed,
+                num_players=n_players,
+            )
+    except (FileNotFoundError, RuntimeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
 
     summary = session.get_summary()
     return {
@@ -192,6 +397,12 @@ def get_game_state(session_id: str = Query("default")) -> Dict[str, Any]:
         "state": summary,
         "svg": session.render_svg(),
     }
+
+
+@router.post("/ludo/roll")
+def roll_dice(req: SessionActionRequest) -> Dict[str, Any]:
+    """Roll dice for active player."""
+    return game_service.roll_session_dice(req.session_id)
 
 
 @router.post("/ludo/step")
@@ -224,3 +435,194 @@ def manual_step(req: ManualStepRequest) -> Dict[str, Any]:
 def auto_play(req: AutoPlayRequest) -> Dict[str, Any]:
     """Run up to N turns sequentially across all 4 players."""
     return game_service.run_n_turns(req.session_id, req.steps)
+
+
+# ==============================================================================
+# Multiplayer Room Management Endpoints
+# ==============================================================================
+
+class CreateRoomRequest(BaseModel):
+    game_mode: str = "1v1_human"
+    is_online: bool = True
+
+
+class JoinRoomRequest(BaseModel):
+    room_code: str
+    requested_seat: Optional[int] = None
+
+
+class LeaveRoomRequest(BaseModel):
+    room_code: str
+
+
+class ReadyRoomRequest(BaseModel):
+    room_code: str
+    is_ready: bool = True
+
+
+class StartRoomRequest(BaseModel):
+    room_code: str
+
+
+class RoomActionRequest(BaseModel):
+    room_code: str
+    client_action_id: Optional[str] = None
+    expected_action_seq: Optional[int] = None
+
+
+class RoomMoveRequest(BaseModel):
+    room_code: str
+    token_id: int
+    client_action_id: Optional[str] = None
+    expected_action_seq: Optional[int] = None
+
+
+@router.post("/rooms/create")
+def create_room(req: CreateRoomRequest, request: Request) -> Dict[str, Any]:
+    """Create a new multiplayer room (1v1 Human or 2v2 Team)."""
+    user = _get_authenticated_user(request)
+    try:
+        room = room_service.create_room(
+            game_mode=req.game_mode,
+            host_user_id=user["id"],
+            host_username=user["username"],
+            is_online=req.is_online,
+            host_avatar=user.get("avatar_color", "rose"),
+            host_rating=user.get("rating", 1000),
+        )
+        return {
+            "status": "ok",
+            "room_code": room.room_code,
+            "room": room.get_state_dict(),
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.post("/rooms/join")
+def join_room(req: JoinRoomRequest, request: Request) -> Dict[str, Any]:
+    """Join an existing multiplayer room using its 6-character room code."""
+    user = _get_authenticated_user(request)
+    try:
+        room, seat = room_service.join_room(
+            room_code=req.room_code,
+            user_id=user["id"],
+            username=user["username"],
+            avatar_color=user.get("avatar_color", "rose"),
+            rating=user.get("rating", 1000),
+            requested_seat=req.requested_seat,
+        )
+        return {
+            "status": "ok",
+            "seat": seat.to_dict(),
+            "room": room.get_state_dict(),
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.get("/rooms/info")
+def get_room_info(room_code: str = Query(...)) -> Dict[str, Any]:
+    """Retrieve current state and players for a room by code."""
+    room = room_service.get_room(room_code)
+    if not room:
+        raise HTTPException(status_code=404, detail=f"Room '{room_code}' was not found.")
+    return {
+        "status": "ok",
+        "room": room.get_state_dict(),
+    }
+
+
+@router.post("/rooms/leave")
+def leave_room(req: LeaveRoomRequest, request: Request) -> Dict[str, Any]:
+    """Leave a multiplayer room."""
+    user = _get_authenticated_user(request)
+    ok = room_service.leave_room(req.room_code, user["id"])
+    return {
+        "status": "ok",
+        "left": ok,
+    }
+
+
+@router.post("/rooms/ready")
+def set_room_ready(req: ReadyRoomRequest, request: Request) -> Dict[str, Any]:
+    """Set ready state for authenticated player in room."""
+    user = _get_authenticated_user(request)
+    room = room_service.get_room(req.room_code)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found.")
+    try:
+        room.set_player_ready(user["id"], req.is_ready)
+        return {
+            "status": "ok",
+            "room": room.get_state_dict(),
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.post("/rooms/start")
+def start_room_game(req: StartRoomRequest, request: Request) -> Dict[str, Any]:
+    """Start the match (host only)."""
+    user = _get_authenticated_user(request)
+    room = room_service.get_room(req.room_code)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found.")
+    try:
+        room.start_game(user["id"])
+        return {
+            "status": "ok",
+            "room": room.get_state_dict(),
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.post("/rooms/roll")
+def roll_room_dice(req: RoomActionRequest, request: Request) -> Dict[str, Any]:
+    """Authoritative dice roll for active turn with replay protection (supports both Local and Online modes)."""
+    user = _get_authenticated_user(request)
+    room = room_service.get_room(req.room_code)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found.")
+    try:
+        res = room.roll_dice(
+            user["id"],
+            client_action_id=req.client_action_id,
+            expected_action_seq=req.expected_action_seq,
+        )
+        return {
+            "status": "ok",
+            "event": res["event"],
+            "dice": res["dice"],
+            "legal_actions": res.get("legal_actions", []),
+            "room": res["state"],
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+
+
+@router.post("/rooms/action")
+def move_room_token(req: RoomMoveRequest, request: Request) -> Dict[str, Any]:
+    """Authoritative token movement for active turn with replay protection (supports both Local and Online modes)."""
+    user = _get_authenticated_user(request)
+    room = room_service.get_room(req.room_code)
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found.")
+    try:
+        res = room.move_token(
+            user["id"],
+            req.token_id,
+            client_action_id=req.client_action_id,
+            expected_action_seq=req.expected_action_seq,
+        )
+        return {
+            "status": "ok",
+            "event": res["event"],
+            "token_id": req.token_id,
+            "winner": res.get("winner"),
+            "team_winner": res.get("team_winner"),
+            "room": res["state"],
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))

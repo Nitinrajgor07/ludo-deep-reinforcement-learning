@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="min-height: calc(100vh - 160px); display: flex; align-items: center; justify-content: center; padding: 24px 16px;">
+    <div class="glass-card" style="width: 100%; max-width: 480px; padding: 36px 32px; box-shadow: var(--shadow-hover); border-radius: var(--radius-card);">
+
+        <!-- Header Section -->
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: var(--radius-inner); background: var(--surface-secondary); border: 1px solid var(--border-subtle); margin-bottom: 12px; box-shadow: var(--shadow-card);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 26px; height: 26px; color: var(--accent);"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            </div>
+            <h2 id="portal-title" style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px 0;">Authentication Portal</h2>
+            <p id="portal-subtitle" style="font-size: 13px; color: var(--text-secondary); margin: 0;">Sign in to your account or create a new one to access the platform</p>
+        </div>
+
+        <!-- Feedback Alerts -->
+        {% if error %}
+        <div id="server-error-alert" style="margin-bottom: 20px; padding: 12px 16px; background: #FFF1F2; border: 1px solid #E11D48; border-radius: var(--radius-compact); color: #9F1239; font-size: 12.5px; display: flex; align-items: flex-start; gap: 8px;">
+            <span style="font-weight: 700; color: #E11D48;">!</span>
+            <span>{{ error }}</span>
+        </div>
+        {% endif %}
+
+        {% if message %}
+        <div id="server-message-alert" style="margin-bottom: 20px; padding: 12px 16px; background: #ECFDF5; border: 1px solid #059669; border-radius: var(--radius-compact); color: #065F46; font-size: 12.5px; display: flex; align-items: flex-start; gap: 8px;">
+            <span style="font-weight: 700; color: #059669;">✓</span>
+            <span>{{ message }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Interactive Mode Tabs -->
+        <div style="display: flex; gap: 6px; background: var(--surface-secondary); padding: 4px; border-radius: var(--radius-compact); border: 1px solid var(--border-subtle); margin-bottom: 24px;">
+            <button type="button" id="tab-auto" class="btn" onclick="setAuthMode('auto')" style="flex: 1; padding: 7px 10px; font-size: 12px; font-weight: 700; border-radius: 6px; background: var(--surface-card); color: var(--text-primary); box-shadow: var(--shadow-card); border: 1px solid var(--border-subtle);">
+                ✦ Auto-Detect
+            </button>
+            <button type="button" id="tab-login" class="btn" onclick="setAuthMode('login')" style="flex: 1; padding: 7px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; background: transparent; color: var(--text-secondary); border: none;">
+                Sign In
+            </button>
+            <button type="button" id="tab-register" class="btn" onclick="setAuthMode('register')" style="flex: 1; padding: 7px 10px; font-size: 12px; font-weight: 600; border-radius: 6px; background: transparent; color: var(--text-secondary); border: none;">
+                Register
+            </button>
+        </div>
+
+        <!-- ==================== VIEW 1: SMART AUTO-DETECT FLOW ==================== -->
+        <div id="view-auto">
+            <!-- Step 1: Identity Lookup -->
+            <div id="auto-step-1">
+                <div style="margin-bottom: 16px;">
+                    <label for="auto-identifier" class="form-label" style="font-size: 12.5px; margin-bottom: 6px; display: block; font-weight: 600;">Username or Email</label>
+                    <div style="position: relative;">
+                        <input type="text" id="auto-identifier" class="form-input" placeholder="e.g. researcher or user@ludo.ai" value="{{ username }}" required autofocus style="width: 100%; padding-right: 36px;">
+                        <span id="auto-lookup-spinner" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: none; font-size: 12px; color: var(--accent);">⟳</span>
+                    </div>
+                    <span style="font-size: 11.5px; color: var(--text-secondary); margin-top: 5px; display: block;">
+                        We will check if your account exists in the database to log you in or guide you to register.
+                    </span>
+                </div>
+
+                <button type="button" id="auto-check-btn" onclick="checkAccountExistence()" class="btn btn-primary" style="width: 100%; padding: 10px; font-weight: 700; font-size: 13.5px;">
+                    Continue &rarr;
+                </button>
+            </div>
+
+            <!-- Step 2-A: Account Exists -> Enter Password to Login -->
+            <div id="auto-step-login" style="display: none;">
+                <div style="margin-bottom: 16px; padding: 12px 14px; background: #ECFDF5; border: 1px solid #10B981; border-radius: var(--radius-compact); display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 11px; font-weight: 700; color: #065F46; text-transform: uppercase; letter-spacing: 0.5px;">✓ Account Found</div>
+                        <div id="auto-found-user" style="font-size: 13px; font-weight: 700; color: #047857;"></div>
+                    </div>
+                    <button type="button" onclick="resetAutoStep()" style="background: none; border: none; font-size: 11.5px; color: #065F46; font-weight: 700; cursor: pointer; text-decoration: underline;">Change</button>
+                </div>
+
+                <form action="/login" method="POST" style="display: flex; flex-direction: column; gap: 16px;">
+                    <input type="hidden" id="auto-login-user-hidden" name="username" value="">
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    <div>
+                        <label for="auto-login-password" class="form-label" style="font-size: 12px; margin-bottom: 6px; display: block;">Enter Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="auto-login-password" name="password" class="form-input" placeholder="••••••••" required style="width: 100%; padding-right: 38px;">
+                            <button type="button" onclick="togglePasswordVisibility('auto-login-password', this)" tabindex="-1" title="Toggle password visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px; display: flex; align-items: center;">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px; font-weight: 700; font-size: 14px;">
+                        Sign In &rarr;
+                    </button>
+                </form>
+            </div>
+
+            <!-- Step 2-B: Account Does Not Exist -> Register -->
+            <div id="auto-step-register" style="display: none;">
+                <div style="margin-bottom: 16px; padding: 12px 14px; background: #EFF6FF; border: 1px solid #3B82F6; border-radius: var(--radius-compact); display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 11px; font-weight: 700; color: #1E40AF; text-transform: uppercase; letter-spacing: 0.5px;">✦ Account Not Found</div>
+                        <div id="auto-not-found-user" style="font-size: 13px; font-weight: 700; color: #1D4ED8;"></div>
+                    </div>
+                    <button type="button" onclick="resetAutoStep()" style="background: none; border: none; font-size: 11.5px; color: #1E40AF; font-weight: 700; cursor: pointer; text-decoration: underline;">Change</button>
+                </div>
+
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
+                    Complete your registration details below to create your individual researcher account.
+                </div>
+
+                <form action="/register" method="POST" style="display: flex; flex-direction: column; gap: 14px;">
+                    <input type="hidden" id="auto-reg-username-hidden" name="username" value="">
+
+                    <div>
+                        <label for="auto-reg-fullname" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block;">Full Name</label>
+                        <input type="text" id="auto-reg-fullname" name="full_name" class="form-input" placeholder="e.g. Researcher Alice" style="width: 100%;">
+                    </div>
+
+                    <div>
+                        <label for="auto-reg-email" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block;">Email (Optional)</label>
+                        <input type="email" id="auto-reg-email" name="email" class="form-input" placeholder="alice@university.edu" style="width: 100%;">
+                    </div>
+
+                    <div>
+                        <label for="auto-reg-password" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block;">Create Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="auto-reg-password" name="password" class="form-input" placeholder="At least 4 characters" required minlength="4" style="width: 100%; padding-right: 38px;">
+                            <button type="button" onclick="togglePasswordVisibility('auto-reg-password', this)" tabindex="-1" title="Toggle password visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px; display: flex; align-items: center;">
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
+                        </div>
+                        <span style="font-size: 11px; color: var(--text-secondary); margin-top: 3px; display: block;">At least 4 characters (salted PBKDF2 hashing).</span>
+                    </div>
+
+                    <div style="background: var(--surface-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-compact); padding: 8px 12px; font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;">
+                        <strong style="color: var(--text-primary);">ℹ Individual Account:</strong> Team assignment (Team 0: Red+Yellow, Team 1: Green+Blue) is determined at match seat selection, not during registration.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 4px; padding: 10px; font-weight: 700; font-size: 14px;">
+                        Create Individual Account & Sign In &rarr;
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ==================== VIEW 2: DIRECT SIGN IN FORM ==================== -->
+        <div id="view-login" style="display: none;">
+            <form action="/login" method="POST" style="display: flex; flex-direction: column; gap: 16px;">
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <div>
+                    <label for="direct-login-username" class="form-label" style="font-size: 12px; margin-bottom: 6px; display: block;">Username or Email</label>
+                    <input type="text" id="direct-login-username" name="username" class="form-input" placeholder="e.g. researcher" value="{{ username }}" required style="width: 100%;">
+                </div>
+
+                <div>
+                    <label for="direct-login-password" class="form-label" style="font-size: 12px; margin-bottom: 6px; display: block;">Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="direct-login-password" name="password" class="form-input" placeholder="••••••••" required style="width: 100%; padding-right: 38px;">
+                        <button type="button" onclick="togglePasswordVisibility('direct-login-password', this)" tabindex="-1" title="Toggle password visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px; display: flex; align-items: center;">
+                            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 4px; padding: 10px; font-weight: 700; font-size: 14px;">
+                    Sign In &rarr;
+                </button>
+            </form>
+            <div style="margin-top: 14px; text-align: center; font-size: 12px; color: var(--text-secondary);">
+                Don't have an account? <a href="javascript:void(0)" onclick="setAuthMode('register')" style="color: var(--accent); font-weight: 700; text-decoration: none;">Register here</a>
+            </div>
+        </div>
+
+        <!-- ==================== VIEW 3: DIRECT REGISTRATION FORM ==================== -->
+        <div id="view-register" style="display: none;">
+            <form action="/register" method="POST" style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label for="direct-reg-fullname" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block;">Full Name</label>
+                    <input type="text" id="direct-reg-fullname" name="full_name" class="form-input" placeholder="e.g. Researcher Alice" style="width: 100%;">
+                </div>
+
+                <div>
+                    <label for="direct-reg-username" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block;">Username</label>
+                    <input type="text" id="direct-reg-username" name="username" class="form-input" placeholder="e.g. alice" value="{{ username }}" required style="width: 100%;">
+                    <span style="font-size: 11px; color: var(--text-secondary); margin-top: 3px; display: block;">3–50 characters (letters, numbers, hyphens, underscores, or periods).</span>
+                </div>
+
+                <div>
+                    <label for="direct-reg-email" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block;">Email (Optional)</label>
+                    <input type="email" id="direct-reg-email" name="email" class="form-input" placeholder="alice@university.edu" style="width: 100%;">
+                </div>
+
+                <div>
+                    <label for="direct-reg-password" class="form-label" style="font-size: 12px; margin-bottom: 4px; display: block;">Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="direct-reg-password" name="password" class="form-input" placeholder="At least 4 characters" required minlength="4" style="width: 100%; padding-right: 38px;">
+                        <button type="button" onclick="togglePasswordVisibility('direct-reg-password', this)" tabindex="-1" title="Toggle password visibility" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px; display: flex; align-items: center;">
+                            <svg class="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <svg class="eye-off-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                        </button>
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-secondary); margin-top: 3px; display: block;">At least 4 characters (salted PBKDF2 hashing).</span>
+                </div>
+
+                <div style="background: var(--surface-secondary); border: 1px solid var(--border-subtle); border-radius: var(--radius-compact); padding: 8px 12px; font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;">
+                    <strong style="color: var(--text-primary);">ℹ Individual Account:</strong> Team assignment is determined when taking seats in matches.
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 6px; padding: 10px; font-weight: 700; font-size: 14px;">
+                    Create Individual Account &rarr;
+                </button>
+            </form>
+            <div style="margin-top: 14px; text-align: center; font-size: 12px; color: var(--text-secondary);">
+                Already have an account? <a href="javascript:void(0)" onclick="setAuthMode('login')" style="color: var(--accent); font-weight: 700; text-decoration: none;">Sign in here</a>
+            </div>
+        </div>
+
+        <!-- Bottom Feature Info Footer -->
+        <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: var(--text-secondary);">
+            <span>🔒 SQLite PBKDF2 Hashing</span>
+            <span>✦ Session Protected</span>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePasswordVisibility(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    if (!input) return;
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    const eye = btn.querySelector('.eye-icon');
+    const eyeOff = btn.querySelector('.eye-off-icon');
+    if (eye && eyeOff) {
+        eye.style.display = isPass ? 'none' : 'block';
+        eyeOff.style.display = isPass ? 'block' : 'none';
+    }
+}
+
+function setAuthMode(mode) {
+    const tabAuto = document.getElementById('tab-auto');
+    const tabLogin = document.getElementById('tab-login');
+    const tabReg = document.getElementById('tab-register');
+    const viewAuto = document.getElementById('view-auto');
+    const viewLogin = document.getElementById('view-login');
+    const viewReg = document.getElementById('view-register');
+    const title = document.getElementById('portal-title');
+    const subtitle = document.getElementById('portal-subtitle');
+
+    // Reset tab styles
+    [tabAuto, tabLogin, tabReg].forEach(btn => {
+        btn.style.background = 'transparent';
+        btn.style.color = 'var(--text-secondary)';
+        btn.style.fontWeight = '600';
+        btn.style.border = 'none';
+        btn.style.boxShadow = 'none';
+    });
+
+    const activeTab = mode === 'auto' ? tabAuto : (mode === 'login' ? tabLogin : tabReg);
+    activeTab.style.background = 'var(--surface-card)';
+    activeTab.style.color = 'var(--text-primary)';
+    activeTab.style.fontWeight = '700';
+    activeTab.style.border = '1px solid var(--border-subtle)';
+    activeTab.style.boxShadow = 'var(--shadow-card)';
+
+    viewAuto.style.display = mode === 'auto' ? 'block' : 'none';
+    viewLogin.style.display = mode === 'login' ? 'block' : 'none';
+    viewReg.style.display = mode === 'register' ? 'block' : 'none';
+
+    if (mode === 'auto') {
+        title.textContent = 'Authentication Portal';
+        subtitle.textContent = 'Auto-detecting account existence in database';
+    } else if (mode === 'login') {
+        title.textContent = 'Sign In';
+        subtitle.textContent = 'Enter your credentials to access your session';
+    } else {
+        title.textContent = 'Create Account';
+        subtitle.textContent = 'Register a new researcher account in SQLite';
+    }
+}
+
+async function checkAccountExistence() {
+    const identInput = document.getElementById('auto-identifier');
+    const identifier = identInput.value.trim();
+    if (!identifier) {
+        identInput.focus();
+        return;
+    }
+
+    const spinner = document.getElementById('auto-lookup-spinner');
+    const btn = document.getElementById('auto-check-btn');
+    spinner.style.display = 'inline-block';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch(`/api/auth/check?identifier=${encodeURIComponent(identifier)}`);
+        const data = await res.json();
+
+        document.getElementById('auto-step-1').style.display = 'none';
+
+        if (data.exists) {
+            // User exists -> Show login
+            document.getElementById('auto-step-login').style.display = 'block';
+            document.getElementById('auto-step-register').style.display = 'none';
+            document.getElementById('auto-found-user').textContent = data.full_name ? `${data.full_name} (@${data.username})` : `@${data.username}`;
+            document.getElementById('auto-login-user-hidden').value = data.username;
+            setTimeout(() => document.getElementById('auto-login-password').focus(), 100);
+        } else {
+            // User does not exist -> Show registration
+            document.getElementById('auto-step-register').style.display = 'block';
+            document.getElementById('auto-step-login').style.display = 'none';
+            let uname = identifier;
+            if (identifier.includes('@')) {
+                uname = identifier.split('@')[0].replace(/[^a-zA-Z0-9_\-\.]/g, '');
+                if (uname.length < 3) uname = (uname + '123').slice(0, 50);
+                document.getElementById('auto-reg-email').value = identifier;
+            }
+            document.getElementById('auto-reg-username-hidden').value = uname;
+            document.getElementById('auto-not-found-user').textContent = identifier.includes('@')
+                ? `Account: @${uname} (${identifier})`
+                : `Username: @${identifier}`;
+            setTimeout(() => document.getElementById('auto-reg-password').focus(), 100);
+        }
+    } catch (err) {
+        console.error('Account check error:', err);
+        // Fallback to direct login
+        setAuthMode('login');
+    } finally {
+        spinner.style.display = 'none';
+        btn.disabled = false;
+    }
+}
+
+function resetAutoStep() {
+    document.getElementById('auto-step-1').style.display = 'block';
+    document.getElementById('auto-step-login').style.display = 'none';
+    document.getElementById('auto-step-register').style.display = 'none';
+    document.getElementById('auto-identifier').focus();
+}
+
+// Enable Enter key on auto identifier input
+document.getElementById('auto-identifier')?.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        checkAccountExistence();
+    }
+});
+
+// Auto-check if username query param was provided
+window.addEventListener('DOMContentLoaded', () => {
+    const val = document.getElementById('auto-identifier')?.value.trim();
+    if (val && !document.getElementById('server-error-alert')) {
+        checkAccountExistence();
+    }
+});
+</script>
+{% endblock %}

@@ -89,8 +89,13 @@ def render_ludo_board_svg(
         '    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.15"/>',
         '  </filter>',
         '  <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">',
-        '    <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#4F46E5" flood-opacity="0.6"/>',
+        '    <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#4F46E5" flood-opacity="0.85"/>',
         '  </filter>',
+        '  <style>',
+        f'    @keyframes tokenPulse {{ 0%, 100% {{ stroke-width: 3.5; opacity: 1.0; }} 50% {{ stroke-width: 5.5; opacity: 0.88; }} }}',
+        '    .legal-token-glow { animation: tokenPulse 1.2s ease-in-out infinite; cursor: pointer; transition: transform 0.2s ease; }',
+        '    .legal-token-glow:hover { filter: url(#glow) brightness(1.2); }',
+        '  </style>',
         '</defs>',
     ]
 
@@ -195,7 +200,7 @@ def render_ludo_board_svg(
     token_positions: Dict[Tuple[float, float], List[Tuple[Token, str, str, bool, bool]]] = {}
 
     for t in tokens:
-        pid = t.player_id % 4
+        pid = 2 if (t.start_square == 26 and t.player_id == 1) else (t.player_id % 4)
         tid = t.token_id
         color_info = PLAYER_COLORS.get(pid, PLAYER_COLORS[0])
         hex_color = color_info["hex"]
@@ -233,6 +238,8 @@ def render_ludo_board_svg(
         count = len(group)
 
         for i, (t, color, label, is_legal, is_selected) in enumerate(group):
+            t_pid = t.player_id
+            t_tid = t.token_id
             if count == 1:
                 tx = base_x
                 ty = base_y
@@ -242,17 +249,18 @@ def render_ludo_board_svg(
                 ty = base_y + offset * (1 if i < 2 else -1)
 
             t_radius = cell * 0.38
-            filter_attr = 'filter="url(#glow)"' if is_legal else 'filter="url(#shadow)"'
+            filter_attr = 'filter="url(#glow)" class="legal-token-glow"' if is_legal else 'filter="url(#shadow)"'
             stroke_color = "#4F46E5" if is_selected else ("#ffffff" if is_legal else "rgba(255,255,255,0.8)")
             stroke_width = "3.5" if (is_legal or is_selected) else "1.5"
+            cursor_attr = f'style="cursor: pointer;" onclick="onBoardTokenClick({t_pid},{t_tid})"' if is_legal else ''
 
             svg.append(
                 f'<circle cx="{tx}" cy="{ty}" r="{t_radius}" fill="{color}" '
-                f'stroke="{stroke_color}" stroke-width="{stroke_width}" {filter_attr}/>'
+                f'stroke="{stroke_color}" stroke-width="{stroke_width}" {filter_attr} {cursor_attr}/>'
             )
             svg.append(
                 f'<text x="{tx}" y="{ty + cell*0.12}" font-size="{cell*0.28}px" font-weight="800" '
-                f'fill="#ffffff" text-anchor="middle">{label}</text>'
+                f'fill="#ffffff" text-anchor="middle" {cursor_attr}>{label}</text>'
             )
 
     svg.append('</svg>')

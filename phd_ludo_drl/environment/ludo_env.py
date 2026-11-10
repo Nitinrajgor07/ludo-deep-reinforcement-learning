@@ -42,13 +42,15 @@ class LudoEnvironment:
         auto_advance_no_moves: bool = True,
         dice_probabilities: Optional[Any] = None,
         num_players: int = NUM_PLAYERS,
+        teams: Optional[Dict[int, int]] = None,
     ):
         self.num_players = num_players
+        self.teams = teams
         self.max_turns = max_turns
         self.auto_advance_no_moves = auto_advance_no_moves
         self.dice = Dice(seed=seed, probabilities=dice_probabilities)
         self.board = LudoBoard()
-        self.rules = LudoRules(self.board)
+        self.rules = LudoRules(self.board, teams=teams)
         self.reward_calculator = reward_calculator or LudoRewardCalculator()
 
         # Initialize tokens for active players
@@ -69,9 +71,11 @@ class LudoEnvironment:
         self.turn_count: int = 0
         self.is_terminal: bool = False
         self.winner: Optional[int] = None
+        self.team_winner: Optional[int] = None
         self.consecutive_sixes: int = 0
         self.bonus_six: bool = False
         self.bonus_capture: bool = False
+
 
     def seed(self, seed: Optional[int] = None) -> None:
         """Reseed the environment's dice RNG."""
@@ -102,6 +106,7 @@ class LudoEnvironment:
         self.turn_count = 0
         self.is_terminal = False
         self.winner = None
+        self.team_winner = None
         self.consecutive_sixes = 0
         self.bonus_six = False
         self.bonus_capture = False
@@ -121,6 +126,8 @@ class LudoEnvironment:
             "action_mask": self.get_action_mask(),
             "is_terminal": self.is_terminal,
             "winner": self.winner,
+            "team_winner": self.team_winner,
+            "teams": self.teams,
         }
         return obs, info
 
@@ -128,13 +135,14 @@ class LudoEnvironment:
         """Return list of legal token actions [0..3] for the current player."""
         if self.is_terminal:
             return []
-        return self.rules.get_legal_actions(self.tokens, self.current_player, self.dice.value)
+        return self.rules.get_legal_actions(self.tokens, self.current_player, self.dice.value, teams=self.teams)
 
     def get_action_mask(self) -> np.ndarray:
         """Return binary action mask of shape (4,) for current player."""
         if self.is_terminal:
             return np.zeros(ACTION_SPACE_SIZE, dtype=np.int8)
-        return self.rules.get_action_mask(self.tokens, self.current_player, self.dice.value)
+        return self.rules.get_action_mask(self.tokens, self.current_player, self.dice.value, teams=self.teams)
+
 
     def step(
         self,
@@ -173,14 +181,16 @@ class LudoEnvironment:
 
         # Apply move
         dice_used = self.dice.value
-        move_result = self.rules.apply_move(self.tokens, acting_token, dice_used)
+        move_result = self.rules.apply_move(self.tokens, acting_token, dice_used, teams=self.teams)
         self.turn_count += 1
 
         # Check for game completion
-        winner = self.rules.check_winner(self.tokens)
+        winner = self.rules.check_winner(self.tokens, teams=self.teams)
         if winner is not None:
             self.is_terminal = True
             self.winner = winner
+            if self.teams is not None:
+                self.team_winner = winner
 
         # Check truncation limit
         truncated = False
@@ -226,6 +236,8 @@ class LudoEnvironment:
             "action_mask": self.get_action_mask(),
             "is_terminal": self.is_terminal,
             "winner": self.winner,
+            "team_winner": self.team_winner,
+            "teams": self.teams,
             "turn_count": self.turn_count,
             "bonus_six": self.bonus_six,
             "bonus_capture": self.bonus_capture,
@@ -260,11 +272,14 @@ class LudoEnvironment:
             "action_mask": self.get_action_mask(),
             "is_terminal": self.is_terminal,
             "winner": self.winner,
+            "team_winner": self.team_winner,
+            "teams": self.teams,
             "turn_count": self.turn_count,
             "consecutive_sixes": self.consecutive_sixes,
             "bonus_six": self.bonus_six,
             "bonus_capture": self.bonus_capture,
         }
+
 
     def render(self, mode: str = "text") -> str:
         """Render a readable summary of current board state."""

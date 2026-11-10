@@ -61,16 +61,33 @@ class LudoBoard:
         return count >= 2
 
     @classmethod
+    def has_team_blockade(
+        cls,
+        tokens: List[Token],
+        track_square: int,
+        team_id: int,
+        teams: Dict[int, int],
+    ) -> bool:
+        """Check if team_id has formed a blockade (2+ tokens of the same team) at track_square."""
+        count = sum(
+            1 for t in tokens
+            if teams.get(t.player_id) == team_id and t.is_on_track and t.track_square == track_square
+        )
+        return count >= 2
+
+    @classmethod
     def is_path_blocked_by_opponent(
         cls,
         tokens: List[Token],
         moving_token: Token,
         dice_value: int,
+        teams: Optional[Dict[int, int]] = None,
     ) -> bool:
         """Check if moving the token by dice_value is obstructed by an opponent blockade.
 
         In Ludo, a blockade (2+ opponent tokens on a single square) acts as an impassable wall.
         No opponent token may land on or jump over a blockade.
+        Friendly tokens and friendly blockades never obstruct friendly movement.
         """
         current_step = moving_token.step_count
         start_sq = moving_token.start_square
@@ -81,20 +98,42 @@ class LudoBoard:
                 else PLAYER_START_SQUARES_4P[moving_token.player_id % 4]
             )
 
-        opponents = set(t.player_id for t in tokens if t.player_id != moving_token.player_id)
+        if teams is None:
+            # Standard individual player blockade resolution
+            opponents = set(t.player_id for t in tokens if t.player_id != moving_token.player_id)
 
-        # If releasing from yard (dice == 6)
-        if moving_token.is_in_yard:
-            return any(cls.has_blockade(tokens, start_sq, opp_id) for opp_id in opponents)
+            # If releasing from yard (dice == 6)
+            if moving_token.is_in_yard:
+                return any(cls.has_blockade(tokens, start_sq, opp_id) for opp_id in opponents)
 
-        # Check every step the token traverses along the track
-        for step in range(current_step + 1, current_step + dice_value + 1):
-            if step < TRACK_STEPS:
-                sq = cls.get_track_square_for_step(moving_token.player_id, step, start_sq)
-                if sq is not None and any(cls.has_blockade(tokens, sq, opp_id) for opp_id in opponents):
-                    return True
-            else:
-                # Entered home column; opponent cannot enter or blockade friendly home column
-                break
+            # Check every step the token traverses along the track
+            for step in range(current_step + 1, current_step + dice_value + 1):
+                if step < TRACK_STEPS:
+                    sq = cls.get_track_square_for_step(moving_token.player_id, step, start_sq)
+                    if sq is not None and any(cls.has_blockade(tokens, sq, opp_id) for opp_id in opponents):
+                        return True
+                else:
+                    # Entered home column; opponent cannot enter or blockade friendly home column
+                    break
 
-        return False
+            return False
+        else:
+            # Team-aware blockade resolution: opponent team tokens form impassable walls
+            my_team = teams.get(moving_token.player_id)
+            opp_teams = set(t_id for p_id, t_id in teams.items() if t_id != my_team)
+
+            # If releasing from yard (dice == 6)
+            if moving_token.is_in_yard:
+                return any(cls.has_team_blockade(tokens, start_sq, opp_t, teams) for opp_t in opp_teams)
+
+            # Check every step the token traverses along the track
+            for step in range(current_step + 1, current_step + dice_value + 1):
+                if step < TRACK_STEPS:
+                    sq = cls.get_track_square_for_step(moving_token.player_id, step, start_sq)
+                    if sq is not None and any(cls.has_team_blockade(tokens, sq, opp_t, teams) for opp_t in opp_teams):
+                        return True
+                else:
+                    # Entered home column; opponent cannot enter or blockade friendly home column
+                    break
+
+            return False

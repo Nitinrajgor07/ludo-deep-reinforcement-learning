@@ -29,22 +29,51 @@
                     <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
                     <span>Dashboard</span>
                 </a>
+                <a href="/ludo" class="top-nav-item {% if active_page == 'ludo' and request.query_params.get('tab') != 'research' %}active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/><circle cx="15" cy="9" r="1"/><circle cx="9" cy="15" r="1"/></svg></span>
+                    <span>Play Ludo</span>
+                </a>
+                <a href="/profile" class="top-nav-item {% if active_page == 'profile' %}active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                    <span>Player Profile</span>
+                </a>
                 <a href="/results" class="top-nav-item {% if active_page == 'results' %}active{% endif %}">
                     <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></span>
                     <span>Results Hub</span>
-                </a>
-                <a href="/ludo" class="top-nav-item {% if active_page == 'ludo' %}active{% endif %}">
-                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="15" r="1"/><circle cx="15" cy="9" r="1"/><circle cx="9" cy="15" r="1"/></svg></span>
-                    <span>Ludo Arena</span>
                 </a>
                 <a href="/models" class="top-nav-item {% if active_page == 'models' %}active{% endif %}">
                     <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a4 4 0 0 0-4 4v1H6a3 3 0 0 0 0 6h2v2a3 3 0 0 0 6 0v-2h2a3 3 0 0 0 0-6h-2V7a4 4 0 0 0-4-4Z"/><path d="M9 12h.01M15 12h.01"/></svg></span>
                     <span>DRL Models</span>
                 </a>
+                <a href="/ludo?tab=research" class="top-nav-item {% if active_page == 'ludo' and request.query_params.get('tab') == 'research' %}active{% endif %}">
+                    <span class="nav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
+                    <span>Research AI Tournament</span>
+                </a>
             </nav>
 
-            <div class="topbar-right">
+            <div class="topbar-right" style="display: flex; align-items: center; gap: 12px;">
                 <span class="badge badge-emerald" style="font-size: 11px; padding: 4px 10px; font-weight: 600;">Pilot Verified</span>
+                {% if current_user %}
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <a href="/profile" class="btn btn-secondary {% if active_page == 'profile' %}active{% endif %}" style="font-size: 11px; padding: 4px 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #059669;"></span>
+                        {{ current_user.full_name or current_user.username }}
+                    </a>
+                    <a href="/logout" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;" title="Logout">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        Sign Out
+                    </a>
+                </div>
+                {% else %}
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <a href="/login" class="btn btn-secondary" style="font-size: 11px; padding: 4px 12px; text-decoration: none;">
+                        Sign In
+                    </a>
+                    <a href="/register" class="btn btn-primary" style="font-size: 11px; padding: 4px 12px; text-decoration: none;">
+                        Register
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </header>
 

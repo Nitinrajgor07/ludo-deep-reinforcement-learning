@@ -42,3 +42,23 @@ htmlcov/
 # Large checkpoints / results (optional tracking via experiments/ manifest)
 *.pt
 *.pth
+
+# Secrets and environment files
+.env
+.env.*
+!.env.example
+secrets.toml
+
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Backups and temporary files
+backups/
+*.bak
+*.tmp
+
+# Python caches
+__pycache__/
+.pytest_cache/

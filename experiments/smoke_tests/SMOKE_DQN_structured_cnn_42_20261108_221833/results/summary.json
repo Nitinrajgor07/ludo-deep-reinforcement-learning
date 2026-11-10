@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "experiment_id": "SMOKE_DQN_structured_cnn_42_20261108_221833",
+    "run_type": "smoke_test",
+    "is_final_experiment": false,
+    "protocol_version": "1.0.0 (FROZEN)",
+    "algorithm": "dqn",
+    "seed": 42,
+    "derived_seeds": {
+      "environment_seed": 42,
+      "agent_seed": 42,
+      "opponent_seed": 52,
+      "evaluation_seed": 1042
+    },
+    "encoding": "structured_cnn",
+    "total_steps": 100,
+    "opponent_type": "random",
+    "eval_games": 2,
+    "eval_interval": null,
+    "checkpoint_interval": 50,
+    "config_hash": "baec379f",
+    "description": "Automated pipeline smoke test for DQN",
+    "created_at_utc": "2026-11-08T16:48:33.673458+00:00",
+    "provenance": {
+      "project_version": "1.0.0",
+      "git_commit": "13edaa1bc17143d34dd60dd47e72253f2878e8a5",
+      "git_commit_short": "13edaa1b",
+      "git_branch": "master",
+      "git_dirty": true,
+      "git_commit_date": "2026-10-09T21:39:20+05:30",
+      "python_version": "3.12.10",
+      "platform_system": "Windows",
+      "platform_release": "11",
+      "platform_machine": "AMD64",
+      "processor": "AMD64 Family 23 Model 96 Stepping 1, AuthenticAMD",
+      "torch_version": "2.15.0+cpu",
+      "cuda_available": false,
+      "gymnasium_version": "1.4.0",
+      "numpy_version": "2.5.4",
+      "captured_at_utc": "2026-11-08T16:48:33.654379+00:00"
+    }
+  },
+  "runtime_seconds": 0.2,
+  "training_metrics": {
+    "total_steps": 100,
+    "episodes": 1,
+    "dqn_wins": 0,
+    "opponent_wins": 1,
+    "draws": 0,
+    "win_rate": 0.0,
+    "avg_reward": 10.399999999999988,
+    "final_loss": 0.0,
+    "final_epsilon": 1.0
+  },
+  "evaluation_metrics": {
+    "total_games": 2,
+    "p0_wins": 2,
+    "p1_wins": 0,
+    "draws": 0,
+    "p0_win_rate": 1.0,
+    "p1_win_rate": 0.0,
+    "draw_rate": 0.0,
+    "avg_turns": 169.5,
+    "avg_p0_reward": 4.799999999999995,
+    "avg_p1_reward": 4.399999999999996
+  },
+  "artifacts": {
+    "root_dir": "experiments\\smoke_tests\\SMOKE_DQN_structured_cnn_42_20261108_221833",
+    "checkpoint": "experiments\\smoke_tests\\SMOKE_DQN_structured_cnn_42_20261108_221833\\checkpoints\\final_model.pt",
+    "checkpoint_manifest": "experiments\\smoke_tests\\SMOKE_DQN_structured_cnn_42_20261108_221833\\checkpoints\\checkpoint_manifest.json",
+    "log_dir": "experiments\\smoke_tests\\SMOKE_DQN_structured_cnn_42_20261108_221833\\logs",
+    "metrics_jsonl": "experiments\\smoke_tests\\SMOKE_DQN_structured_cnn_42_20261108_221833\\logs\\metrics.jsonl",
+    "metrics_csv": "experiments\\smoke_tests\\SMOKE_DQN_structured_cnn_42_20261108_221833\\logs\\metrics.csv",
+    "results_dir": "experiments\\smoke_tests\\SMOKE_DQN_structured_cnn_42_20261108_221833\\results",
+    "summary": "experiments\\smoke_tests\\SMOKE_DQN_structured_cnn_42_20261108_221833\\results\\summary.json"
+  }
+}
